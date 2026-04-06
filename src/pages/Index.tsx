@@ -47,6 +47,7 @@ const Index = () => {
               icon={ClipboardList}
               trend={{ value: "8%", positive: true }}
               variant="accent"
+              href="/ordens-servico"
             />
             <MetricCard
               title="Clientes Ativos"
@@ -54,12 +55,14 @@ const Index = () => {
               subtitle="últimos 30 dias"
               icon={Users}
               trend={{ value: "12%", positive: true }}
+              href="/clientes"
             />
             <MetricCard
               title="Veículos em Serviço"
               value="7"
               subtitle="neste momento"
               icon={Car}
+              href="/veiculos"
             />
             <MetricCard
               title="Faturamento Mensal"
@@ -67,6 +70,7 @@ const Index = () => {
               subtitle="vs. mês anterior"
               icon={DollarSign}
               trend={{ value: "15%", positive: true }}
+              href="/financeiro"
             />
           </div>
 

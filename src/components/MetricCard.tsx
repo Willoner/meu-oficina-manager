@@ -1,5 +1,6 @@
 import { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 interface MetricCardProps {
   title: string;
@@ -8,11 +9,12 @@ interface MetricCardProps {
   icon: LucideIcon;
   trend?: { value: string; positive: boolean };
   variant?: "default" | "accent";
+  href?: string;
 }
 
-const MetricCard = ({ title, value, subtitle, icon: Icon, trend, variant = "default" }: MetricCardProps) => {
-  return (
-    <Card className="shadow-card hover:shadow-card-hover transition-shadow">
+const MetricCard = ({ title, value, subtitle, icon: Icon, trend, variant = "default", href }: MetricCardProps) => {
+  const content = (
+    <Card className="shadow-card hover:shadow-card-hover transition-all hover:-translate-y-0.5 cursor-pointer">
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
@@ -38,6 +40,12 @@ const MetricCard = ({ title, value, subtitle, icon: Icon, trend, variant = "defa
       </CardContent>
     </Card>
   );
+
+  if (href) {
+    return <Link to={href} className="block">{content}</Link>;
+  }
+
+  return content;
 };
 
 export default MetricCard;
