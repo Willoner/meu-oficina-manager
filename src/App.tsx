@@ -4,6 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
+import OrdensServico from "./pages/OrdensServico.tsx";
+import Clientes from "./pages/Clientes.tsx";
+import Veiculos from "./pages/Veiculos.tsx";
+import Financeiro from "./pages/Financeiro.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
