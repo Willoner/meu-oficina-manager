@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, Plus, Search } from "lucide-react";
+import { Package, Plus, Search } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,32 +9,31 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-type Cliente = {
+type Peca = {
   id: string;
   nome: string;
-  cpf: string | null;
-  telefone: string | null;
-  email: string | null;
-  created_at: string | null;
+  codigo: string | null;
+  valor_venda: number | null;
+  estoque: number | null;
 };
 
-const Clientes = () => {
+const Estoque = () => {
   const [open, setOpen] = useState(false);
-  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [pecas, setPecas] = useState<Peca[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [nome, setNome] = useState("");
-  const [cpf, setCpf] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [email, setEmail] = useState("");
+  const [codigo, setCodigo] = useState("");
+  const [valorVenda, setValorVenda] = useState("");
+  const [estoque, setEstoque] = useState("");
   const { toast } = useToast();
 
-  const fetchClientes = async () => {
-    const { data, error } = await supabase.from("clientes").select("*").order("created_at", { ascending: false });
-    if (!error && data) setClientes(data);
+  const fetchPecas = async () => {
+    const { data } = await supabase.from("pecas").select("*").order("nome");
+    if (data) setPecas(data);
   };
 
-  useEffect(() => { fetchClientes(); }, []);
+  useEffect(() => { fetchPecas(); }, []);
 
   const handleSave = async () => {
     if (!nome.trim()) {
@@ -43,30 +42,26 @@ const Clientes = () => {
     }
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast({ title: "Erro", description: "Você precisa estar logado.", variant: "destructive" });
-      setLoading(false);
-      return;
-    }
-    const { error } = await supabase.from("clientes").insert({
+    if (!user) { toast({ title: "Erro", description: "Você precisa estar logado.", variant: "destructive" }); setLoading(false); return; }
+    const { error } = await supabase.from("pecas").insert({
       nome: nome.trim(),
-      cpf: cpf.trim() || null,
-      telefone: telefone.trim() || null,
-      email: email.trim() || null,
+      codigo: codigo.trim() || null,
+      valor_venda: valorVenda ? parseFloat(valorVenda) : null,
+      estoque: estoque ? parseInt(estoque) : 0,
       usuario_id: user.id,
     });
     setLoading(false);
     if (error) {
       toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Cliente cadastrado com sucesso!" });
+      toast({ title: "Peça cadastrada com sucesso!" });
       setOpen(false);
-      setNome(""); setCpf(""); setTelefone(""); setEmail("");
-      fetchClientes();
+      setNome(""); setCodigo(""); setValorVenda(""); setEstoque("");
+      fetchPecas();
     }
   };
 
-  const filtered = clientes.filter(c => c.nome.toLowerCase().includes(search.toLowerCase()));
+  const filtered = pecas.filter(p => p.nome.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="min-h-screen bg-background">
@@ -76,20 +71,20 @@ const Clientes = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Users className="w-5 h-5 text-primary" />
+                <Package className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Clientes</h1>
-                <p className="text-sm text-muted-foreground">Gerencie seus clientes ativos</p>
+                <h1 className="text-2xl font-bold text-foreground">Estoque de Peças</h1>
+                <p className="text-sm text-muted-foreground">Gerencie suas peças e produtos</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input placeholder="Buscar cliente..." className="pl-9 w-64" value={search} onChange={e => setSearch(e.target.value)} />
+                <Input placeholder="Buscar peça..." className="pl-9 w-64" value={search} onChange={e => setSearch(e.target.value)} />
               </div>
               <Button className="gap-2" onClick={() => setOpen(true)}>
-                <Plus className="w-4 h-4" /> Novo Cliente
+                <Plus className="w-4 h-4" /> Nova Peça
               </Button>
             </div>
           </div>
@@ -97,7 +92,7 @@ const Clientes = () => {
         <div className="p-8">
           {filtered.length === 0 ? (
             <div className="rounded-lg border bg-card p-12 text-center text-muted-foreground">
-              Nenhum cliente cadastrado ainda. Clique em "Novo Cliente" para começar.
+              Nenhuma peça cadastrada ainda. Clique em "Nova Peça" para começar.
             </div>
           ) : (
             <div className="rounded-lg border bg-card">
@@ -105,18 +100,18 @@ const Clientes = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome</TableHead>
-                    <TableHead>CPF</TableHead>
-                    <TableHead>Telefone</TableHead>
-                    <TableHead>Email</TableHead>
+                    <TableHead>Código</TableHead>
+                    <TableHead>Valor Venda</TableHead>
+                    <TableHead>Estoque</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map(c => (
-                    <TableRow key={c.id}>
-                      <TableCell className="font-medium">{c.nome}</TableCell>
-                      <TableCell>{c.cpf || "—"}</TableCell>
-                      <TableCell>{c.telefone || "—"}</TableCell>
-                      <TableCell>{c.email || "—"}</TableCell>
+                  {filtered.map(p => (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-medium">{p.nome}</TableCell>
+                      <TableCell>{p.codigo || "—"}</TableCell>
+                      <TableCell>{p.valor_venda ? `R$ ${p.valor_venda.toFixed(2)}` : "—"}</TableCell>
+                      <TableCell>{p.estoque ?? 0}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -129,24 +124,26 @@ const Clientes = () => {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Novo Cliente</DialogTitle>
+            <DialogTitle>Nova Peça</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <Label>Nome *</Label>
-              <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Nome do cliente" />
+              <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Nome da peça" />
             </div>
             <div>
-              <Label>CPF</Label>
-              <Input value={cpf} onChange={e => setCpf(e.target.value)} placeholder="000.000.000-00" />
+              <Label>Código</Label>
+              <Input value={codigo} onChange={e => setCodigo(e.target.value)} placeholder="Código da peça" />
             </div>
-            <div>
-              <Label>Telefone</Label>
-              <Input value={telefone} onChange={e => setTelefone(e.target.value)} placeholder="(00) 00000-0000" />
-            </div>
-            <div>
-              <Label>Email</Label>
-              <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="email@exemplo.com" type="email" />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Valor de Venda</Label>
+                <Input value={valorVenda} onChange={e => setValorVenda(e.target.value)} placeholder="0.00" type="number" step="0.01" />
+              </div>
+              <div>
+                <Label>Estoque</Label>
+                <Input value={estoque} onChange={e => setEstoque(e.target.value)} placeholder="0" type="number" />
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -159,4 +156,4 @@ const Clientes = () => {
   );
 };
 
-export default Clientes;
+export default Estoque;
