@@ -9,6 +9,7 @@ import Clientes from "./pages/Clientes.tsx";
 import Veiculos from "./pages/Veiculos.tsx";
 import Financeiro from "./pages/Financeiro.tsx";
 import Estoque from "./pages/Estoque.tsx";
+import Configuracoes from "./pages/Configuracoes.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
