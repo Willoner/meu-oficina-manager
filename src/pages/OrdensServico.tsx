@@ -1,9 +1,99 @@
+import { useState, useEffect } from "react";
 import { ClipboardList, Plus, Search } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+type OS = {
+  id: string;
+  status: string | null;
+  observacoes: string | null;
+  data_abertura: string | null;
+  cliente_id: string;
+  veiculo_id: string;
+};
+
+type Cliente = { id: string; nome: string };
+type Veiculo = { id: string; placa: string; modelo: string; cliente_id: string };
+
+const statusColor: Record<string, string> = {
+  aberta: "bg-chart-4/20 text-chart-4",
+  em_andamento: "bg-chart-3/20 text-chart-3",
+  concluida: "bg-chart-2/20 text-chart-2",
+};
 
 const OrdensServico = () => {
+  const [open, setOpen] = useState(false);
+  const [ordens, setOrdens] = useState<OS[]>([]);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [clienteId, setClienteId] = useState("");
+  const [veiculoId, setVeiculoId] = useState("");
+  const [observacoes, setObservacoes] = useState("");
+  const { toast } = useToast();
+
+  const fetchOrdens = async () => {
+    const { data } = await supabase.from("ordens_servico").select("*").order("data_abertura", { ascending: false });
+    if (data) setOrdens(data);
+  };
+
+  const fetchClientes = async () => {
+    const { data } = await supabase.from("clientes").select("id, nome").order("nome");
+    if (data) setClientes(data);
+  };
+
+  const fetchVeiculos = async () => {
+    const { data } = await supabase.from("veiculos").select("id, placa, modelo, cliente_id").order("placa");
+    if (data) setVeiculos(data);
+  };
+
+  useEffect(() => { fetchOrdens(); fetchClientes(); fetchVeiculos(); }, []);
+
+  const veiculosFiltrados = clienteId ? veiculos.filter(v => v.cliente_id === clienteId) : [];
+
+  const handleClienteChange = (value: string) => {
+    setClienteId(value);
+    setVeiculoId("");
+  };
+
+  const handleSave = async () => {
+    if (!clienteId || !veiculoId) {
+      toast({ title: "Erro", description: "Cliente e veículo são obrigatórios.", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { toast({ title: "Erro", description: "Você precisa estar logado.", variant: "destructive" }); setLoading(false); return; }
+    const { error } = await supabase.from("ordens_servico").insert({
+      cliente_id: clienteId,
+      veiculo_id: veiculoId,
+      observacoes: observacoes.trim() || null,
+      usuario_id: user.id,
+      status: "aberta",
+    });
+    setLoading(false);
+    if (error) {
+      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Ordem de serviço criada!" });
+      setOpen(false);
+      setClienteId(""); setVeiculoId(""); setObservacoes("");
+      fetchOrdens();
+    }
+  };
+
+  const getClienteNome = (id: string) => clientes.find(c => c.id === id)?.nome || "—";
+
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
@@ -22,20 +112,89 @@ const OrdensServico = () => {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input placeholder="Buscar ordem..." className="pl-9 w-64" />
+                <Input placeholder="Buscar ordem..." className="pl-9 w-64" value={search} onChange={e => setSearch(e.target.value)} />
               </div>
-              <Button className="gap-2">
+              <Button className="gap-2" onClick={() => setOpen(true)}>
                 <Plus className="w-4 h-4" /> Nova Ordem
               </Button>
             </div>
           </div>
         </header>
         <div className="p-8">
-          <div className="rounded-lg border bg-card p-12 text-center text-muted-foreground">
-            Nenhuma ordem de serviço cadastrada ainda. Clique em "Nova Ordem" para começar.
-          </div>
+          {ordens.length === 0 ? (
+            <div className="rounded-lg border bg-card p-12 text-center text-muted-foreground">
+              Nenhuma ordem de serviço cadastrada ainda. Clique em "Nova Ordem" para começar.
+            </div>
+          ) : (
+            <div className="rounded-lg border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Observações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ordens.map(o => (
+                    <TableRow key={o.id}>
+                      <TableCell>{o.data_abertura ? new Date(o.data_abertura).toLocaleDateString("pt-BR") : "—"}</TableCell>
+                      <TableCell className="font-medium">{getClienteNome(o.cliente_id)}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className={statusColor[o.status || "aberta"] || ""}>
+                          {o.status || "aberta"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate">{o.observacoes || "—"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </div>
       </main>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nova Ordem de Serviço</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Cliente *</Label>
+              <Select value={clienteId} onValueChange={handleClienteChange}>
+                <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
+                <SelectContent>
+                  {clientes.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Veículo *</Label>
+              <Select value={veiculoId} onValueChange={setVeiculoId} disabled={!clienteId}>
+                <SelectTrigger><SelectValue placeholder={clienteId ? "Selecione o veículo" : "Selecione um cliente primeiro"} /></SelectTrigger>
+                <SelectContent>
+                  {veiculosFiltrados.map(v => (
+                    <SelectItem key={v.id} value={v.id}>{v.placa} - {v.modelo}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Observações</Label>
+              <Textarea value={observacoes} onChange={e => setObservacoes(e.target.value)} placeholder="Detalhes do serviço..." />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSave} disabled={loading}>{loading ? "Salvando..." : "Salvar"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
