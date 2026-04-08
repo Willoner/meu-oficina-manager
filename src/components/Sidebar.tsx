@@ -8,6 +8,7 @@ const menuItems = [
   { icon: Users, label: "Clientes", path: "/clientes" },
   { icon: Package, label: "Estoque", path: "/estoque" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
+  { icon: User, label: "Meu Perfil", path: "/perfil" },
 ];
 
 const Sidebar = () => {
