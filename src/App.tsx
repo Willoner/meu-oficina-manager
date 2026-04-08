@@ -11,6 +11,7 @@ import Veiculos from "./pages/Veiculos.tsx";
 import Financeiro from "./pages/Financeiro.tsx";
 import Estoque from "./pages/Estoque.tsx";
 import Configuracoes from "./pages/Configuracoes.tsx";
+import Perfil from "./pages/Perfil.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/financeiro" element={<ProtectedRoute><Financeiro /></ProtectedRoute>} />
           <Route path="/estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
           <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+          <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
