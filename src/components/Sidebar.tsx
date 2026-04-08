@@ -1,4 +1,4 @@
-import { Wrench, LayoutDashboard, FileText, Users, Car, Package, Settings, LogOut } from "lucide-react";
+import { Wrench, LayoutDashboard, FileText, Users, Car, Package, Settings, LogOut, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const menuItems = [
@@ -8,6 +8,7 @@ const menuItems = [
   { icon: Users, label: "Clientes", path: "/clientes" },
   { icon: Package, label: "Estoque", path: "/estoque" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
+  { icon: User, label: "Meu Perfil", path: "/perfil" },
 ];
 
 const Sidebar = () => {
