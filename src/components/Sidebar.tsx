@@ -1,4 +1,4 @@
-import { Wrench, LayoutDashboard, FileText, Users, Car, Package, Settings, LogOut } from "lucide-react";
+import { Wrench, LayoutDashboard, FileText, Users, Car, Package, Settings, LogOut, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const menuItems = [
