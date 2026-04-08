@@ -11,6 +11,7 @@ import Veiculos from "./pages/Veiculos.tsx";
 import Financeiro from "./pages/Financeiro.tsx";
 import Estoque from "./pages/Estoque.tsx";
 import Configuracoes from "./pages/Configuracoes.tsx";
+import Perfil from "./pages/Perfil.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
