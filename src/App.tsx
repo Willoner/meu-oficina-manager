@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index.tsx";
 import OrdensServico from "./pages/OrdensServico.tsx";
 import Clientes from "./pages/Clientes.tsx";
@@ -10,6 +11,10 @@ import Veiculos from "./pages/Veiculos.tsx";
 import Financeiro from "./pages/Financeiro.tsx";
 import Estoque from "./pages/Estoque.tsx";
 import Configuracoes from "./pages/Configuracoes.tsx";
+import Login from "./pages/Login.tsx";
+import Signup from "./pages/Signup.tsx";
+import ForgotPassword from "./pages/ForgotPassword.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -21,14 +26,17 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/ordens-servico" element={<OrdensServico />} />
-          <Route path="/clientes" element={<Clientes />} />
-          <Route path="/veiculos" element={<Veiculos />} />
-          <Route path="/financeiro" element={<Financeiro />} />
-          <Route path="/estoque" element={<Estoque />} />
-          <Route path="/configuracoes" element={<Configuracoes />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+          <Route path="/ordens-servico" element={<ProtectedRoute><OrdensServico /></ProtectedRoute>} />
+          <Route path="/clientes" element={<ProtectedRoute><Clientes /></ProtectedRoute>} />
+          <Route path="/veiculos" element={<ProtectedRoute><Veiculos /></ProtectedRoute>} />
+          <Route path="/financeiro" element={<ProtectedRoute><Financeiro /></ProtectedRoute>} />
+          <Route path="/estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
+          <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
