@@ -1,4 +1,6 @@
+import { useState, useEffect } from "react";
 import { ClipboardList, Users, Car, DollarSign, Bell, Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import Sidebar from "@/components/Sidebar";
 import MetricCard from "@/components/MetricCard";
 import ServiceOrdersTable from "@/components/ServiceOrdersTable";
@@ -6,6 +8,53 @@ import QuickActions from "@/components/QuickActions";
 import { Input } from "@/components/ui/input";
 
 const Index = () => {
+  const [metrics, setMetrics] = useState({
+    ordensAbertas: 0,
+    clientesAtivos: 0,
+    veiculos: 0,
+    faturamentoMensal: 0,
+  });
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      // Clientes
+      const { count: clientesCount } = await supabase
+        .from("clientes")
+        .select("*", { count: "exact", head: true });
+
+      // Veículos
+      const { count: veiculosCount } = await supabase
+        .from("veiculos")
+        .select("*", { count: "exact", head: true });
+
+      // Ordens Abertas
+      const { count: ordensAbertasCount } = await supabase
+        .from("ordens_servico")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "aberta");
+
+      // Faturamento Mensal (status = concluida)
+      const now = new Date();
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const { data: ordensConcluidas } = await supabase
+        .from("ordens_servico")
+        .select("valor_total")
+        .eq("status", "concluida")
+        .gte("data_conclusao", firstDayOfMonth);
+
+      const faturamento = ordensConcluidas?.reduce((acc, curr) => acc + (curr.valor_total || 0), 0) || 0;
+
+      setMetrics({
+        ordensAbertas: ordensAbertasCount || 0,
+        clientesAtivos: clientesCount || 0,
+        veiculos: veiculosCount || 0,
+        faturamentoMensal: faturamento,
+      });
+    };
+
+    fetchMetrics();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
@@ -42,34 +91,31 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             <MetricCard
               title="Ordens Abertas"
-              value="12"
-              subtitle="vs. mês anterior"
+              value={metrics.ordensAbertas.toString()}
+              subtitle="Em andamento/Abertas"
               icon={ClipboardList}
-              trend={{ value: "8%", positive: true }}
               variant="accent"
               href="/ordens-servico"
             />
             <MetricCard
-              title="Clientes Ativos"
-              value="148"
-              subtitle="últimos 30 dias"
+              title="Total de Clientes"
+              value={metrics.clientesAtivos.toString()}
+              subtitle="Cadastrados no sistema"
               icon={Users}
-              trend={{ value: "12%", positive: true }}
               href="/clientes"
             />
             <MetricCard
-              title="Veículos em Serviço"
-              value="7"
-              subtitle="neste momento"
+              title="Total de Veículos"
+              value={metrics.veiculos.toString()}
+              subtitle="Cadastrados no sistema"
               icon={Car}
               href="/veiculos"
             />
             <MetricCard
               title="Faturamento Mensal"
-              value="R$ 42.580"
-              subtitle="vs. mês anterior"
+              value={`R$ ${metrics.faturamentoMensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+              subtitle="Ordens concluídas no mês"
               icon={DollarSign}
-              trend={{ value: "15%", positive: true }}
               href="/financeiro"
             />
           </div>
