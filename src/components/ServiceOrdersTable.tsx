@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 type OrderData = {
   id: string;
   status: string | null;
+  tipo_servico: string | null;
   data_abertura: string | null;
   observacoes: string | null;
   clientes: { nome: string } | null;
@@ -29,7 +30,7 @@ const ServiceOrdersTable = () => {
       const { data } = await supabase
         .from("ordens_servico")
         .select(`
-          id, status, data_abertura, observacoes,
+          id, status, tipo_servico, data_abertura, observacoes,
           clientes (nome),
           veiculos (modelo, placa)
         `)
@@ -64,7 +65,7 @@ const ServiceOrdersTable = () => {
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 px-2">Data</th>
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 px-2">Cliente</th>
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 px-2 hidden md:table-cell">Veículo</th>
-                <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 px-2 hidden lg:table-cell">Serviço/Obs</th>
+                <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 px-2 hidden lg:table-cell">Serviço</th>
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 px-2">Status</th>
               </tr>
             </thead>
@@ -91,7 +92,7 @@ const ServiceOrdersTable = () => {
                         {order.veiculos ? `${order.veiculos.modelo} (${order.veiculos.placa})` : "—"}
                       </td>
                       <td className="py-3 px-2 text-sm text-muted-foreground hidden lg:table-cell max-w-xs truncate">
-                        {order.observacoes || "—"}
+                        {order.tipo_servico || "—"}
                       </td>
                       <td className="py-3 px-2">
                         <Badge variant="outline" className={statusInfo.className}>

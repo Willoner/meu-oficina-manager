@@ -102,6 +102,7 @@ export type Database = {
           id: string
           observacoes: string | null
           status: string | null
+          tipo_servico: string | null
           usuario_id: string
           valor_total: number | null
           veiculo_id: string
@@ -114,6 +115,7 @@ export type Database = {
           id?: string
           observacoes?: string | null
           status?: string | null
+          tipo_servico?: string | null
           usuario_id: string
           valor_total?: number | null
           veiculo_id: string
@@ -126,6 +128,7 @@ export type Database = {
           id?: string
           observacoes?: string | null
           status?: string | null
+          tipo_servico?: string | null
           usuario_id?: string
           valor_total?: number | null
           veiculo_id?: string

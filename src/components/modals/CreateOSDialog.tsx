@@ -10,11 +10,17 @@ import { supabase } from "@/integrations/supabase/client";
 type Cliente = { id: string; nome: string };
 type Veiculo = { id: string; placa: string; modelo: string; cliente_id: string };
 
+const servicosDisponiveis = [
+  "Motor", "Suspensão", "Freios", "Elétrica", "Eletrônica", 
+  "Funilaria", "Estética", "Ar-condicionado", "Pneus", "Transmissão"
+];
+
 export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
   const [clienteId, setClienteId] = useState("");
   const [veiculoId, setVeiculoId] = useState("");
+  const [tipoServico, setTipoServico] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -44,8 +50,8 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
   };
 
   const handleSave = async () => {
-    if (!clienteId || !veiculoId) {
-      toast({ title: "Erro", description: "Cliente e veículo são obrigatórios.", variant: "destructive" });
+    if (!clienteId || !veiculoId || !tipoServico) {
+      toast({ title: "Erro", description: "Cliente, veículo e tipo de serviço são obrigatórios.", variant: "destructive" });
       return;
     }
     setLoading(true);
@@ -59,6 +65,7 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
     const { error } = await supabase.from("ordens_servico").insert({
       cliente_id: clienteId,
       veiculo_id: veiculoId,
+      tipo_servico: tipoServico,
       observacoes: observacoes.trim() || null,
       usuario_id: user.id,
       status: "aberta",
@@ -69,7 +76,7 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
       toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Ordem de serviço criada!" });
-      setClienteId(""); setVeiculoId(""); setObservacoes("");
+      setClienteId(""); setVeiculoId(""); setTipoServico(""); setObservacoes("");
       onOpenChange(false);
     }
   };
@@ -99,6 +106,17 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
               <SelectContent>
                 {veiculosFiltrados.map(v => (
                   <SelectItem key={v.id} value={v.id}>{v.placa} - {v.modelo}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Tipo de Serviço *</Label>
+            <Select value={tipoServico} onValueChange={setTipoServico}>
+              <SelectTrigger><SelectValue placeholder="Selecione o tipo de serviço" /></SelectTrigger>
+              <SelectContent>
+                {servicosDisponiveis.map(s => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

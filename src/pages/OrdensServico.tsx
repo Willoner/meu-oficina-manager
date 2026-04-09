@@ -24,6 +24,11 @@ type OS = {
 type Cliente = { id: string; nome: string };
 type Veiculo = { id: string; placa: string; modelo: string; cliente_id: string };
 
+const servicosDisponiveis = [
+  "Motor", "Suspensão", "Freios", "Elétrica", "Eletrônica", 
+  "Funilaria", "Estética", "Ar-condicionado", "Pneus", "Transmissão"
+];
+
 const statusColor: Record<string, string> = {
   aberta: "bg-chart-4/20 text-chart-4",
   em_andamento: "bg-chart-3/20 text-chart-3",
@@ -39,6 +44,7 @@ const OrdensServico = () => {
   const [loading, setLoading] = useState(false);
   const [clienteId, setClienteId] = useState("");
   const [veiculoId, setVeiculoId] = useState("");
+  const [tipoServico, setTipoServico] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const { toast } = useToast();
 
@@ -67,8 +73,8 @@ const OrdensServico = () => {
   };
 
   const handleSave = async () => {
-    if (!clienteId || !veiculoId) {
-      toast({ title: "Erro", description: "Cliente e veículo são obrigatórios.", variant: "destructive" });
+    if (!clienteId || !veiculoId || !tipoServico) {
+      toast({ title: "Erro", description: "Cliente, veículo e tipo de serviço são obrigatórios.", variant: "destructive" });
       return;
     }
     setLoading(true);
@@ -77,6 +83,7 @@ const OrdensServico = () => {
     const { error } = await supabase.from("ordens_servico").insert({
       cliente_id: clienteId,
       veiculo_id: veiculoId,
+      tipo_servico: tipoServico,
       observacoes: observacoes.trim() || null,
       usuario_id: user.id,
       status: "aberta",
@@ -87,7 +94,7 @@ const OrdensServico = () => {
     } else {
       toast({ title: "Ordem de serviço criada!" });
       setOpen(false);
-      setClienteId(""); setVeiculoId(""); setObservacoes("");
+      setClienteId(""); setVeiculoId(""); setTipoServico(""); setObservacoes("");
       fetchOrdens();
     }
   };
@@ -132,8 +139,9 @@ const OrdensServico = () => {
                   <TableRow>
                     <TableHead>Data</TableHead>
                     <TableHead>Cliente</TableHead>
+                    <TableHead>Veículo</TableHead>
+                    <TableHead>Serviço</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Observações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -141,12 +149,13 @@ const OrdensServico = () => {
                     <TableRow key={o.id}>
                       <TableCell>{o.data_abertura ? new Date(o.data_abertura).toLocaleDateString("pt-BR") : "—"}</TableCell>
                       <TableCell className="font-medium">{getClienteNome(o.cliente_id)}</TableCell>
+                      <TableCell>{veiculos.find(v => v.id === o.veiculo_id)?.modelo || "—"}</TableCell>
+                      <TableCell>{(o as any).tipo_servico || "—"}</TableCell>
                       <TableCell>
                         <Badge variant="secondary" className={statusColor[o.status || "aberta"] || ""}>
                           {o.status || "aberta"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">{o.observacoes || "—"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -185,8 +194,19 @@ const OrdensServico = () => {
               </Select>
             </div>
             <div>
+              <Label>Tipo de Serviço *</Label>
+              <Select value={tipoServico} onValueChange={setTipoServico}>
+                <SelectTrigger><SelectValue placeholder="Selecione o tipo de serviço" /></SelectTrigger>
+                <SelectContent>
+                  {servicosDisponiveis.map(s => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <Label>Observações</Label>
-              <Textarea value={observacoes} onChange={e => setObservacoes(e.target.value)} placeholder="Detalhes do serviço..." />
+              <Textarea value={observacoes} onChange={e => setObservacoes(e.target.value)} placeholder="Cole links de imagens ou digite detalhes..." />
             </div>
           </div>
           <DialogFooter>
