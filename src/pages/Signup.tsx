@@ -44,7 +44,7 @@ const Signup = () => {
           <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mx-auto">
             <Wrench className="w-8 h-8 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Oficina Fácil</h1>
+          <h1 className="text-2xl font-bold text-foreground">Oficina em Ordem</h1>
           <p className="text-muted-foreground">Crie sua conta</p>
         </div>
 

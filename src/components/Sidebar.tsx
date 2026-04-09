@@ -23,8 +23,8 @@ const Sidebar = () => {
           <Wrench className="w-5 h-5 text-accent-foreground" />
         </div>
         <div>
-          <h1 className="text-lg font-bold text-sidebar-primary-foreground">Oficina Fácil</h1>
-          <p className="text-xs text-sidebar-muted">Gestão de Oficinas</p>
+          <h1 className="text-lg font-bold text-sidebar-primary-foreground">Oficina em Ordem</h1>
+          <p className="text-xs text-sidebar-muted">Organização e Controle</p>
         </div>
       </div>
 
