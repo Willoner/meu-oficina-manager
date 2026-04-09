@@ -6,6 +6,9 @@ import MetricCard from "@/components/MetricCard";
 import ServiceOrdersTable from "@/components/ServiceOrdersTable";
 import QuickActions from "@/components/QuickActions";
 import { Input } from "@/components/ui/input";
+import { CreateClientDialog } from "@/components/modals/CreateClientDialog";
+import { CreateOSDialog } from "@/components/modals/CreateOSDialog";
+import { SearchVehicleDialog } from "@/components/modals/SearchVehicleDialog";
 
 const Index = () => {
   const [metrics, setMetrics] = useState({
@@ -14,6 +17,10 @@ const Index = () => {
     veiculos: 0,
     faturamentoMensal: 0,
   });
+
+  const [isOSModalOpen, setIsOSModalOpen] = useState(false);
+  const [isClientModalOpen, setIsClientModalOpen] = useState(false);
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -126,11 +133,20 @@ const Index = () => {
               <ServiceOrdersTable />
             </div>
             <div>
-              <QuickActions />
+              <QuickActions 
+                onNewOrder={() => setIsOSModalOpen(true)}
+                onNewClient={() => setIsClientModalOpen(true)}
+                onSearchVehicle={() => setIsVehicleModalOpen(true)}
+              />
             </div>
           </div>
         </div>
       </main>
+
+      {/* Modals */}
+      <CreateOSDialog open={isOSModalOpen} onOpenChange={setIsOSModalOpen} />
+      <CreateClientDialog open={isClientModalOpen} onOpenChange={setIsClientModalOpen} />
+      <SearchVehicleDialog open={isVehicleModalOpen} onOpenChange={setIsVehicleModalOpen} />
     </div>
   );
 };
