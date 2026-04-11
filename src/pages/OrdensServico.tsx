@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { ClipboardList, Plus, Search, Filter } from "lucide-react";
+import { ClipboardList, Plus, Search, Trash2, Eye } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,10 +21,23 @@ type OS = {
   data_abertura: string | null;
   cliente_id: string;
   veiculo_id: string;
+  tipo_servico: string | null;
+  valor_total: number | null;
 };
 
 type Cliente = { id: string; nome: string };
 type Veiculo = { id: string; placa: string; modelo: string; cliente_id: string };
+type Peca = { id: string; nome: string; valor_venda: number | null; estoque: number | null };
+
+type ItemOS = {
+  id?: string;
+  tipo: "peca" | "servico";
+  item_id: string | null;
+  descricao: string;
+  quantidade: number;
+  valor_unitario: number;
+  valor_total: number;
+};
 
 const servicosDisponiveis = [
   "Motor", "Suspensão", "Freios", "Elétrica", "Eletrônica", 
@@ -37,37 +50,64 @@ const statusColor: Record<string, string> = {
   concluida: "bg-chart-2/20 text-chart-2",
 };
 
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+};
+
 const OrdensServico = () => {
-  const [open, setOpen] = useState(false);
   const [ordens, setOrdens] = useState<OS[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
+  const [pecas, setPecas] = useState<Peca[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Modal OS states
+  const [open, setOpen] = useState(false);
   const [clienteId, setClienteId] = useState("");
   const [veiculoId, setVeiculoId] = useState("");
   const [tipoServico, setTipoServico] = useState("");
   const [observacoes, setObservacoes] = useState("");
+  const [itensOS, setItensOS] = useState<ItemOS[]>([]);
+
+  // Modals for add items
+  const [isPecaModalOpen, setIsPecaModalOpen] = useState(false);
+  const [isServicoModalOpen, setIsServicoModalOpen] = useState(false);
+  
+  // Peca Form State
+  const [selectedPecaId, setSelectedPecaId] = useState("");
+  const [qtdPeca, setQtdPeca] = useState(1);
+
+  // Servico Form State
+  const [descServico, setDescServico] = useState("");
+  const [valorServico, setValorServico] = useState<string>("");
+
+  // Modals clients and vehicles
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+
+  // Details Modal
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedOSForDetails, setSelectedOSForDetails] = useState<OS | null>(null);
+  const [osDetailsItems, setOsDetailsItems] = useState<ItemOS[]>([]);
+
   const { toast } = useToast();
 
-  const fetchOrdens = async () => {
-    const { data } = await supabase.from("ordens_servico").select("*").order("data_abertura", { ascending: false });
-    if (data) setOrdens(data);
+  const fetchData = async () => {
+    const [resOrdens, resClientes, resVeiculos, resPecas] = await Promise.all([
+      supabase.from("ordens_servico").select("*").order("data_abertura", { ascending: false }),
+      supabase.from("clientes").select("id, nome").order("nome"),
+      supabase.from("veiculos").select("id, placa, modelo, cliente_id").order("placa"),
+      supabase.from("pecas").select("id, nome, valor_venda, estoque").order("nome")
+    ]);
+
+    if (resOrdens.data) setOrdens(resOrdens.data);
+    if (resClientes.data) setClientes(resClientes.data);
+    if (resVeiculos.data) setVeiculos(resVeiculos.data);
+    if (resPecas.data) setPecas(resPecas.data);
   };
 
-  const fetchClientes = async () => {
-    const { data } = await supabase.from("clientes").select("id, nome").order("nome");
-    if (data) setClientes(data);
-  };
-
-  const fetchVeiculos = async () => {
-    const { data } = await supabase.from("veiculos").select("id, placa, modelo, cliente_id").order("placa");
-    if (data) setVeiculos(data);
-  };
-
-  useEffect(() => { fetchOrdens(); fetchClientes(); fetchVeiculos(); }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const veiculosFiltrados = clienteId ? veiculos.filter(v => v.cliente_id === clienteId) : [];
 
@@ -76,47 +116,185 @@ const OrdensServico = () => {
     setVeiculoId("");
   };
 
-  const handleClientCreated = (id: string) => {
-    fetchClientes();
-    setClienteId(id);
-    setIsClientModalOpen(false);
+  const calcularTotalOS = () => {
+    return itensOS.reduce((acc, item) => acc + item.valor_total, 0);
   };
 
-  const handleVehicleCreated = (id: string) => {
-    fetchVeiculos();
-    setVeiculoId(id);
-    setIsVehicleModalOpen(false);
+  const handleCreateOS = () => {
+    setClienteId("");
+    setVeiculoId("");
+    setTipoServico("");
+    setObservacoes("");
+    setItensOS([]);
+    setOpen(true);
+  };
+
+  const handleAddPeca = () => {
+    if (!selectedPecaId) {
+      toast({ title: "Erro", description: "Selecione uma peça.", variant: "destructive" });
+      return;
+    }
+    const peca = pecas.find(p => p.id === selectedPecaId);
+    if (!peca) return;
+
+    if (qtdPeca > (peca.estoque || 0)) {
+      toast({ title: "Estoque insuficiente", description: `Quantidade disponível: ${peca.estoque || 0}`, variant: "destructive" });
+      return;
+    }
+
+    const valorUnitario = peca.valor_venda || 0;
+    const item: ItemOS = {
+      tipo: "peca",
+      item_id: peca.id,
+      descricao: peca.nome,
+      quantidade: Number(qtdPeca),
+      valor_unitario: valorUnitario,
+      valor_total: valorUnitario * Number(qtdPeca)
+    };
+
+    setItensOS([...itensOS, item]);
+    setIsPecaModalOpen(false);
+    setSelectedPecaId("");
+    setQtdPeca(1);
+  };
+
+  const handleAddServico = () => {
+    if (!descServico.trim() || !valorServico) {
+      toast({ title: "Erro", description: "Preencha a descrição e o valor do serviço.", variant: "destructive" });
+      return;
+    }
+    
+    const valorNum = parseFloat(valorServico.replace(',', '.'));
+    if (isNaN(valorNum) || valorNum <= 0) {
+      toast({ title: "Erro", description: "Valor inválido.", variant: "destructive" });
+      return;
+    }
+
+    const item: ItemOS = {
+      tipo: "servico",
+      item_id: null,
+      descricao: descServico.trim(),
+      quantidade: 1,
+      valor_unitario: valorNum,
+      valor_total: valorNum
+    };
+
+    setItensOS([...itensOS, item]);
+    setIsServicoModalOpen(false);
+    setDescServico("");
+    setValorServico("");
+  };
+
+  const handleRemoveItem = (index: number) => {
+    setItensOS(itensOS.filter((_, i) => i !== index));
   };
 
   const handleSave = async () => {
     if (!clienteId || !veiculoId || !tipoServico) {
-      toast({ title: "Erro", description: "Cliente, veículo e tipo de serviço são obrigatórios.", variant: "destructive" });
+      toast({ title: "Aviso", description: "Cliente, veículo e tipo de serviço são obrigatórios.", variant: "destructive" });
       return;
     }
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { toast({ title: "Erro", description: "Você precisa estar logado.", variant: "destructive" }); setLoading(false); return; }
-    const { error } = await supabase.from("ordens_servico").insert({
+    if (!user) { 
+      toast({ title: "Erro", description: "Usuário não autenticado.", variant: "destructive" }); 
+      setLoading(false); 
+      return; 
+    }
+
+    const totalOS = calcularTotalOS();
+
+    // 1. Criar a Ordem de Serviço
+    const { data: osData, error: osError } = await supabase.from("ordens_servico").insert({
       cliente_id: clienteId,
       veiculo_id: veiculoId,
       tipo_servico: tipoServico,
       observacoes: observacoes.trim() || null,
       usuario_id: user.id,
       status: "aberta",
-    });
+      valor_total: totalOS
+    }).select().single();
+
+    if (osError || !osData) {
+      toast({ title: "Erro ao criar OS", description: osError?.message, variant: "destructive" });
+      setLoading(false);
+      return;
+    }
+
+    // 2. Inserir os Itens
+    if (itensOS.length > 0) {
+      const itemsToInsert = itensOS.map(item => ({
+        ordem_servico_id: osData.id,
+        item_id: item.item_id,
+        tipo: item.tipo,
+        descricao: item.descricao,
+        quantidade: item.quantidade,
+        valor_unitario: item.valor_unitario,
+        valor_total: item.valor_total
+      }));
+
+      const { error: itemsError } = await supabase.from("itens_os").insert(itemsToInsert);
+      if (itemsError) {
+        toast({ title: "Aviso", description: "OS criada, mas erro ao salvar itens: " + itemsError.message, variant: "destructive" });
+      }
+
+      // 3. Atualizar o estoque
+      for (const item of itensOS) {
+        if (item.tipo === "peca" && item.item_id) {
+          const peca = pecas.find(p => p.id === item.item_id);
+          if (peca && peca.estoque !== null) {
+             await supabase.from("pecas").update({ estoque: peca.estoque - item.quantidade }).eq("id", item.item_id);
+          }
+        }
+      }
+    }
+
+    toast({ title: "Sucesso", description: "Ordem de serviço criada com sucesso!" });
+    setOpen(false);
     setLoading(false);
+    fetchData(); // reload alles
+  };
+
+  const handleOpenDetails = async (os: OS) => {
+    setSelectedOSForDetails(os);
+    setOsDetailsItems([]);
+    setDetailsOpen(true);
+    
+    // Fetch Items
+    const { data } = await supabase.from('itens_os').select('*').eq('ordem_servico_id', os.id);
+    if (data) {
+      setOsDetailsItems(data as ItemOS[]);
+    }
+  };
+
+  const handleDeleteOS = async (id: string) => {
+    if (!confirm("Tem certeza que deseja excluir esta OS? As peças vinculadas voltarão para o estoque.")) return;
+    
+    // Obter itens da OS primeiro para repor no estoque
+    const { data: itens } = await supabase.from('itens_os').select('*').eq('ordem_servico_id', id);
+    if (itens && itens.length > 0) {
+      for (const item of itens) {
+        if (item.tipo === 'peca' && item.item_id) {
+          const { data: p } = await supabase.from('pecas').select('estoque').eq('id', item.item_id).single();
+          if (p && p.estoque !== null) {
+            await supabase.from('pecas').update({ estoque: p.estoque + (item.quantidade || 1) }).eq('id', item.item_id);
+          }
+        }
+      }
+    }
+
+    // Excluir OS
+    const { error } = await supabase.from('ordens_servico').delete().eq('id', id);
     if (error) {
-      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+      toast({ title: "Erro", description: "Falha ao excluir. " + error.message, variant: "destructive" });
     } else {
-      toast({ title: "Ordem de serviço criada!" });
-      setOpen(false);
-      setClienteId(""); setVeiculoId(""); setTipoServico(""); setObservacoes("");
-      fetchOrdens();
+      toast({ title: "Sucesso", description: "Ordem excluída com sucesso." });
+      fetchData();
     }
   };
 
   const getClienteNome = (id: string) => clientes.find(c => c.id === id)?.nome || "—";
-
+  
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
@@ -137,12 +315,13 @@ const OrdensServico = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input placeholder="Buscar ordem..." className="pl-9 w-64" value={search} onChange={e => setSearch(e.target.value)} />
               </div>
-              <Button className="gap-2" onClick={() => setOpen(true)}>
+              <Button className="gap-2" onClick={handleCreateOS}>
                 <Plus className="w-4 h-4" /> Nova Ordem
               </Button>
             </div>
           </div>
         </header>
+
         <div className="p-8">
           {ordens.length === 0 ? (
             <div className="rounded-lg border bg-card p-12 text-center text-muted-foreground">
@@ -157,7 +336,9 @@ const OrdensServico = () => {
                     <TableHead>Cliente</TableHead>
                     <TableHead>Veículo</TableHead>
                     <TableHead>Serviço</TableHead>
+                    <TableHead>Total</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -166,11 +347,20 @@ const OrdensServico = () => {
                       <TableCell>{o.data_abertura ? new Date(o.data_abertura).toLocaleDateString("pt-BR") : "—"}</TableCell>
                       <TableCell className="font-medium">{getClienteNome(o.cliente_id)}</TableCell>
                       <TableCell>{veiculos.find(v => v.id === o.veiculo_id)?.modelo || "—"}</TableCell>
-                      <TableCell>{(o as any).tipo_servico || "—"}</TableCell>
+                      <TableCell>{o.tipo_servico || "—"}</TableCell>
+                      <TableCell>{o.valor_total ? formatCurrency(o.valor_total) : "—"}</TableCell>
                       <TableCell>
                         <Badge variant="secondary" className={statusColor[o.status || "aberta"] || ""}>
                           {o.status || "aberta"}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
+                        <Button variant="outline" size="icon" onClick={() => handleOpenDetails(o)}>
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteOS(o.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -181,68 +371,260 @@ const OrdensServico = () => {
         </div>
       </main>
 
+      {/* Modal Nova OS */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Nova Ordem de Serviço</DialogTitle>
+            <DialogDescription>Preencha os detalhes e insira os itens (peças ou serviços avulsos).</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Cliente *</Label>
-              <div className="flex gap-2 mt-1">
-                <Select value={clienteId} onValueChange={handleClienteChange}>
-                  <SelectTrigger className="flex-1"><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
+              <div>
+                <Label>Cliente *</Label>
+                <div className="flex gap-2 mt-1">
+                  <Select value={clienteId} onValueChange={handleClienteChange}>
+                    <SelectTrigger className="flex-1"><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
+                    <SelectContent>
+                      {clientes.map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button type="button" variant="outline" size="icon" onClick={() => setIsClientModalOpen(true)} title="Cadastrar Novo Cliente">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              <div>
+                <Label>Veículo *</Label>
+                <div className="flex gap-2 mt-1">
+                  <Select value={veiculoId} onValueChange={setVeiculoId} disabled={!clienteId}>
+                    <SelectTrigger className="flex-1"><SelectValue placeholder={clienteId ? "Selecione o veículo" : "Selecione um cliente primeiro"} /></SelectTrigger>
+                    <SelectContent>
+                      {veiculosFiltrados.map(v => (
+                        <SelectItem key={v.id} value={v.id}>{v.placa} - {v.modelo}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button type="button" variant="outline" size="icon" onClick={() => setIsVehicleModalOpen(true)} disabled={!clienteId} title="Cadastrar Novo Veículo">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <Label>Tipo de Serviço Principal *</Label>
+                <Select value={tipoServico} onValueChange={setTipoServico}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione o tipo de serviço" /></SelectTrigger>
                   <SelectContent>
-                    {clientes.map(c => (
-                      <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                    {servicosDisponiveis.map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <Button type="button" variant="outline" size="icon" onClick={() => setIsClientModalOpen(true)} title="Cadastrar Novo Cliente">
-                  <Plus className="h-4 w-4" />
-                </Button>
+              </div>
+
+              <div>
+                <Label>Observações</Label>
+                <Textarea className="mt-1" value={observacoes} onChange={e => setObservacoes(e.target.value)} placeholder="Detalhes, problemas relatados, etc." />
               </div>
             </div>
-            <div>
-              <Label>Veículo *</Label>
-              <div className="flex gap-2 mt-1">
-                <Select value={veiculoId} onValueChange={setVeiculoId} disabled={!clienteId}>
-                  <SelectTrigger className="flex-1"><SelectValue placeholder={clienteId ? "Selecione o veículo" : "Selecione um cliente primeiro"} /></SelectTrigger>
-                  <SelectContent>
-                    {veiculosFiltrados.map(v => (
-                      <SelectItem key={v.id} value={v.id}>{v.placa} - {v.modelo}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button type="button" variant="outline" size="icon" onClick={() => setIsVehicleModalOpen(true)} disabled={!clienteId} title="Cadastrar Novo Veículo">
-                  <Plus className="h-4 w-4" />
-                </Button>
+
+            <div className="border rounded-md p-4 bg-muted/20 flex flex-col h-full">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">Itens da OS</h3>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="secondary" onClick={() => setIsPecaModalOpen(true)}>+ Peça</Button>
+                  <Button size="sm" variant="secondary" onClick={() => setIsServicoModalOpen(true)}>+ Serviço</Button>
+                </div>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto mb-4 border rounded bg-card min-h-[200px]">
+                {itensOS.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground mt-10">
+                    Nenhum item adicionado.
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-xs">Descrição</TableHead>
+                        <TableHead className="text-xs">Qtd</TableHead>
+                        <TableHead className="text-xs">Total</TableHead>
+                        <TableHead className="text-xs w-10"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {itensOS.map((item, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell className="text-xs py-2">
+                            <span className="font-medium">{item.descricao}</span>
+                            <Badge variant="outline" className="ml-2 text-[10px] px-1 py-0">{item.tipo}</Badge>
+                          </TableCell>
+                          <TableCell className="text-xs py-2">{item.quantidade}</TableCell>
+                          <TableCell className="text-xs py-2">{formatCurrency(item.valor_total)}</TableCell>
+                          <TableCell className="text-xs py-2 text-right">
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleRemoveItem(idx)}>
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </div>
+
+              <div className="mt-auto border-t pt-2 flex justify-between items-center font-bold text-lg">
+                <span>Total Estimado:</span>
+                <span className="text-primary">{formatCurrency(calcularTotalOS())}</span>
               </div>
             </div>
+          </div>
+
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSave} disabled={loading}>{loading ? "Salvando..." : "Salvar Ordem"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Adicionar Peça */}
+      <Dialog open={isPecaModalOpen} onOpenChange={setIsPecaModalOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Adicionar Peça do Estoque</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
             <div>
-              <Label>Tipo de Serviço *</Label>
-              <Select value={tipoServico} onValueChange={setTipoServico}>
-                <SelectTrigger><SelectValue placeholder="Selecione o tipo de serviço" /></SelectTrigger>
+              <Label>Selecione a Peça</Label>
+              <Select value={selectedPecaId} onValueChange={setSelectedPecaId}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Buscar peça..." />
+                </SelectTrigger>
                 <SelectContent>
-                  {servicosDisponiveis.map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  {pecas.map(p => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.nome} (Disp: {p.estoque || 0}) - {formatCurrency(p.valor_venda || 0)}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Observações</Label>
-              <Textarea value={observacoes} onChange={e => setObservacoes(e.target.value)} placeholder="Cole links de imagens ou digite detalhes..." />
+              <Label>Quantidade</Label>
+              <Input type="number" min="1" className="mt-1" value={qtdPeca} onChange={e => setQtdPeca(parseInt(e.target.value) || 1)} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={loading}>{loading ? "Salvando..." : "Salvar"}</Button>
+            <Button variant="outline" onClick={() => setIsPecaModalOpen(false)}>Cancelar</Button>
+            <Button onClick={handleAddPeca}>Adicionar à OS</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <CreateClientDialog open={isClientModalOpen} onOpenChange={setIsClientModalOpen} onSuccess={handleClientCreated} />
-      <CreateVehicleDialog open={isVehicleModalOpen} onOpenChange={setIsVehicleModalOpen} clienteId={clienteId} onSuccess={handleVehicleCreated} />
+
+      {/* Modal Adicionar Serviço */}
+      <Dialog open={isServicoModalOpen} onOpenChange={setIsServicoModalOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Adicionar Serviço Avulso</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div>
+              <Label>Descrição do Serviço</Label>
+              <Input placeholder="Ex: Mão de obra troca de óleo" className="mt-1" value={descServico} onChange={e => setDescServico(e.target.value)} />
+            </div>
+            <div>
+              <Label>Valor (R$)</Label>
+              <Input placeholder="Ex: 150.00" type="number" step="0.01" className="mt-1" value={valorServico} onChange={e => setValorServico(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsServicoModalOpen(false)}>Cancelar</Button>
+            <Button onClick={handleAddServico}>Adicionar à OS</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Detalhes OS */}
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Ordem de Serviço</DialogTitle>
+          </DialogHeader>
+          {selectedOSForDetails && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground block">Cliente</span>
+                  <span className="font-medium">{getClienteNome(selectedOSForDetails.cliente_id)}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block">Veículo</span>
+                  <span className="font-medium">{veiculos.find(v => v.id === selectedOSForDetails.veiculo_id)?.modelo || "—"}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block">Data de Abertura</span>
+                  <span className="font-medium">{selectedOSForDetails.data_abertura ? new Date(selectedOSForDetails.data_abertura).toLocaleDateString("pt-BR") : "—"}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block">Status</span>
+                  <Badge variant="secondary" className={statusColor[selectedOSForDetails.status || "aberta"] || ""}>
+                    {selectedOSForDetails.status || "aberta"}
+                  </Badge>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-2">Itens Inclusos</h4>
+                {osDetailsItems.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">Nenhum item lançado.</p>
+                ) : (
+                  <Table>
+                    <TableHeader className="bg-muted/50">
+                      <TableRow>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead>Qtd</TableHead>
+                        <TableHead>V. Unit</TableHead>
+                        <TableHead>Subtotal</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {osDetailsItems.map((item, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell>
+                            {item.descricao}
+                            <Badge variant="outline" className="ml-2 text-[10px] scale-90">{item.tipo}</Badge>
+                          </TableCell>
+                          <TableCell>{item.quantidade}</TableCell>
+                          <TableCell>{item.valor_unitario ? formatCurrency(item.valor_unitario) : "—"}</TableCell>
+                          <TableCell>{item.valor_total ? formatCurrency(item.valor_total) : "—"}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </div>
+
+              <div className="flex justify-between items-center bg-muted/30 p-4 rounded-lg">
+                <span className="font-semibold text-lg">Total Geral:</span>
+                <span className="font-bold text-xl text-primary">
+                  {formatCurrency(selectedOSForDetails.valor_total || 0)}
+                </span>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setDetailsOpen(false)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <CreateClientDialog open={isClientModalOpen} onOpenChange={setIsClientModalOpen} onSuccess={(id) => { fetchData(); setClienteId(id); setIsClientModalOpen(false); }} />
+      <CreateVehicleDialog open={isVehicleModalOpen} onOpenChange={setIsVehicleModalOpen} clienteId={clienteId} onSuccess={(id) => { fetchData(); setVeiculoId(id); setIsVehicleModalOpen(false); }} />
     </div>
   );
 };
