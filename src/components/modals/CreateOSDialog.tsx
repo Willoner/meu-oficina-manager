@@ -6,6 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Plus } from "lucide-react";
+import { CreateClientDialog } from "@/components/modals/CreateClientDialog";
+import { CreateVehicleDialog } from "@/components/modals/CreateVehicleDialog";
 
 type Cliente = { id: string; nome: string };
 type Veiculo = { id: string; placa: string; modelo: string; cliente_id: string };
@@ -23,6 +26,8 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
   const [tipoServico, setTipoServico] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isClientModalOpen, setIsClientModalOpen] = useState(false);
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -47,6 +52,18 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
   const handleClienteChange = (value: string) => {
     setClienteId(value);
     setVeiculoId("");
+  };
+
+  const handleClientCreated = (id: string) => {
+    fetchClientes();
+    setClienteId(id);
+    setIsClientModalOpen(false);
+  };
+
+  const handleVehicleCreated = (id: string) => {
+    fetchVeiculos();
+    setVeiculoId(id);
+    setIsVehicleModalOpen(false);
   };
 
   const handleSave = async () => {
@@ -82,33 +99,44 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
         <DialogHeader>
           <DialogTitle>Nova Ordem de Serviço</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
             <Label>Cliente *</Label>
-            <Select value={clienteId} onValueChange={handleClienteChange}>
-              <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
-              <SelectContent>
-                {clientes.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2 mt-1">
+              <Select value={clienteId} onValueChange={handleClienteChange}>
+                <SelectTrigger className="flex-1"><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
+                <SelectContent>
+                  {clientes.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="outline" size="icon" onClick={() => setIsClientModalOpen(true)} title="Cadastrar Novo Cliente">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           <div>
             <Label>Veículo *</Label>
-            <Select value={veiculoId} onValueChange={setVeiculoId} disabled={!clienteId}>
-              <SelectTrigger><SelectValue placeholder={clienteId ? "Selecione o veículo" : "Selecione um cliente primeiro"} /></SelectTrigger>
-              <SelectContent>
-                {veiculosFiltrados.map(v => (
-                  <SelectItem key={v.id} value={v.id}>{v.placa} - {v.modelo}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2 mt-1">
+              <Select value={veiculoId} onValueChange={setVeiculoId} disabled={!clienteId}>
+                <SelectTrigger className="flex-1"><SelectValue placeholder={clienteId ? "Selecione o veículo" : "Selecione um cliente primeiro"} /></SelectTrigger>
+                <SelectContent>
+                  {veiculosFiltrados.map(v => (
+                    <SelectItem key={v.id} value={v.id}>{v.placa} - {v.modelo}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="outline" size="icon" onClick={() => setIsVehicleModalOpen(true)} disabled={!clienteId} title="Cadastrar Novo Veículo">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           <div>
             <Label>Tipo de Serviço *</Label>
@@ -132,5 +160,8 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    <CreateClientDialog open={isClientModalOpen} onOpenChange={setIsClientModalOpen} onSuccess={handleClientCreated} />
+    <CreateVehicleDialog open={isVehicleModalOpen} onOpenChange={setIsVehicleModalOpen} clienteId={clienteId} onSuccess={handleVehicleCreated} />
+    </>
   );
 }

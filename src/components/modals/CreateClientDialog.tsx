@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-export function CreateClientDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
+export function CreateClientDialog({ open, onOpenChange, onSuccess }: { open: boolean, onOpenChange: (open: boolean) => void, onSuccess?: (id: string) => void }) {
   const [nome, setNome] = useState("");
+  const [cpf, setCpf] = useState("");
   const [telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,20 +27,24 @@ export function CreateClientDialog({ open, onOpenChange }: { open: boolean, onOp
       return;
     }
 
-    const { error } = await supabase.from("clientes").insert({
+    const { data, error } = await supabase.from("clientes").insert({
       nome,
+      cpf: cpf || null,
       telefone,
       email,
       usuario_id: user.id
-    });
+    }).select().single();
 
     setLoading(false);
     if (error) {
       toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Cliente cadastrado com sucesso!" });
-      setNome(""); setTelefone(""); setEmail("");
+      setNome(""); setCpf(""); setTelefone(""); setEmail("");
       onOpenChange(false);
+      if (onSuccess && data) {
+        onSuccess(data.id);
+      }
     }
   };
 
@@ -53,6 +58,10 @@ export function CreateClientDialog({ open, onOpenChange }: { open: boolean, onOp
           <div>
             <Label>Nome *</Label>
             <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome completo" />
+          </div>
+          <div>
+            <Label>CPF</Label>
+            <Input value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" />
           </div>
           <div>
             <Label>Telefone</Label>
