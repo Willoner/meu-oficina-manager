@@ -1,6 +1,6 @@
 import { LayoutDashboard, FileText, Users, Car, Package, Settings, LogOut, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.svg";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
