@@ -1,25 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" fill="none">
   <!-- Circle outline -->
-  <circle cx="100" cy="90" r="70" stroke="#0f7a5f" stroke-width="4" fill="none"/>
+  <circle cx="100" cy="95" r="72" stroke="#0f9b7a" stroke-width="3.5" fill="none"/>
   
-  <!-- Wrench and hand simplified -->
-  <g transform="translate(100,85)" stroke="#0f7a5f" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <!-- Wrench head -->
-    <path d="M-8,-42 L-4,-36 L4,-36 L8,-42 L4,-48 L-4,-48 Z"/>
-    <!-- Wrench shaft -->
-    <line x1="0" y1="-36" x2="0" y2="-10"/>
-    <!-- Hand - palm -->
-    <path d="M-16,0 C-16,-6 -12,-12 -6,-12 L6,-12 C12,-12 16,-6 16,0 L16,10 C16,16 12,22 6,22 L-6,22 C-12,22 -16,16 -16,10 Z"/>
-    <!-- Fingers gripping -->
-    <line x1="-10" y1="-4" x2="10" y2="-4"/>
-    <line x1="-8" y1="2" x2="8" y2="2"/>
-    <line x1="-6" y1="8" x2="6" y2="8"/>
+  <!-- Hand and wrench group - line art style matching reference -->
+  <g stroke="#0f9b7a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    
+    <!-- Wrench head (open-end) tilted -->
+    <path d="M82,32 L78,38 L82,44 L92,44 L96,38 L92,32 Z"/>
+    
+    <!-- Wrench shaft going down-right -->
+    <line x1="87" y1="44" x2="105" y2="80"/>
+    
+    <!-- Hand/fist outline gripping the shaft -->
+    <!-- Back of hand (top knuckle line) -->
+    <path d="M78,68 C78,62 84,58 92,58"/>
+    <!-- Fingers wrapping around -->
+    <path d="M78,68 L78,78 C78,82 80,86 84,88 L88,88"/>
+    <path d="M92,58 L108,72"/>
+    <!-- Bottom of fist -->
+    <path d="M108,72 L112,80 C114,86 112,92 108,94 L98,98"/>
+    <!-- Wrist/forearm -->
+    <path d="M88,88 L82,108 C80,114 84,118 90,118 L100,118"/>
+    <path d="M98,98 L104,108 C106,114 104,118 100,118"/>
+    
+    <!-- Finger detail lines -->
+    <path d="M82,72 L98,64"/>
+    <path d="M80,78 L96,70"/>
+    
     <!-- Thumb -->
-    <path d="M-16,0 C-22,0 -24,6 -22,12 C-20,16 -16,16 -16,10"/>
+    <path d="M78,68 C72,70 68,76 70,82 C72,88 78,88 80,84"/>
   </g>
   
   <!-- Text OFICINA -->
-  <text x="100" y="178" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="18" fill="#0f7a5f" letter-spacing="3">OFICINA</text>
+  <text x="100" y="192" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="20" fill="#0f9b7a" letter-spacing="2">OFICINA</text>
   <!-- Text EM ORDEM -->
-  <text x="100" y="195" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="400" font-size="13" fill="#0f7a5f" letter-spacing="2">EM ORDEM</text>
+  <text x="100" y="210" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="400" font-size="14" fill="#0f9b7a" letter-spacing="1.5">EM ORDEM</text>
 </svg>
