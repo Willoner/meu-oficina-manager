@@ -227,7 +227,6 @@ const OrdensServico = () => {
         ordem_servico_id: osData.id,
         item_id: item.item_id,
         tipo: item.tipo,
-        descricao: item.descricao,
         quantidade: item.quantidade,
         valor_unitario: item.valor_unitario,
         valor_total: item.valor_total
@@ -263,7 +262,7 @@ const OrdensServico = () => {
     // Fetch Items
     const { data } = await supabase.from('itens_os').select('*').eq('ordem_servico_id', os.id);
     if (data) {
-      setOsDetailsItems(data as ItemOS[]);
+      setOsDetailsItems(data as unknown as ItemOS[]);
     }
   };
 
