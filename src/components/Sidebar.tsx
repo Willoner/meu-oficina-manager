@@ -1,6 +1,6 @@
 import { LayoutDashboard, FileText, Users, Car, Package, Settings, LogOut, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import logo from "@/assets/logo.svg";
+import { Logo } from "@/components/Logo";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
@@ -19,12 +19,8 @@ const Sidebar = () => {
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar flex flex-col z-50">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-6 border-b border-sidebar-border">
-        <img src={logo} alt="Oficina em Ordem" className="w-12 h-12 rounded-lg object-contain" />
-        <div>
-          <h1 className="text-lg font-bold text-sidebar-primary-foreground">Oficina em Ordem</h1>
-          <p className="text-xs text-sidebar-muted">Organização e Controle</p>
-        </div>
+      <div className="flex items-center justify-start px-6 py-6 border-b border-sidebar-border">
+        <Logo className="w-[120px] h-auto" />
       </div>
 
       {/* Navigation */}
