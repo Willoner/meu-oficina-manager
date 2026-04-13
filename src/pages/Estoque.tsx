@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Package, Plus, Search } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
+import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
