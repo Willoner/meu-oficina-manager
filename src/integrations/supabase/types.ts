@@ -14,44 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      configuracoes: {
-        Row: {
-          created_at: string
-          formato_data: string | null
-          id: string
-          moeda: string | null
-          notificacoes_email: boolean | null
-          updated_at: string
-          usuario_id: string
-        }
-        Insert: {
-          created_at?: string
-          formato_data?: string | null
-          id?: string
-          moeda?: string | null
-          notificacoes_email?: boolean | null
-          updated_at?: string
-          usuario_id: string
-        }
-        Update: {
-          created_at?: string
-          formato_data?: string | null
-          id?: string
-          moeda?: string | null
-          notificacoes_email?: boolean | null
-          updated_at?: string
-          usuario_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "configuracoes_usuario_id_fkey"
-            columns: ["usuario_id"]
-            isOneToOne: true
-            referencedRelation: "usuarios"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       clientes: {
         Row: {
           cpf: string | null
@@ -83,6 +45,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "clientes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      configuracoes: {
+        Row: {
+          created_at: string | null
+          formato_data: string | null
+          id: string
+          moeda: string | null
+          notificacoes_email: boolean | null
+          updated_at: string | null
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          formato_data?: string | null
+          id?: string
+          moeda?: string | null
+          notificacoes_email?: boolean | null
+          updated_at?: string | null
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string | null
+          formato_data?: string | null
+          id?: string
+          moeda?: string | null
+          notificacoes_email?: boolean | null
+          updated_at?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "configuracoes_usuario_id_fkey"
             columns: ["usuario_id"]
             isOneToOne: false
             referencedRelation: "usuarios"
@@ -133,6 +133,10 @@ export type Database = {
       }
       ordens_servico: {
         Row: {
+          assinatura_cliente_aceito: boolean | null
+          assinatura_cliente_em: string | null
+          assinatura_mecanico_aceito: boolean | null
+          assinatura_mecanico_em: string | null
           cliente_id: string
           created_at: string | null
           data_abertura: string | null
@@ -146,6 +150,10 @@ export type Database = {
           veiculo_id: string
         }
         Insert: {
+          assinatura_cliente_aceito?: boolean | null
+          assinatura_cliente_em?: string | null
+          assinatura_mecanico_aceito?: boolean | null
+          assinatura_mecanico_em?: string | null
           cliente_id: string
           created_at?: string | null
           data_abertura?: string | null
@@ -159,6 +167,10 @@ export type Database = {
           veiculo_id: string
         }
         Update: {
+          assinatura_cliente_aceito?: boolean | null
+          assinatura_cliente_em?: string | null
+          assinatura_mecanico_aceito?: boolean | null
+          assinatura_mecanico_em?: string | null
           cliente_id?: string
           created_at?: string | null
           data_abertura?: string | null
@@ -314,7 +326,9 @@ export type Database = {
           cnpj: string | null
           created_at: string | null
           email: string
+          endereco: string | null
           id: string
+          logotipo_url: string | null
           nome_oficina: string
           plano: string | null
           telefone: string | null
@@ -323,7 +337,9 @@ export type Database = {
           cnpj?: string | null
           created_at?: string | null
           email: string
+          endereco?: string | null
           id?: string
+          logotipo_url?: string | null
           nome_oficina: string
           plano?: string | null
           telefone?: string | null
@@ -332,7 +348,9 @@ export type Database = {
           cnpj?: string | null
           created_at?: string | null
           email?: string
+          endereco?: string | null
           id?: string
+          logotipo_url?: string | null
           nome_oficina?: string
           plano?: string | null
           telefone?: string | null
