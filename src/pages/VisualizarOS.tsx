@@ -360,11 +360,12 @@ const VisualizarOS = () => {
             {/* Footer */}
             <div className="pt-8 text-center text-[10px] text-muted-foreground border-t">
               Esta é uma Ordem de Serviço eletrônica gerada pelo sistema Oficina em Ordem.
-              <br/>Impresso em {new Date().toLocaleString("pt-BR")}
+              <br />Impresso em {new Date().toLocaleString("pt-BR")}
             </div>
             
           </CardContent>
         </Card>
+        </div>
       </main>
     </div>
   );
