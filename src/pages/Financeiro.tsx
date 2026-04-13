@@ -1,5 +1,6 @@
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
+import { TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
 
 const Financeiro = () => {
   return (
