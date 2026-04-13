@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { ClipboardList, Plus, Search, Trash2, Eye } from "lucide-react";
+import { ClipboardList, Plus, Search, Trash2, Eye, Pencil } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
+import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -9,6 +10,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateClientDialog } from "@/components/modals/CreateClientDialog";
@@ -48,6 +59,7 @@ const statusColor: Record<string, string> = {
   aberta: "bg-chart-4/20 text-chart-4",
   em_andamento: "bg-chart-3/20 text-chart-3",
   concluida: "bg-chart-2/20 text-chart-2",
+  cancelada: "bg-muted text-muted-foreground",
 };
 
 const formatCurrency = (value: number) => {
@@ -90,6 +102,16 @@ const OrdensServico = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedOSForDetails, setSelectedOSForDetails] = useState<OS | null>(null);
   const [osDetailsItems, setOsDetailsItems] = useState<ItemOS[]>([]);
+
+  // Edit OS Modal
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingOS, setEditingOS] = useState<OS | null>(null);
+  const [editStatus, setEditStatus] = useState("");
+  const [editTipo, setEditTipo] = useState("");
+  const [editObs, setEditObs] = useState("");
+
+  // Delete OS State
+  const [deleteOSId, setDeleteOSId] = useState<string | null>(null);
 
   const { toast } = useToast();
 
@@ -266,29 +288,64 @@ const OrdensServico = () => {
     }
   };
 
-  const handleDeleteOS = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir esta OS? As peças vinculadas voltarão para o estoque.")) return;
+  const handleEditOS = (os: OS) => {
+    setEditingOS(os);
+    setEditStatus(os.status || "aberta");
+    setEditTipo(os.tipo_servico || "");
+    setEditObs(os.observacoes || "");
+    setEditOpen(true);
+  };
+
+  const handleUpdateOS = async () => {
+    if (!editingOS) return;
+    setLoading(true);
+
+    const { error } = await supabase
+      .from("ordens_servico")
+      .update({
+        status: editStatus,
+        tipo_servico: editTipo,
+        observacoes: editObs.trim() || null
+      })
+      .eq("id", editingOS.id);
+
+    setLoading(false);
+    if (error) {
+      toast({ title: "Erro", description: "Falha ao atualizar OS: " + error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Sucesso", description: "Ordem de serviço atualizada!" });
+      setEditOpen(false);
+      fetchData();
+    }
+  };
+
+  const handleDeleteOS = async () => {
+    if (!deleteOSId) return;
     
-    // Obter itens da OS primeiro para repor no estoque
-    const { data: itens } = await supabase.from('itens_os').select('*').eq('ordem_servico_id', id);
-    if (itens && itens.length > 0) {
-      for (const item of itens) {
-        if (item.tipo === 'peca' && item.item_id) {
-          const { data: p } = await supabase.from('pecas').select('estoque').eq('id', item.item_id).single();
-          if (p && p.estoque !== null) {
-            await supabase.from('pecas').update({ estoque: p.estoque + (item.quantidade || 1) }).eq('id', item.item_id);
+    try {
+      // Obter itens da OS primeiro para repor no estoque
+      const { data: itens } = await supabase.from('itens_os').select('*').eq('ordem_servico_id', deleteOSId);
+      if (itens && itens.length > 0) {
+        for (const item of itens) {
+          if (item.tipo === 'peca' && item.item_id) {
+            const { data: p } = await supabase.from('pecas').select('estoque').eq('id', item.item_id).single();
+            if (p && p.estoque !== null) {
+              await supabase.from('pecas').update({ estoque: p.estoque + (item.quantidade || 1) }).eq('id', item.item_id);
+            }
           }
         }
       }
-    }
 
-    // Excluir OS
-    const { error } = await supabase.from('ordens_servico').delete().eq('id', id);
-    if (error) {
-      toast({ title: "Erro", description: "Falha ao excluir. " + error.message, variant: "destructive" });
-    } else {
+      // Excluir OS
+      const { error } = await supabase.from('ordens_servico').delete().eq('id', deleteOSId);
+      if (error) throw error;
+
       toast({ title: "Sucesso", description: "Ordem excluída com sucesso." });
       fetchData();
+    } catch (error: any) {
+      toast({ title: "Erro", description: "Falha ao excluir. " + error.message, variant: "destructive" });
+    } finally {
+      setDeleteOSId(null);
     }
   };
 
@@ -343,10 +400,13 @@ const OrdensServico = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right space-x-2">
-                        <Button variant="outline" size="icon" onClick={() => handleOpenDetails(o)}>
+                        <Button variant="outline" size="icon" onClick={() => handleOpenDetails(o)} title="Ver Detalhes">
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteOS(o.id)}>
+                        <Button variant="outline" size="icon" onClick={() => handleEditOS(o)} title="Editar OS">
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => setDeleteOSId(o.id)} title="Excluir OS">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </TableCell>
@@ -613,6 +673,71 @@ const OrdensServico = () => {
 
       <CreateClientDialog open={isClientModalOpen} onOpenChange={setIsClientModalOpen} onSuccess={(id) => { fetchData(); setClienteId(id); setIsClientModalOpen(false); }} />
       <CreateVehicleDialog open={isVehicleModalOpen} onOpenChange={setIsVehicleModalOpen} clienteId={clienteId} onSuccess={(id) => { fetchData(); setVeiculoId(id); setIsVehicleModalOpen(false); }} />
+
+      {/* Modal Editar OS */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Ordem de Serviço</DialogTitle>
+            <DialogDescription>Altere o status, serviço principal ou observações.</DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={editStatus} onValueChange={setEditStatus}>
+                <SelectTrigger><SelectValue placeholder="Selecione o status" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="aberta">Aberta</SelectItem>
+                  <SelectItem value="em_andamento">Em Andamento</SelectItem>
+                  <SelectItem value="concluida">Concluída</SelectItem>
+                  <SelectItem value="cancelada">Cancelada</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Tipo de Serviço Principal</Label>
+              <Select value={editTipo} onValueChange={setEditTipo}>
+                <SelectTrigger><SelectValue placeholder="Selecione o tipo de serviço" /></SelectTrigger>
+                <SelectContent>
+                  {servicosDisponiveis.map(s => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Observações</Label>
+              <Textarea value={editObs} onChange={e => setEditObs(e.target.value)} placeholder="Detalhes atualizados..." rows={4} />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditOpen(false)}>Cancelar</Button>
+            <Button onClick={handleUpdateOS} disabled={loading}>{loading ? "Salvando..." : "Salvar Alterações"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmação de Exclusão OS */}
+      <AlertDialog open={!!deleteOSId} onOpenChange={(isOpen) => !isOpen && setDeleteOSId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Ordem de Serviço?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação removerá permanentemente a OS e todos os seus itens lançados. Peças vinculadas retornarão automaticamente ao estoque.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteOS} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
