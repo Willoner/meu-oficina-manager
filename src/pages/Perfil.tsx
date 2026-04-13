@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { User, Upload, X, ImageIcon, Loader2 } from "lucide-react";
+import { User, Upload, X, ImageIcon, Loader2, Trash2 } from "lucide-react";
 
 const Perfil = () => {
   const [nomeOficina, setNomeOficina] = useState("");
