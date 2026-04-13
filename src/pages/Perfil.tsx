@@ -11,6 +11,7 @@ const Perfil = () => {
   const [nomeOficina, setNomeOficina] = useState("");
   const [telefone, setTelefone] = useState("");
   const [cnpj, setCnpj] = useState("");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -23,6 +24,7 @@ const Perfil = () => {
         setNomeOficina(data.nome_oficina || "");
         setTelefone(data.telefone || "");
         setCnpj(data.cnpj || "");
+        setEmail(data.email || "");
       }
     };
     fetchPerfil();
@@ -52,21 +54,18 @@ const Perfil = () => {
     <div className="min-h-screen bg-background">
       <Sidebar />
       <main className="ml-64 min-h-screen">
-        <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b px-8 py-4">
-          <div className="flex items-center gap-3">
-            <User className="w-6 h-6 text-primary" />
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Meu Perfil</h1>
-              <p className="text-sm text-muted-foreground">Edite os dados da sua oficina</p>
-            </div>
-          </div>
-        </header>
+        <Header title="Meu Perfil" subtitle="Edite os dados da sua oficina" />
 
         <div className="p-8 max-w-lg">
           <form onSubmit={handleSave} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="nomeOficina">Nome da Oficina *</Label>
               <Input id="nomeOficina" value={nomeOficina} onChange={(e) => setNomeOficina(e.target.value)} required maxLength={100} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail</Label>
+              <Input id="email" value={email} disabled className="bg-secondary/30" />
+              <p className="text-[10px] text-muted-foreground italic">O e-mail é usado para login e notificações e não pode ser alterado aqui.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="telefone">Telefone</Label>

@@ -298,30 +298,19 @@ const OrdensServico = () => {
     <div className="min-h-screen bg-background">
       <Sidebar />
       <main className="ml-64 min-h-screen">
-        <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
-                <ClipboardList className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Ordens de Serviço</h1>
-                <p className="text-sm text-muted-foreground">Gerencie todas as ordens de serviço</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input placeholder="Buscar ordem..." className="pl-9 w-64" value={search} onChange={e => setSearch(e.target.value)} />
-              </div>
-              <Button className="gap-2" onClick={handleCreateOS}>
-                <Plus className="w-4 h-4" /> Nova Ordem
-              </Button>
-            </div>
-          </div>
-        </header>
+        <Header title="Ordens de Serviço" subtitle="Gerencie todas as ordens de serviço" />
 
         <div className="p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input placeholder="Buscar ordem..." className="pl-9 w-64" value={search} onChange={e => setSearch(e.target.value)} />
+            </div>
+            <Button className="gap-2" onClick={handleCreateOS}>
+              <Plus className="w-4 h-4" /> Nova Ordem
+            </Button>
+          </div>
+
           {ordens.length === 0 ? (
             <div className="rounded-lg border bg-card p-12 text-center text-muted-foreground">
               Nenhuma ordem de serviço cadastrada ainda. Clique em "Nova Ordem" para começar.

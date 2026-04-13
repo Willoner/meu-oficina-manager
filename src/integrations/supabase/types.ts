@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      configuracoes: {
+        Row: {
+          created_at: string
+          formato_data: string | null
+          id: string
+          moeda: string | null
+          notificacoes_email: boolean | null
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          formato_data?: string | null
+          id?: string
+          moeda?: string | null
+          notificacoes_email?: boolean | null
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          formato_data?: string | null
+          id?: string
+          moeda?: string | null
+          notificacoes_email?: boolean | null
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "configuracoes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clientes: {
         Row: {
           cpf: string | null
