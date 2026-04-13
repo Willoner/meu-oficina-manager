@@ -35,6 +35,8 @@ type OS = {
   veiculo_id: string;
   tipo_servico: string | null;
   valor_total: number | null;
+  assinatura_cliente_aceito: boolean;
+  assinatura_mecanico_aceito: boolean;
 };
 
 type Cliente = { id: string; nome: string };
@@ -299,6 +301,17 @@ const OrdensServico = () => {
 
   const handleUpdateOS = async () => {
     if (!editingOS) return;
+
+    // Regra: Não permitir concluir sem assinaturas
+    if (editStatus === "concluida" && (!editingOS.assinatura_cliente_aceito || !editingOS.assinatura_mecanico_aceito)) {
+      toast({ 
+        title: "Ação Bloqueada", 
+        description: "A Ordem de Serviço só pode ser concluída após o aceite de ambas as assinaturas (Cliente e Mecânico) na página de visualização.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     setLoading(true);
 
     let dataConclusao = editingOS.data_conclusao;
@@ -415,8 +428,8 @@ const OrdensServico = () => {
                           {o.status || "aberta"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button variant="outline" size="icon" onClick={() => handleOpenDetails(o)} title="Ver Detalhes">
+                      <TableCell className="text-right space-x-2 text-nowrap">
+                        <Button variant="outline" size="icon" onClick={() => navigate(`/ordens-servico/${o.id}/visualizar`)} title="Visualizar e Imprimir OS">
                           <Eye className="w-4 h-4" />
                         </Button>
                         <Button variant="outline" size="icon" onClick={() => handleEditOS(o)} title="Editar OS">

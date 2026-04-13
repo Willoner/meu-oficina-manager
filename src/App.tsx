@@ -13,6 +13,7 @@ import Estoque from "./pages/Estoque.tsx";
 import Configuracoes from "./pages/Configuracoes.tsx";
 import Perfil from "./pages/Perfil.tsx";
 import Login from "./pages/Login.tsx";
+import VisualizarOS from "./pages/VisualizarOS.tsx";
 import Signup from "./pages/Signup.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
           <Route path="/ordens-servico" element={<ProtectedRoute><OrdensServico /></ProtectedRoute>} />
+          <Route path="/ordens-servico/:id/visualizar" element={<ProtectedRoute><VisualizarOS /></ProtectedRoute>} />
           <Route path="/clientes" element={<ProtectedRoute><Clientes /></ProtectedRoute>} />
           <Route path="/veiculos" element={<ProtectedRoute><Veiculos /></ProtectedRoute>} />
           <Route path="/financeiro" element={<ProtectedRoute><Financeiro /></ProtectedRoute>} />

@@ -13,6 +13,8 @@ const Perfil = () => {
   const [telefone, setTelefone] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [email, setEmail] = useState("");
+  const [endereco, setEndereco] = useState("");
+  const [logotipoUrl, setLogotipoUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -26,6 +28,8 @@ const Perfil = () => {
         setTelefone(data.telefone || "");
         setCnpj(data.cnpj || "");
         setEmail(data.email || "");
+        setEndereco(data.endereco || "");
+        setLogotipoUrl(data.logotipo_url || "");
       }
     };
     fetchPerfil();
@@ -41,6 +45,8 @@ const Perfil = () => {
       nome_oficina: nomeOficina.trim(),
       telefone: telefone.trim() || null,
       cnpj: cnpj.trim() || null,
+      endereco: endereco.trim() || null,
+      logotipo_url: logotipoUrl.trim() || null,
     }).eq("id", user.id);
 
     if (error) {
@@ -75,6 +81,15 @@ const Perfil = () => {
             <div className="space-y-2">
               <Label htmlFor="cnpj">CNPJ</Label>
               <Input id="cnpj" value={cnpj} onChange={(e) => setCnpj(e.target.value)} maxLength={18} placeholder="00.000.000/0000-00" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="endereco">Endereço da Oficina</Label>
+              <Input id="endereco" value={endereco} onChange={(e) => setEndereco(e.target.value)} placeholder="Rua, Número, Bairro, Cidade - UF" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="logotipo">URL do Logotipo</Label>
+              <Input id="logotipo" value={logotipoUrl} onChange={(e) => setLogotipoUrl(e.target.value)} placeholder="https://exemplo.com/logo.png" />
+              <p className="text-[10px] text-muted-foreground italic">Insira a URL de uma imagem para o cabeçalho da OS.</p>
             </div>
             <Button type="submit" disabled={loading}>
               {loading ? "Salvando..." : "Salvar alterações"}
