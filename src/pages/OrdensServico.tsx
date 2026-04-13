@@ -30,6 +30,7 @@ type OS = {
   status: string | null;
   observacoes: string | null;
   data_abertura: string | null;
+  data_conclusao: string | null;
   cliente_id: string;
   veiculo_id: string;
   tipo_servico: string | null;
@@ -300,12 +301,20 @@ const OrdensServico = () => {
     if (!editingOS) return;
     setLoading(true);
 
+    let dataConclusao = editingOS.data_conclusao;
+    if (editStatus === "concluida" && editingOS.status !== "concluida") {
+      dataConclusao = new Date().toISOString();
+    } else if (editStatus !== "concluida" && editingOS.status === "concluida") {
+      dataConclusao = null;
+    }
+
     const { error } = await supabase
       .from("ordens_servico")
       .update({
         status: editStatus,
         tipo_servico: editTipo,
-        observacoes: editObs.trim() || null
+        observacoes: editObs.trim() || null,
+        data_conclusao: dataConclusao
       })
       .eq("id", editingOS.id);
 
@@ -313,7 +322,14 @@ const OrdensServico = () => {
     if (error) {
       toast({ title: "Erro", description: "Falha ao atualizar OS: " + error.message, variant: "destructive" });
     } else {
-      toast({ title: "Sucesso", description: "Ordem de serviço atualizada!" });
+      let msg = "Ordem de serviço atualizada!";
+      if (editStatus === "concluida" && editingOS.status !== "concluida") {
+        msg = "Ordem concluída e faturamento atualizado com sucesso!";
+      } else if (editStatus !== "concluida" && editingOS.status === "concluida") {
+        msg = "Ordem reaberta e faturamento ajustado.";
+      }
+
+      toast({ title: "Sucesso", description: msg });
       setEditOpen(false);
       fetchData();
     }
