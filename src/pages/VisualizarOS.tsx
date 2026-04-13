@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import Sidebar from "@/components/Sidebar";
+import Header from "@/components/Header";
 
 type OSData = {
   id: string;
@@ -179,8 +180,13 @@ const VisualizarOS = () => {
         <Sidebar />
       </div>
       
-      <main className="ml-0 md:ml-64 p-4 md:p-8 print:m-0 print:p-0">
-        {/* Buttons (Hidden on print) */}
+      <main className="ml-0 md:ml-64 min-h-screen print:m-0 print:p-0">
+        <div className="print:hidden">
+          <Header title="Visualizar OS" subtitle={`Ordem de Serviço #${os.id.substring(0, 8).toUpperCase()}`} />
+        </div>
+
+        <div className="p-4 md:p-8">
+          {/* Buttons (Hidden on print) */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6 print:hidden">
           <Button variant="ghost" onClick={() => navigate("/ordens-servico")} className="gap-2">
             <ArrowLeft className="w-4 h-4" /> Voltar

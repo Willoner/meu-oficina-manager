@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { ClipboardList, Plus, Search, Trash2, Eye, Pencil } from "lucide-react";
+import { ClipboardList, Plus, Search, Trash2, Eye, Pencil, AlertTriangle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
@@ -70,6 +71,7 @@ const formatCurrency = (value: number) => {
 };
 
 const OrdensServico = () => {
+  const navigate = useNavigate();
   const [ordens, setOrdens] = useState<OS[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
@@ -312,6 +314,8 @@ const OrdensServico = () => {
       return;
     }
 
+    const hasSignatures = editingOS.assinatura_cliente_aceito || editingOS.assinatura_mecanico_aceito;
+
     setLoading(true);
 
     let dataConclusao = editingOS.data_conclusao;
@@ -321,21 +325,34 @@ const OrdensServico = () => {
       dataConclusao = null;
     }
 
+    const updates: any = {
+      status: editStatus,
+      tipo_servico: editTipo,
+      observacoes: editObs.trim() || null,
+      data_conclusao: dataConclusao
+    };
+
+    // Resetar assinaturas se houver mudanças em OS já assinadas
+    if (hasSignatures) {
+      updates.assinatura_cliente_aceito = false;
+      updates.assinatura_cliente_em = null;
+      updates.assinatura_mecanico_aceito = false;
+      updates.assinatura_mecanico_em = null;
+    }
+
     const { error } = await supabase
       .from("ordens_servico")
-      .update({
-        status: editStatus,
-        tipo_servico: editTipo,
-        observacoes: editObs.trim() || null,
-        data_conclusao: dataConclusao
-      })
+      .update(updates)
       .eq("id", editingOS.id);
 
     setLoading(false);
     if (error) {
       toast({ title: "Erro", description: "Falha ao atualizar OS: " + error.message, variant: "destructive" });
     } else {
-      let msg = "Ordem de serviço atualizada!";
+      let msg = hasSignatures 
+        ? "Alterações salvas. As assinaturas foram resetadas porque o conteúdo da OS mudou." 
+        : "Ordem de serviço atualizada!";
+        
       if (editStatus === "concluida" && editingOS.status !== "concluida") {
         msg = "Ordem concluída e faturamento atualizado com sucesso!";
       } else if (editStatus !== "concluida" && editingOS.status === "concluida") {
@@ -432,7 +449,13 @@ const OrdensServico = () => {
                         <Button variant="outline" size="icon" onClick={() => navigate(`/ordens-servico/${o.id}/visualizar`)} title="Visualizar e Imprimir OS">
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => handleEditOS(o)} title="Editar OS">
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          onClick={() => handleEditOS(o)} 
+                          title={o.status === "concluida" ? "OS concluída não pode ser editada" : "Editar OS"}
+                          disabled={o.status === "concluida"}
+                        >
                           <Pencil className="w-4 h-4" />
                         </Button>
                         <Button variant="outline" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => setDeleteOSId(o.id)} title="Excluir OS">
@@ -712,6 +735,13 @@ const OrdensServico = () => {
           </DialogHeader>
           
           <div className="space-y-4 pt-4">
+            {(editingOS?.assinatura_cliente_aceito || editingOS?.assinatura_mecanico_aceito) && (
+              <div className="flex items-center gap-2 p-3 bg-warning/10 text-orange-600 rounded-md text-xs border border-orange-200">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>Esta OS já possui assinaturas. Salvar alterações resetará os aceites e exigirá nova assinatura.</span>
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label>Status</Label>
               <Select value={editStatus} onValueChange={setEditStatus}>
