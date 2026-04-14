@@ -504,8 +504,9 @@ const OrdensServico = () => {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
+                  );
+                })}
+              </TableBody>
               </Table>
             </div>
           )}
