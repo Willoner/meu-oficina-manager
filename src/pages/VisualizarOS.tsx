@@ -155,17 +155,19 @@ const VisualizarOS = () => {
 
   const handleWhatsApp = () => {
     if (!os) return;
+    const publicLink = `${window.location.origin}/public/os/${os.id}`;
     const msg = encodeURIComponent(
-      `Olá ${os.clientes?.nome}, aqui está o link para visualização da sua Ordem de Serviço na ${os.usuarios?.nome_oficina}:\n\n` +
-      `${window.location.href}`
+      `Olá ${os.clientes?.nome}, aqui está o link para visualização e assinatura da sua Ordem de Serviço na ${os.usuarios?.nome_oficina}:\n\n` +
+      `${publicLink}`
     );
     window.open(`https://wa.me/${os.clientes?.telefone?.replace(/\D/g, '')}?text=${msg}`, "_blank");
   };
 
   const handleEmail = () => {
     if (!os) return;
+    const publicLink = `${window.location.origin}/public/os/${os.id}`;
     const subject = encodeURIComponent(`Ordem de Serviço - ${os.usuarios?.nome_oficina}`);
-    const body = encodeURIComponent(`Olá ${os.clientes?.nome},\n\nSegue o link para visualização da sua Ordem de Serviço:\n${window.location.href}`);
+    const body = encodeURIComponent(`Olá ${os.clientes?.nome},\n\nSegue o link para visualização e assinatura da sua Ordem de Serviço:\n${publicLink}`);
     window.location.href = `mailto:${os.clientes?.email}?subject=${subject}&body=${body}`;
   };
 
