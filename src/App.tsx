@@ -18,6 +18,7 @@ import Signup from "./pages/Signup.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import VisualizarOS from "./pages/VisualizarOS.tsx";
+import EditarOS from "./pages/EditarOS.tsx";
 import TermosUso from "./pages/TermosUso.tsx";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
           <Route path="/ordens-servico" element={<ProtectedRoute><OrdensServico /></ProtectedRoute>} />
           <Route path="/ordens-servico/:id/visualizar" element={<ProtectedRoute><VisualizarOS /></ProtectedRoute>} />
+          <Route path="/ordens-servico/:id/editar" element={<ProtectedRoute><EditarOS /></ProtectedRoute>} />
           <Route path="/clientes" element={<ProtectedRoute><Clientes /></ProtectedRoute>} />
           <Route path="/veiculos" element={<ProtectedRoute><Veiculos /></ProtectedRoute>} />
           <Route path="/financeiro" element={<ProtectedRoute><Financeiro /></ProtectedRoute>} />

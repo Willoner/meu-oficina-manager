@@ -449,10 +449,10 @@ const OrdensServico = () => {
                         <Button variant="outline" size="icon" onClick={() => navigate(`/ordens-servico/${o.id}/visualizar`)} title="Visualizar e Imprimir OS">
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button 
+                         <Button 
                           variant="outline" 
                           size="icon" 
-                          onClick={() => handleEditOS(o)} 
+                          onClick={() => navigate(`/ordens-servico/${o.id}/editar`)} 
                           title={o.status === "concluida" ? "OS concluída não pode ser editada" : "Editar OS"}
                           disabled={o.status === "concluida"}
                         >
