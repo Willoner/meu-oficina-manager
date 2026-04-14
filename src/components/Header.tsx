@@ -59,9 +59,10 @@ const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
         // Fetch Notifications
         fetchNotifications(user.id);
         
-        // Setup Realtime
-        const channel = supabase
-          .channel('schema-db-changes')
+        // Setup Realtime with robust handling
+        console.log("Iniciando inscrição Realtime para usuário:", user.id);
+        const userChannel = supabase
+          .channel(`notificacoes-${user.id}`)
           .on(
             'postgres_changes',
             {
@@ -71,7 +72,7 @@ const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
               filter: `usuario_id=eq.${user.id}`
             },
             (payload) => {
-              console.log('Nova notificação:', payload);
+              console.log('Nova notificação recebida:', payload);
               setNotificacoes(prev => [payload.new as Notificacao, ...prev].slice(0, 10));
               setUnreadCount(prev => prev + 1);
               toast({
@@ -80,10 +81,19 @@ const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
               });
             }
           )
-          .subscribe();
+          .subscribe((status, error) => {
+            console.log(`Status do Canal [notificacoes-${user.id}]:`, status);
+            if (error) {
+              console.error("Erro no Canal Realtime:", error.message);
+            }
+            if (status === 'CHANNEL_ERROR') {
+              console.warn("Possível erro de configuração no Realtime do Supabase (Replication).");
+            }
+          });
 
         return () => {
-          supabase.removeChannel(channel);
+          console.log("Limpando canal Realtime:", userChannel.topic);
+          supabase.removeChannel(userChannel);
         };
       }
     };
@@ -92,17 +102,30 @@ const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
   }, []);
 
   const fetchNotifications = async (userId: string) => {
-    const { data } = await supabase
-      .from("notificacoes")
-      .select("*")
-      .eq("usuario_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(10);
-    
-    if (data) {
-      setNotificacoes(data);
-      const unread = data.filter(n => !n.lida).length;
-      setUnreadCount(unread);
+    try {
+      const { data, error } = await supabase
+        .from("notificacoes")
+        .select("*")
+        .eq("usuario_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      
+      if (error) {
+        // Tratar 404/406 graciosamente
+        if (error.code === 'PGRST116' || error.message.includes('not found')) {
+          console.warn("Tabela 'notificacoes' não encontrada. Verifique se executou o script SQL.");
+          return;
+        }
+        throw error;
+      }
+      
+      if (data) {
+        setNotificacoes(data);
+        const unread = data.filter(n => !n.lida).length;
+        setUnreadCount(unread);
+      }
+    } catch (err: any) {
+      console.error("Erro ao buscar notificações:", err.message);
     }
   };
 
