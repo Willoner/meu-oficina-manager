@@ -14,6 +14,10 @@ import Configuracoes from "./pages/Configuracoes.tsx";
 import Perfil from "./pages/Perfil.tsx";
 import Login from "./pages/Login.tsx";
 import PublicOS from "./pages/PublicOS.tsx";
+import Signup from "./pages/Signup.tsx";
+import ForgotPassword from "./pages/ForgotPassword.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
+import VisualizarOS from "./pages/VisualizarOS.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
