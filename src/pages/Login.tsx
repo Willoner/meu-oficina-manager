@@ -57,6 +57,12 @@ const Login = () => {
             <Link to="/signup" className="text-primary hover:underline font-medium">Cadastre-se</Link>
           </p>
         </div>
+
+        <div className="flex items-center justify-center gap-4 pt-8 border-t text-[10px] uppercase font-bold tracking-widest text-muted-foreground/50">
+          <Link to="/termos" className="hover:text-primary transition-colors">Termos</Link>
+          <span className="w-1 h-1 bg-muted-foreground/20 rounded-full" />
+          <Link to="/privacidade" className="hover:text-primary transition-colors">Privacidade</Link>
+        </div>
       </div>
     </div>
   );

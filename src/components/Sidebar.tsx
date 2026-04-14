@@ -43,6 +43,21 @@ const Sidebar = () => {
           );
         })}
       </nav>
+      {/* Legal Links Footer */}
+      <div className="px-6 py-6 border-t border-sidebar-border space-y-2">
+        <button 
+          onClick={() => navigate("/termos")}
+          className="block text-[10px] text-muted-foreground hover:text-primary transition-colors uppercase font-bold tracking-wider"
+        >
+          Termos de Uso
+        </button>
+        <button 
+          onClick={() => navigate("/privacidade")}
+          className="block text-[10px] text-muted-foreground hover:text-primary transition-colors uppercase font-bold tracking-wider"
+        >
+          Privacidade
+        </button>
+      </div>
 
     </aside>
   );

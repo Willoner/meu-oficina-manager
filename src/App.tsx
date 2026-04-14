@@ -18,6 +18,8 @@ import Signup from "./pages/Signup.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import VisualizarOS from "./pages/VisualizarOS.tsx";
+import TermosUso from "./pages/TermosUso.tsx";
+import PoliticaPrivacidade from "./pages/PoliticaPrivacidade.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/public/os/:id" element={<PublicOS />} />
+          <Route path="/termos" element={<TermosUso />} />
+          <Route path="/privacidade" element={<PoliticaPrivacidade />} />
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
           <Route path="/ordens-servico" element={<ProtectedRoute><OrdensServico /></ProtectedRoute>} />
           <Route path="/ordens-servico/:id/visualizar" element={<ProtectedRoute><VisualizarOS /></ProtectedRoute>} />

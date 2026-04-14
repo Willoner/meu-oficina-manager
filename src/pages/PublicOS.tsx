@@ -241,9 +241,16 @@ const PublicOS = () => {
               </div>
             </div>
 
-            <div className="text-[9px] text-center text-muted-foreground pt-4 leading-tight">
-              Este link é exclusivo para aprovação desta Ordem de Serviço.<br/>
-              © 2026 Oficina em Ordem - Gestão Inteligente.
+            <div className="text-[9px] text-center text-muted-foreground pt-4 leading-tight space-y-2">
+              <div className="flex items-center justify-center gap-2 font-bold uppercase tracking-widest opacity-60">
+                <a href="/termos" target="_blank" className="hover:text-primary">Termos</a>
+                <span className="w-1 h-1 bg-muted-foreground/30 rounded-full" />
+                <a href="/privacidade" target="_blank" className="hover:text-primary">Privacidade</a>
+              </div>
+              <p>
+                Este link é exclusivo para aprovação desta Ordem de Serviço.<br/>
+                © 2026 Oficina em Ordem - Gestão Inteligente.
+              </p>
             </div>
 
           </CardContent>

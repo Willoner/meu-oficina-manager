@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Logo } from "@/components/Logo";
 
@@ -11,6 +12,7 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nomeOficina, setNomeOficina] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -58,7 +60,23 @@ const Signup = () => {
             <Label htmlFor="password">Senha</Label>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="Mínimo 6 caracteres" />
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <div className="flex items-start bg-muted/30 p-4 rounded-lg border gap-3 group hover:bg-muted/50 transition-colors">
+            <Checkbox 
+              id="terms" 
+              checked={agreed} 
+              onCheckedChange={(checked) => setAgreed(checked === true)} 
+              className="mt-1"
+            />
+            <Label htmlFor="terms" className="text-xs leading-relaxed text-muted-foreground cursor-pointer select-none">
+              Li e concordo com os{" "}
+              <Link to="/termos" target="_blank" className="text-primary hover:underline font-bold">Termos de Uso</Link>{" "}
+              e a{" "}
+              <Link to="/privacidade" target="_blank" className="text-primary hover:underline font-bold">Política de Privacidade</Link>{" "}
+              do sistema Oficina em Ordem.
+            </Label>
+          </div>
+
+          <Button type="submit" className="w-full" disabled={loading || !agreed}>
             {loading ? "Cadastrando..." : "Cadastrar"}
           </Button>
         </form>
