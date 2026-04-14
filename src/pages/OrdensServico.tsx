@@ -36,6 +36,7 @@ type OS = {
   veiculo_id: string;
   tipo_servico: string | null;
   valor_total: number | null;
+  prazo: string | null;
   assinatura_cliente_aceito: boolean;
   assinatura_mecanico_aceito: boolean;
 };
@@ -84,6 +85,7 @@ const OrdensServico = () => {
   const [clienteId, setClienteId] = useState("");
   const [veiculoId, setVeiculoId] = useState("");
   const [tipoServico, setTipoServico] = useState("");
+  const [prazo, setPrazo] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [itensOS, setItensOS] = useState<ItemOS[]>([]);
 
@@ -132,6 +134,26 @@ const OrdensServico = () => {
     if (resClientes.data) setClientes(resClientes.data);
     if (resVeiculos.data) setVeiculos(resVeiculos.data);
     if (resPecas.data) setPecas(resPecas.data);
+
+    // Auto-check delays on load
+    handleVerificarAtrasos(false);
+  };
+
+  const handleVerificarAtrasos = async (showToast = true) => {
+    try {
+      const { data, error } = await supabase.rpc('fn_verificar_atrasos_os');
+      if (error) throw error;
+      if (showToast && data) {
+        toast({ 
+          title: "Verificação de Atrasos", 
+          description: data.notificacoes_enviadas > 0 
+            ? `${data.notificacoes_enviadas} novas notificações de atraso geradas.` 
+            : "Nenhum novo atraso detectado."
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao verificar atrasos:", err);
+    }
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -151,6 +173,7 @@ const OrdensServico = () => {
     setClienteId("");
     setVeiculoId("");
     setTipoServico("");
+    setPrazo("");
     setObservacoes("");
     setItensOS([]);
     setOpen(true);
@@ -236,6 +259,7 @@ const OrdensServico = () => {
       cliente_id: clienteId,
       veiculo_id: veiculoId,
       tipo_servico: tipoServico,
+      prazo: prazo || null,
       observacoes: observacoes.trim() || null,
       usuario_id: user.id,
       status: "aberta",
@@ -409,9 +433,14 @@ const OrdensServico = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input placeholder="Buscar ordem..." className="pl-9 w-64" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            <Button className="gap-2" onClick={handleCreateOS}>
-              <Plus className="w-4 h-4" /> Nova Ordem
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => handleVerificarAtrasos(true)} title="Verificar atrasos agora">
+                Verificar Atrasos
+              </Button>
+              <Button className="gap-2" onClick={handleCreateOS}>
+                <Plus className="w-4 h-4" /> Nova Ordem
+              </Button>
+            </div>
           </div>
 
           {ordens.length === 0 ? (
@@ -426,6 +455,7 @@ const OrdensServico = () => {
                     <TableHead>Data</TableHead>
                     <TableHead>Cliente</TableHead>
                     <TableHead>Veículo</TableHead>
+                    <TableHead>Prazo</TableHead>
                     <TableHead>Serviço</TableHead>
                     <TableHead>Total</TableHead>
                     <TableHead>Status</TableHead>
@@ -433,18 +463,29 @@ const OrdensServico = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {ordens.map(o => (
-                    <TableRow key={o.id}>
-                      <TableCell>{o.data_abertura ? new Date(o.data_abertura).toLocaleDateString("pt-BR") : "—"}</TableCell>
-                      <TableCell className="font-medium">{getClienteNome(o.cliente_id)}</TableCell>
-                      <TableCell>{veiculos.find(v => v.id === o.veiculo_id)?.modelo || "—"}</TableCell>
-                      <TableCell>{o.tipo_servico || "—"}</TableCell>
-                      <TableCell>{o.valor_total ? formatCurrency(o.valor_total) : "—"}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className={statusColor[o.status || "aberta"] || ""}>
-                          {o.status || "aberta"}
-                        </Badge>
-                      </TableCell>
+                  {ordens.map(o => {
+                    const isAtrasada = o.status !== 'concluida' && o.status !== 'cancelada' && o.prazo && new Date(o.prazo) < new Date(new Date().setHours(0,0,0,0));
+                    
+                    return (
+                      <TableRow key={o.id} className={isAtrasada ? "bg-destructive/5 hover:bg-destructive/10 border-l-4 border-l-destructive" : ""}>
+                        <TableCell>{o.data_abertura ? new Date(o.data_abertura).toLocaleDateString("pt-BR") : "—"}</TableCell>
+                        <TableCell className="font-medium">{getClienteNome(o.cliente_id)}</TableCell>
+                        <TableCell>{veiculos.find(v => v.id === o.veiculo_id)?.modelo || "—"}</TableCell>
+                        <TableCell>
+                          {o.prazo ? (
+                            <span className={isAtrasada ? "text-destructive font-bold flex items-center gap-1" : ""}>
+                              {isAtrasada && <AlertTriangle className="w-3 h-3" />}
+                              {new Date(o.prazo).toLocaleDateString("pt-BR")}
+                            </span>
+                          ) : "—"}
+                        </TableCell>
+                        <TableCell>{o.tipo_servico || "—"}</TableCell>
+                        <TableCell>{o.valor_total ? formatCurrency(o.valor_total) : "—"}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className={statusColor[o.status || "aberta"] || ""}>
+                            {o.status || "aberta"}
+                          </Badge>
+                        </TableCell>
                       <TableCell className="text-right space-x-2 text-nowrap">
                         <Button variant="outline" size="icon" onClick={() => navigate(`/ordens-servico/${o.id}/visualizar`)} title="Visualizar e Imprimir OS">
                           <Eye className="w-4 h-4" />
@@ -525,6 +566,11 @@ const OrdensServico = () => {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="prazo">Prazo de Entrega</Label>
+                <Input id="prazo" type="date" className="mt-1" value={prazo} onChange={e => setPrazo(e.target.value)} />
               </div>
 
               <div>

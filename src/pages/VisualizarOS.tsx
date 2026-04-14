@@ -24,6 +24,7 @@ type OSData = {
   tipo_servico: string | null;
   data_abertura: string | null;
   data_conclusao: string | null;
+  prazo: string | null;
   observacoes: string | null;
   valor_total: number | null;
   cliente_id: string;
@@ -261,9 +262,15 @@ const VisualizarOS = () => {
                     <p className="font-semibold text-sm">{os.veiculos?.placa} | {os.veiculos?.ano}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">KM Atual</p>
-                    <p className="font-semibold text-sm">{os.veiculos?.km_atual?.toLocaleString() || "—"} km</p>
-                  </div>
+                  <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-bold">Abertura</p>
+                  <p className="text-sm font-medium">{os.data_abertura ? new Date(os.data_abertura).toLocaleDateString() : '—'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-bold">Prazo de Entrega</p>
+                  <p className={`text-sm font-black ${os.status !== 'concluida' && os.prazo && new Date(os.prazo) < new Date(new Date().setHours(0,0,0,0)) ? 'text-destructive' : ''}`}>
+                    {os.prazo ? new Date(os.prazo).toLocaleDateString() : 'Não definido'}
+                  </p>
+                </div>
                 </div>
               </div>
             </div>

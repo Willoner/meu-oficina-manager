@@ -31,6 +31,7 @@ type OS = {
   cliente_id: string;
   veiculo_id: string;
   valor_total: number | null;
+  prazo: string | null;
   assinatura_cliente_aceito: boolean;
   assinatura_mecanico_aceito: boolean;
 };
@@ -68,6 +69,7 @@ const EditarOS = () => {
   const [veiculoId, setVeiculoId] = useState("");
   const [tipoServico, setTipoServico] = useState("");
   const [status, setStatus] = useState("");
+  const [prazo, setPrazo] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [itensOS, setItensOS] = useState<ItemOS[]>([]);
   const [originalItens, setOriginalItens] = useState<ItemOS[]>([]);
@@ -110,6 +112,7 @@ const EditarOS = () => {
       setVeiculoId(osData.veiculo_id);
       setTipoServico(osData.tipo_servico || "");
       setStatus(osData.status || "aberta");
+      setPrazo(osData.prazo || "");
       setObservacoes(osData.observacoes || "");
 
       // Fetch Items
@@ -267,6 +270,7 @@ const EditarOS = () => {
         veiculo_id: veiculoId,
         tipo_servico: tipoServico,
         status: status,
+        prazo: prazo || null,
         observacoes: observacoes.trim() || null,
         valor_total: totalOS
       };
@@ -378,6 +382,11 @@ const EditarOS = () => {
                       <SelectItem value="cancelada">Cancelada</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Prazo de Entrega</Label>
+                  <Input type="date" value={prazo} onChange={e => setPrazo(e.target.value)} />
                 </div>
 
                 <div className="md:col-span-2 space-y-2">

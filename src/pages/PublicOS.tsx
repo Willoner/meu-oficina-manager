@@ -18,6 +18,7 @@ type OSData = {
   tipo_servico: string | null;
   data_abertura: string | null;
   data_conclusao: string | null;
+  prazo: string | null;
   observacoes: string | null;
   valor_total: number | null;
   cliente_id: string;
@@ -157,6 +158,12 @@ const PublicOS = () => {
               <div className="space-y-1">
                 <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">VEÍCULO</div>
                 <p className="font-bold text-foreground">{os.veiculos?.modelo} ({os.veiculos?.placa})</p>
+              </div>
+              <div className="space-y-1">
+                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">PRAZO DE ENTREGA</div>
+                <p className={`font-black ${os.status !== 'concluida' && os.prazo && new Date(os.prazo) < new Date(new Date().setHours(0,0,0,0)) ? 'text-destructive underline decoration-wavy' : 'text-foreground'}`}>
+                  {os.prazo ? new Date(os.prazo).toLocaleDateString() : 'A combinar'}
+                </p>
               </div>
             </div>
 
