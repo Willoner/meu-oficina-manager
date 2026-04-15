@@ -1,87 +1,61 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, Crown } from "lucide-react";
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Crown } from 'lucide-react';
 
-interface AssinarProProps {
-  className?: string;
-  variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
-  size?: "default" | "sm" | "lg" | "icon";
-}
-
-const AssinarPro = ({ className, variant = "default", size = "default" }: AssinarProProps) => {
+export default function AssinarPro() {
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   const handleSubscribe = async () => {
     setLoading(true);
     
     try {
-      // Obtém a sessão atual para pegar o token e o userId
+      // Obtém a sessão atual
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session?.user?.id) {
-        toast({
-          variant: "destructive",
-          title: "Erro",
-          description: "Você precisa estar logado para assinar.",
-        });
+        alert('Usuário não está logado');
         return;
       }
 
-      // Chamada direta via fetch para a Edge Function (conforme seu código testado)
+      console.log('Enviando userId:', session.user.id);
+
+      // Chamada direta para a Edge Function
       const response = await fetch(
         'https://nvmzhjybjwprtupogumd.supabase.co/functions/v1/stripe-create-checkout-session',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
           },
           body: JSON.stringify({ userId: session.user.id })
         }
       );
 
       const data = await response.json();
-      
+      console.log('Resposta da função:', data);
+
       if (data.sessionId) {
-        // Redireciona para o Stripe Checkout (ID da sessão)
+        // Redireciona para o Stripe Checkout
         window.location.href = `https://checkout.stripe.com/pay/${data.sessionId}`;
       } else if (data.url) {
-        // Redireciona para a URL direta (Fallback)
+        // Fallback se retornar URL direta
         window.location.href = data.url;
       } else {
-        throw new Error(data.error || 'Erro ao criar sessão de pagamento.');
+        alert('Erro ao criar sessão de pagamento: ' + (data.error || 'Tente novamente'));
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erro na requisição:', error);
-      toast({
-        variant: "destructive",
-        title: "Erro na assinatura",
-        description: error.message || "Erro de conexão. Tente novamente.",
-      });
+      alert('Erro de conexão. Tente novamente.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Button 
-      onClick={handleSubscribe} 
-      disabled={loading}
-      variant={variant}
-      size={size}
-      className={`${className} gradient-primary text-white font-bold gap-2`}
-    >
-      {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <Crown className="h-4 w-4" />
-      )}
-      Assinar Pro
+    <Button onClick={handleSubscribe} disabled={loading} className="gap-2 gradient-primary text-white font-bold">
+      <Crown className="h-4 w-4" />
+      {loading ? 'Processando...' : 'Assinar Pro'}
     </Button>
   );
-};
-
-export default AssinarPro;
+}
