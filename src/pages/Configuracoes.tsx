@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
+import AssinarPro from "@/components/AssinarPro";
 
 const Configuracoes = () => {
   const { toast } = useToast();
@@ -54,7 +55,7 @@ const Configuracoes = () => {
     notificacoes_email: true,
   });
 
-  const OS_LIMIT = userPlan === "Pro" ? 9999 : 30; // Exemplo de limite
+  const OS_LIMIT = userPlan === "Pro" ? 999999 : 10;
 
   useEffect(() => {
     fetchData();
@@ -143,13 +144,6 @@ const Configuracoes = () => {
     }
   };
 
-  const handleUpgradeClick = () => {
-    toast({
-      title: "Funcionalidade disponível em breve",
-      description: "Entre em contato pelo WhatsApp (16) 98197-4355 para mais informações.",
-      duration: 6000,
-    });
-  };
 
   const handleDeleteAccount = async () => {
     toast({
@@ -212,12 +206,15 @@ const Configuracoes = () => {
                 {userPlan === "Pro" ? (
                   <div className="flex items-center gap-2 text-primary font-medium">
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Plano atual Pro habilitado</span>
+                    <span>Plano Pro Ativo</span>
                   </div>
                 ) : (
-                  <Button onClick={handleUpgradeClick} className="gradient-primary">
-                    Fazer upgrade para Pro
-                  </Button>
+                  <div className="flex flex-col gap-3 w-full">
+                    <AssinarPro className="w-full sm:w-auto" />
+                    <p className="text-[10px] text-muted-foreground">
+                      * O plano Pro remove todos os limites de Ordens de Serviço.
+                    </p>
+                  </div>
                 )}
               </CardFooter>
             </Card>

@@ -79,6 +79,8 @@ const OrdensServico = () => {
   const [pecas, setPecas] = useState<Peca[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userPlan, setUserPlan] = useState<string>("Gratuito");
+  const [osCountMonth, setOsCountMonth] = useState(0);
 
   // Modal OS states
   const [open, setOpen] = useState(false);
@@ -123,17 +125,33 @@ const OrdensServico = () => {
   const { toast } = useToast();
 
   const fetchData = async () => {
-    const [resOrdens, resClientes, resVeiculos, resPecas] = await Promise.all([
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const [resOrdens, resClientes, resVeiculos, resPecas, resUserPlan] = await Promise.all([
       supabase.from("ordens_servico").select("*").order("data_abertura", { ascending: false }),
       supabase.from("clientes").select("id, nome").order("nome"),
       supabase.from("veiculos").select("id, placa, modelo, cliente_id").order("placa"),
-      supabase.from("pecas").select("id, nome, valor_venda, estoque").order("nome")
+      supabase.from("pecas").select("id, nome, valor_venda, estoque").order("nome"),
+      supabase.from("usuarios").select("plano").eq("id", user.id).single()
     ]);
 
     if (resOrdens.data) setOrdens(resOrdens.data);
     if (resClientes.data) setClientes(resClientes.data);
     if (resVeiculos.data) setVeiculos(resVeiculos.data);
     if (resPecas.data) setPecas(resPecas.data);
+    if (resUserPlan.data) setUserPlan(resUserPlan.data.plano || "Gratuito");
+
+    // Count OS for current month
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const { count } = await supabase
+      .from("ordens_servico")
+      .select("*", { count: "exact", head: true })
+      .eq("usuario_id", user.id)
+      .gte("created_at", firstDay);
+    
+    setOsCountMonth(count || 0);
 
     // Auto-check delays on load
     handleVerificarAtrasos(false);
@@ -250,6 +268,17 @@ const OrdensServico = () => {
       toast({ title: "Erro", description: "Usuário não autenticado.", variant: "destructive" }); 
       setLoading(false); 
       return; 
+    }
+
+    // Check plan limit
+    if (userPlan === "Gratuito" && osCountMonth >= 10) {
+      toast({ 
+        title: "Limite atingido", 
+        description: "Limite de OS do plano gratuito atingido. Faça upgrade para o Pro.", 
+        variant: "destructive" 
+      });
+      setLoading(false);
+      return;
     }
 
     const totalOS = calcularTotalOS();
@@ -434,12 +463,18 @@ const OrdensServico = () => {
               <Input placeholder="Buscar ordem..." className="pl-9 w-64" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleVerificarAtrasos(true)} title="Verificar atrasos agora">
-                Verificar Atrasos
+              <Button variant="outline" size="sm" onClick={() => handleVerificarAtrasos(true)} className="gap-2">
+                <RefreshCw className="w-4 h-4" /> <span className="hidden md:inline">Verificar Atrasos</span>
               </Button>
-              <Button className="gap-2" onClick={handleCreateOS}>
-                <Plus className="w-4 h-4" /> Nova Ordem
-              </Button>
+              {userPlan === "Gratuito" && osCountMonth >= 10 ? (
+                <Button onClick={() => navigate("/configuracoes")} className="gradient-primary animate-pulse">
+                  Upgrade para Pro
+                </Button>
+              ) : (
+                <Button onClick={() => setOpen(true)} className="gradient-primary">
+                  <Plus className="w-4 h-4" /> Nova Ordem
+                </Button>
+              )}
             </div>
           </div>
 

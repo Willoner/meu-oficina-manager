@@ -19,6 +19,8 @@ import ForgotPassword from "./pages/ForgotPassword.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import VisualizarOS from "./pages/VisualizarOS.tsx";
 import EditarOS from "./pages/EditarOS.tsx";
+import CheckoutSuccess from "./pages/CheckoutSuccess.tsx";
+import CheckoutCancel from "./pages/CheckoutCancel.tsx";
 import TermosUso from "./pages/TermosUso.tsx";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -37,6 +39,8 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/public/os/:id" element={<PublicOS />} />
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+          <Route path="/checkout/cancel" element={<CheckoutCancel />} />
           <Route path="/termos" element={<TermosUso />} />
           <Route path="/privacidade" element={<PoliticaPrivacidade />} />
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
