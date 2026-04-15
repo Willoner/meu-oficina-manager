@@ -33,16 +33,16 @@ export default function AssinarPro() {
       );
 
       const data = await response.json();
-      console.log('Resposta da função:', data);
+      console.log('Resposta completa:', data);
 
       if (data.sessionId) {
-        // Redireciona para o Stripe Checkout
+        // Redireciona para o Stripe Checkout usando o ID da sessão
         window.location.href = `https://checkout.stripe.com/pay/${data.sessionId}`;
       } else if (data.url) {
-        // Fallback se retornar URL direta
+        // Redireciona para a URL direta (se fornecida)
         window.location.href = data.url;
       } else {
-        alert('Erro ao criar sessão de pagamento: ' + (data.error || 'Tente novamente'));
+        alert('Erro: ' + JSON.stringify(data));
       }
     } catch (error) {
       console.error('Erro na requisição:', error);
