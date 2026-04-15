@@ -60,9 +60,12 @@ const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
         fetchNotifications(user.id);
         
         // Setup Realtime with robust handling
-        console.log("Iniciando inscrição Realtime para usuário:", user.id);
+        // Usar um sufixo de tempo garante que cada montagem do componente tenha um canal novo
+        const channelName = `notificacoes-${user.id}-${new Date().getTime()}`;
+        console.log("Iniciando inscrição Realtime:", channelName);
+        
         const userChannel = supabase
-          .channel(`notificacoes-${user.id}`)
+          .channel(channelName)
           .on(
             'postgres_changes',
             {
@@ -82,12 +85,9 @@ const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
             }
           )
           .subscribe((status, error) => {
-            console.log(`Status do Canal [notificacoes-${user.id}]:`, status);
+            console.log(`Status do Canal [${channelName}]:`, status);
             if (error) {
               console.error("Erro no Canal Realtime:", error.message);
-            }
-            if (status === 'CHANNEL_ERROR') {
-              console.warn("Possível erro de configuração no Realtime do Supabase (Replication).");
             }
           });
 

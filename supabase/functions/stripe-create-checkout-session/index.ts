@@ -6,9 +6,6 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string, {
 });
 
 Deno.serve(async (req) => {
-  // Log para debug
-  console.log("Função chamada com método:", req.method);
-  
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
@@ -21,27 +18,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.text();
-    console.log("Body raw:", body);
-    
-    if (!body || body.trim() === '') {
-      console.log("❌ Body vazio!");
-      return new Response(JSON.stringify({ error: "Empty body" }), { 
-        status: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-      });
-    }
-    
-    const { userId } = JSON.parse(body);
-    console.log("userId recebido:", userId);
+    const { userId } = await req.json();
     
     if (!userId) {
-      return new Response(JSON.stringify({ error: "userId required" }), { 
+      return new Response(JSON.stringify({ error: 'userId é obrigatório' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
     }
-    
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{ price: 'price_1TMYkpGXblrqLqtki2TvA6rd', quantity: 1 }],
@@ -50,16 +35,14 @@ Deno.serve(async (req) => {
       cancel_url: 'https://www.oficinaemordem.com.br/checkout/cancel',
       metadata: { userId },
     });
-    
-    console.log("Sessão criada:", session.id);
-    
+
     return new Response(JSON.stringify({ sessionId: session.id }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
   } catch (error) {
-    console.error("Erro:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), { 
+    console.error('Erro:', error.message);
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
