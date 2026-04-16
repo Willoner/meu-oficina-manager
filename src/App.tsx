@@ -26,6 +26,8 @@ import TermosUso from "./pages/TermosUso.tsx";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
+import { Analytics } from "@vercel/analytics/react";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -59,6 +61,7 @@ const App = () => (
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
+    <Analytics />
   </QueryClientProvider>
 );
 
