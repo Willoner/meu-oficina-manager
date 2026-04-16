@@ -129,10 +129,10 @@ const OrdensServico = () => {
     if (!user) return;
 
     const [resOrdens, resClientes, resVeiculos, resPecas, resUserPlan] = await Promise.all([
-      supabase.from("ordens_servico").select("*").order("data_abertura", { ascending: false }),
-      supabase.from("clientes").select("id, nome").order("nome"),
-      supabase.from("veiculos").select("id, placa, modelo, cliente_id").order("placa"),
-      supabase.from("pecas").select("id, nome, valor_venda, estoque").order("nome"),
+      supabase.from("ordens_servico").select("*").eq("usuario_id", user.id).order("data_abertura", { ascending: false }),
+      supabase.from("clientes").select("id, nome").eq("usuario_id", user.id).order("nome"),
+      supabase.from("veiculos").select("id, placa, modelo, cliente_id").eq("usuario_id", user.id).order("placa"),
+      supabase.from("pecas").select("id, nome, valor_venda, estoque").eq("usuario_id", user.id).order("nome"),
       supabase.from("usuarios").select("plano").eq("id", user.id).single()
     ]);
 

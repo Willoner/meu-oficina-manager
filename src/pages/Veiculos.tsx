@@ -53,12 +53,28 @@ const Veiculos = () => {
   const { toast } = useToast();
 
   const fetchVeiculos = async () => {
-    const { data } = await supabase.from("veiculos").select("*").order("created_at", { ascending: false });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("veiculos")
+      .select("*")
+      .eq("usuario_id", user.id)
+      .order("created_at", { ascending: false });
+    
     if (data) setVeiculos(data);
   };
 
   const fetchClientes = async () => {
-    const { data } = await supabase.from("clientes").select("id, nome").order("nome");
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("clientes")
+      .select("id, nome")
+      .eq("usuario_id", user.id)
+      .order("nome");
+    
     if (data) setClientes(data);
   };
 

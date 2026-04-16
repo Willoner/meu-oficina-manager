@@ -27,6 +27,9 @@ const ServiceOrdersTable = () => {
 
   useEffect(() => {
     const fetchRecentOrders = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data } = await supabase
         .from("ordens_servico")
         .select(`
@@ -34,6 +37,7 @@ const ServiceOrdersTable = () => {
           clientes (nome),
           veiculos (modelo, placa)
         `)
+        .eq("usuario_id", user.id)
         .order("data_abertura", { ascending: false })
         .limit(5);
 

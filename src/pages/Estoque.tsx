@@ -30,7 +30,15 @@ const Estoque = () => {
   const { toast } = useToast();
 
   const fetchPecas = async () => {
-    const { data } = await supabase.from("pecas").select("*").order("nome");
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("pecas")
+      .select("*")
+      .eq("usuario_id", user.id)
+      .order("nome");
+    
     if (data) setPecas(data);
   };
 

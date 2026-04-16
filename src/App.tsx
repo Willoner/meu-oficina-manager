@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Landing from "./pages/Landing.tsx";
 import Index from "./pages/Index.tsx";
 import OrdensServico from "./pages/OrdensServico.tsx";
 import Clientes from "./pages/Clientes.tsx";
@@ -43,7 +44,8 @@ const App = () => (
           <Route path="/checkout/cancel" element={<CheckoutCancel />} />
           <Route path="/termos" element={<TermosUso />} />
           <Route path="/privacidade" element={<PoliticaPrivacidade />} />
-          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Index /></ProtectedRoute>} />
           <Route path="/ordens-servico" element={<ProtectedRoute><OrdensServico /></ProtectedRoute>} />
           <Route path="/ordens-servico/:id/visualizar" element={<ProtectedRoute><VisualizarOS /></ProtectedRoute>} />
           <Route path="/ordens-servico/:id/editar" element={<ProtectedRoute><EditarOS /></ProtectedRoute>} />

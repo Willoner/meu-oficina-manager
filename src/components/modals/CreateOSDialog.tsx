@@ -38,12 +38,24 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
   }, [open]);
 
   const fetchClientes = async () => {
-    const { data } = await supabase.from("clientes").select("id, nome").order("nome");
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data } = await supabase
+      .from("clientes")
+      .select("id, nome")
+      .eq("usuario_id", user.id)
+      .order("nome");
     if (data) setClientes(data);
   };
 
   const fetchVeiculos = async () => {
-    const { data } = await supabase.from("veiculos").select("id, placa, modelo, cliente_id").order("placa");
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data } = await supabase
+      .from("veiculos")
+      .select("id, placa, modelo, cliente_id")
+      .eq("usuario_id", user.id)
+      .order("placa");
     if (data) setVeiculos(data);
   };
 

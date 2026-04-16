@@ -17,21 +17,27 @@ const Index = () => {
 
   useEffect(() => {
     const fetchMetrics = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       // Clientes
       const { count: clientesCount } = await supabase
         .from("clientes")
-        .select("*", { count: "exact", head: true });
+        .select("*", { count: "exact", head: true })
+        .eq("usuario_id", user.id);
 
       // Veículos
       const { count: veiculosCount } = await supabase
         .from("veiculos")
-        .select("*", { count: "exact", head: true });
+        .select("*", { count: "exact", head: true })
+        .eq("usuario_id", user.id);
 
       // Ordens Abertas
       const { count: ordensAbertasCount } = await supabase
         .from("ordens_servico")
         .select("*", { count: "exact", head: true })
-        .eq("status", "aberta");
+        .eq("status", "aberta")
+        .eq("usuario_id", user.id);
 
       // Faturamento Mensal (status = concluida)
       const now = new Date();
@@ -40,6 +46,7 @@ const Index = () => {
         .from("ordens_servico")
         .select("valor_total")
         .eq("status", "concluida")
+        .eq("usuario_id", user.id)
         .gte("data_conclusao", firstDayOfMonth);
 
       const faturamento = ordensConcluidas?.reduce((acc, curr) => acc + (curr.valor_total || 0), 0) || 0;

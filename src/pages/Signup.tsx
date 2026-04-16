@@ -34,7 +34,7 @@ const Signup = () => {
       toast({ title: "Erro ao cadastrar", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Conta criada!", description: "Verifique seu e-mail para confirmar o cadastro." });
-      navigate("/login");
+      navigate("/dashboard");
     }
     setLoading(false);
   };

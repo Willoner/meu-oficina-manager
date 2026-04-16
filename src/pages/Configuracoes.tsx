@@ -87,6 +87,7 @@ const Configuracoes = () => {
       const { count } = await supabase
         .from("ordens_servico")
         .select("*", { count: "exact", head: true })
+        .eq("usuario_id", user.id)
         .gte("created_at", firstDayOfMonth);
       
       setOsCount(count || 0);

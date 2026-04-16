@@ -46,7 +46,15 @@ const Clientes = () => {
   const { toast } = useToast();
 
   const fetchClientes = async () => {
-    const { data, error } = await supabase.from("clientes").select("*").order("created_at", { ascending: false });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("clientes")
+      .select("*")
+      .eq("usuario_id", user.id)
+      .order("created_at", { ascending: false });
+    
     if (!error && data) setClientes(data);
   };
 
