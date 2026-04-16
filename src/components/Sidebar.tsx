@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: FileText, label: "Ordens de Serviço", path: "/ordens-servico" },
   { icon: Car, label: "Veículos", path: "/veiculos" },
   { icon: Users, label: "Clientes", path: "/clientes" },

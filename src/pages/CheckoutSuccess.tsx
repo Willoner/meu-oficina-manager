@@ -25,7 +25,7 @@ const CheckoutSuccess = () => {
         Sua conta foi atualizada com sucesso. Agora você tem acesso ilimitado a todas as ferramentas do Oficina em Ordem Pro.
       </p>
       <div className="flex gap-4">
-        <Button onClick={() => navigate("/")} className="gap-2">
+        <Button onClick={() => navigate("/dashboard")} className="gap-2">
           Ir para o Dashboard <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
