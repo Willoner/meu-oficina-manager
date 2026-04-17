@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
-import { Search, Bell, User, Settings, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Search, Bell, User, Settings, LogOut, Menu } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { menuItems } from "./Sidebar";
+import { Logo } from "./Logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +37,7 @@ interface HeaderProps {
 
 const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [officeName, setOfficeName] = useState("");
   const [initials, setInitials] = useState("OF");
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
@@ -176,11 +179,46 @@ const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b px-8 py-4">
+    <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b px-4 md:px-8 py-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-          <p className="text-sm text-muted-foreground">{subtitle}</p>
+        <div className="flex items-center gap-4">
+          {/* Menu Mobile */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="lg:hidden w-10 h-10 rounded-lg bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors">
+                <Menu className="w-5 h-5 text-secondary-foreground" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 p-0 bg-sidebar border-r-sidebar-border">
+              <div className="flex items-center justify-start px-6 py-6 border-b border-sidebar-border">
+                <Logo className="w-[120px] h-auto" />
+              </div>
+              <nav className="flex-1 px-3 py-4 space-y-1">
+                {menuItems.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <button
+                      key={item.label}
+                      onClick={() => navigate(item.path)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-primary"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </nav>
+            </SheetContent>
+          </Sheet>
+
+          <div className="flex flex-col">
+            <h1 className="text-lg md:text-2xl font-bold text-foreground line-clamp-1">{title}</h1>
+            <p className="text-xs md:text-sm text-muted-foreground line-clamp-1">{subtitle}</p>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">

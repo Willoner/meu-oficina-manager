@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { ClipboardList, Users, Car, DollarSign } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import MetricCard from "@/components/MetricCard";
 import ServiceOrdersTable from "@/components/ServiceOrdersTable";
 
@@ -63,57 +62,47 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
+    <DashboardLayout title="Dashboard" subtitle="Visão geral da sua oficina" showSearch>
+      {/* Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <MetricCard
+          title="Ordens Abertas"
+          value={metrics.ordensAbertas.toString()}
+          subtitle="Em andamento/Abertas"
+          icon={ClipboardList}
+          variant="accent"
+          href="/ordens-servico"
+        />
+        <MetricCard
+          title="Total de Clientes"
+          value={metrics.clientesAtivos.toString()}
+          subtitle="Cadastrados no sistema"
+          icon={Users}
+          href="/clientes"
+        />
+        <MetricCard
+          title="Total de Veículos"
+          value={metrics.veiculos.toString()}
+          subtitle="Cadastrados no sistema"
+          icon={Car}
+          href="/veiculos"
+        />
+        <MetricCard
+          title="Faturamento Mensal"
+          value={`R$ ${metrics.faturamentoMensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          subtitle="Ordens concluídas no mês"
+          icon={DollarSign}
+          href="/financeiro"
+        />
+      </div>
 
-      {/* Main Content */}
-      <main className="ml-64 min-h-screen">
-        <Header title="Dashboard" subtitle="Visão geral da sua oficina" showSearch />
-
-        <div className="p-8 space-y-6">
-          {/* Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            <MetricCard
-              title="Ordens Abertas"
-              value={metrics.ordensAbertas.toString()}
-              subtitle="Em andamento/Abertas"
-              icon={ClipboardList}
-              variant="accent"
-              href="/ordens-servico"
-            />
-            <MetricCard
-              title="Total de Clientes"
-              value={metrics.clientesAtivos.toString()}
-              subtitle="Cadastrados no sistema"
-              icon={Users}
-              href="/clientes"
-            />
-            <MetricCard
-              title="Total de Veículos"
-              value={metrics.veiculos.toString()}
-              subtitle="Cadastrados no sistema"
-              icon={Car}
-              href="/veiculos"
-            />
-            <MetricCard
-              title="Faturamento Mensal"
-              value={`R$ ${metrics.faturamentoMensal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-              subtitle="Ordens concluídas no mês"
-              icon={DollarSign}
-              href="/financeiro"
-            />
-          </div>
-
-          {/* Content Grid */}
-          <div className="grid grid-cols-1 gap-6">
-            <div className="w-full">
-              <ServiceOrdersTable />
-            </div>
-          </div>
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 gap-6">
+        <div className="w-full">
+          <ServiceOrdersTable />
         </div>
-      </main>
-
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { ClipboardList, Plus, Search, Trash2, Eye, Pencil, AlertTriangle, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -451,28 +450,24 @@ const OrdensServico = () => {
   const getClienteNome = (id: string) => clientes.find(c => c.id === id)?.nome || "—";
   
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="ml-64 min-h-screen">
-        <Header title="Ordens de Serviço" subtitle="Gerencie todas as ordens de serviço" />
-
-        <div className="p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="relative">
+    <DashboardLayout title="Ordens de Serviço" subtitle="Gerencie todas as ordens de serviço">
+      <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div className="relative w-full sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Buscar ordem..." className="pl-9 w-64" value={search} onChange={e => setSearch(e.target.value)} />
+              <Input placeholder="Buscar ordem..." className="pl-9 w-full sm:w-64" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleVerificarAtrasos(true)} className="gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button variant="outline" size="sm" onClick={() => handleVerificarAtrasos(true)} className="flex-1 sm:flex-none gap-2">
                 <RefreshCw className="w-4 h-4" /> <span className="hidden md:inline">Verificar Atrasos</span>
               </Button>
               {userPlan === "Gratuito" && osCountMonth >= 10 ? (
-                <Button onClick={() => navigate("/configuracoes")} className="gradient-primary animate-pulse">
+                <Button onClick={() => navigate("/configuracoes")} className="flex-1 sm:flex-none gradient-primary animate-pulse">
                   Upgrade para Pro
                 </Button>
               ) : (
-                <Button onClick={() => setOpen(true)} className="gradient-primary">
-                  <Plus className="w-4 h-4" /> Nova Ordem
+                <Button onClick={() => setOpen(true)} className="flex-1 sm:flex-none gradient-primary">
+                  <Plus className="w-4 h-4" /> Nova <span className="hidden sm:inline">Ordem</span>
                 </Button>
               )}
             </div>
@@ -483,8 +478,9 @@ const OrdensServico = () => {
               Nenhuma ordem de serviço cadastrada ainda. Clique em "Nova Ordem" para começar.
             </div>
           ) : (
-            <div className="rounded-lg border bg-card">
-              <Table>
+            <div className="rounded-lg border bg-card overflow-hidden">
+              <div className="overflow-x-auto">
+                <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Data</TableHead>
@@ -544,9 +540,9 @@ const OrdensServico = () => {
               </TableBody>
               </Table>
             </div>
-          )}
-        </div>
-      </main>
+          </div>
+        )}
+      </div>
 
       {/* Modal Nova OS */}
       <Dialog open={open} onOpenChange={setOpen}>
@@ -879,7 +875,7 @@ const OrdensServico = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </DashboardLayout>
   );
 };
 
