@@ -1,4 +1,4 @@
-const CACHE_NAME = 'oficina-em-ordem-v2';
+const CACHE_NAME = 'oficina-em-ordem-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -27,8 +27,14 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Estratégia Network First: Tenta a rede, se falhar usa o cache.
-  // Ideal para evitar que o PWA fique preso em versões antigas.
+  // CONFIGURAÇÃO CRÍTICA: Bypass de Autenticação
+  // Se a URL contiver '/auth/v1/', nós ignoramos completamente o Service Worker
+  // e forçamos a requisição a ir direto para o servidor.
+  if (event.request.url.includes('/auth/v1/')) {
+    return; // Deixa o navegador lidar com a requisição normalmente
+  }
+
+  // Estratégia Network First para o restante
   event.respondWith(
     fetch(event.request)
       .catch(() => {
