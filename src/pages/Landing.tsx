@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ClipboardList, BellRing, Package, Wrench, Menu, X, ArrowRight, ShieldCheck, ChevronDown, Check } from "lucide-react";
 import { useState } from "react";
+import { Logo } from "@/components/Logo";
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -56,9 +57,7 @@ export default function Landing() {
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="bg-blue-600 text-white p-1.5 rounded-lg">
-              <Wrench className="w-5 h-5" />
-            </div>
+            <Logo className="w-8 h-8 object-contain" />
             <span className="font-bold text-xl tracking-tight text-slate-900">Oficina em Ordem</span>
           </div>
 

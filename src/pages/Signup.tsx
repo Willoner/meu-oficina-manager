@@ -43,7 +43,8 @@ const Signup = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
-          <Logo className="w-[120px] h-auto mx-auto mb-6" />
+          <Logo className="w-[80px] h-auto mx-auto mb-4" />
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Oficina em Ordem</h1>
           <p className="text-muted-foreground">Crie sua conta</p>
         </div>
 
