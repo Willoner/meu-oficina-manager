@@ -1,0 +1,17 @@
+{
+  "name": "Oficina em Ordem",
+  "short_name": "Oficina",
+  "description": "Sistema de Gestão para Oficina Mecânica",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#17AD7F",
+  "icons": [
+    {
+      "src": "/logo-pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
