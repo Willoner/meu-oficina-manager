@@ -1,4 +1,4 @@
-const CACHE_NAME = 'oficina-em-ordem-v3';
+const CACHE_NAME = 'oficina-em-ordem-v4';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -28,10 +28,8 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   // CONFIGURAÇÃO CRÍTICA: Bypass de Autenticação
-  // Se a URL contiver '/auth/v1/', nós ignoramos completamente o Service Worker
-  // e forçamos a requisição a ir direto para o servidor.
   if (event.request.url.includes('/auth/v1/')) {
-    return; // Deixa o navegador lidar com a requisição normalmente
+    return; 
   }
 
   // Estratégia Network First para o restante

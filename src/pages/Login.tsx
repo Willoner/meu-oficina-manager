@@ -16,17 +16,31 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
+    const formData = new FormData(e.currentTarget);
+    const emailValue = String(formData.get("email") || "").trim().toLowerCase();
+    const passwordValue = String(formData.get("password") || "").trim();
+
+    if (!emailValue || !passwordValue) {
+      toast({ title: "Erro", description: "Preencha todos os campos.", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({ 
-      email: email.trim().toLowerCase(), 
-      password: password.trim()
+      email: emailValue, 
+      password: passwordValue
     });
 
     if (error) {
-      toast({ title: "Erro ao entrar", description: error.message, variant: "destructive" });
+      toast({ 
+        title: "Erro ao entrar", 
+        description: `Falha: ${error.message} (Status: ${error.status || '?'})`, 
+        variant: "destructive" 
+      });
     } else {
       navigate("/dashboard");
     }
@@ -85,6 +99,12 @@ const Login = () => {
           <Link to="/termos" className="hover:text-primary transition-colors">Termos</Link>
           <span className="w-1 h-1 bg-muted-foreground/20 rounded-full" />
           <Link to="/privacidade" className="hover:text-primary transition-colors">Privacidade</Link>
+        </div>
+
+        <div className="text-center pt-4">
+          <span className="text-[10px] text-muted-foreground/30 uppercase tracking-[0.2em] font-medium">
+            Versão: 18:50 - Reforçada v4
+          </span>
         </div>
       </div>
     </div>

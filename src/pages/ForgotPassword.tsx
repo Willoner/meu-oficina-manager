@@ -12,18 +12,34 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleReset = async (e: React.FormEvent) => {
+  const handleReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+    const formData = new FormData(e.currentTarget);
+    const emailValue = String(formData.get("email") || "").trim().toLowerCase();
+
+    if (!emailValue) {
+      toast({ title: "Erro", description: "Informe o e-mail.", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(emailValue, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
 
     if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
+      toast({ 
+        title: "Erro ao enviar", 
+        description: `Falha: ${error.message} (Status: ${error.status || '?'})`, 
+        variant: "destructive" 
+      });
     } else {
-      toast({ title: "E-mail enviado", description: "Verifique sua caixa de entrada para redefinir a senha." });
+      toast({ 
+        title: "E-mail enviado", 
+        description: "Se o e-mail existir na nossa base, você receberá o link em instantes." 
+      });
     }
     setLoading(false);
   };
