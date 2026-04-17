@@ -18,7 +18,10 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ 
+      email: email.trim().toLowerCase(), 
+      password 
+    });
 
     if (error) {
       toast({ title: "Erro ao entrar", description: error.message, variant: "destructive" });

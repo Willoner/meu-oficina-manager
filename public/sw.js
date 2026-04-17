@@ -1,4 +1,4 @@
-const CACHE_NAME = 'oficina-em-ordem-v1';
+const CACHE_NAME = 'oficina-em-ordem-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -16,14 +16,23 @@ self.addEventListener('install', event => {
   );
 });
 
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.filter(name => name !== CACHE_NAME).map(name => caches.delete(name))
+      );
+    })
+  );
+});
+
 self.addEventListener('fetch', event => {
+  // Estratégia Network First: Tenta a rede, se falhar usa o cache.
+  // Ideal para evitar que o PWA fique preso em versões antigas.
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
+    fetch(event.request)
+      .catch(() => {
+        return caches.match(event.request);
       })
   );
 });

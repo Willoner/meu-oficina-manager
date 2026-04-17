@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Wrench } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -16,7 +16,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: `${window.location.origin}/reset-password`,
     });
 
@@ -32,9 +32,7 @@ const ForgotPassword = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mx-auto">
-            <Wrench className="w-8 h-8 text-primary-foreground" />
-          </div>
+          <Logo className="w-[80px] h-auto mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-foreground">Recuperar Senha</h1>
           <p className="text-muted-foreground">Enviaremos um link para redefinir sua senha</p>
         </div>
