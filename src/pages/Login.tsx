@@ -59,12 +59,13 @@ const Login = () => {
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="seu@email.com" />
+            <Input name="email" id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="seu@email.com" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Senha</Label>
             <div className="relative">
               <Input 
+                name="password"
                 id="password" 
                 type={showPassword ? "text" : "password"} 
                 value={password} 
@@ -103,7 +104,7 @@ const Login = () => {
 
         <div className="text-center pt-4">
           <span className="text-[10px] text-muted-foreground/30 uppercase tracking-[0.2em] font-medium">
-            Versão: 18:50 - Reforçada v4
+            Versão: 18:50 - Reforçada v5
           </span>
         </div>
       </div>

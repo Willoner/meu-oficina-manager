@@ -56,7 +56,7 @@ const ForgotPassword = () => {
         <form onSubmit={handleReset} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="seu@email.com" />
+            <Input name="email" id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="seu@email.com" />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Enviando..." : "Enviar link"}
