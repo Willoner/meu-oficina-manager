@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,11 +17,17 @@ const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useEffect(() => {
+    // Limpa qualquer sessão que tenha ficado "presa" no navegador
+    // para evitar logar acidentalmente em uma conta antiga.
+    supabase.auth.signOut();
+  }, []);
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -33,8 +39,15 @@ const Signup = () => {
     if (error) {
       toast({ title: "Erro ao cadastrar", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Conta criada!", description: "Verifique seu e-mail para confirmar o cadastro." });
-      navigate("/dashboard");
+      if (data.session) {
+        // Se já retornou sessão, é porque a confirmação de e-mail está desligada no Supabase
+        toast({ title: "Conta criada com sucesso!", description: "Bem-vindo ao Oficina em Ordem." });
+        navigate("/dashboard");
+      } else {
+        // Se a sessão for null, é porque a confirmação de e-mail é obrigatória
+        toast({ title: "Conta criada!", description: "Verifique sua caixa de e-mail para confirmar o cadastro e liberar o acesso." });
+        navigate("/login");
+      }
     }
     setLoading(false);
   };
