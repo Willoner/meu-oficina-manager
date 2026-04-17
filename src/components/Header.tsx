@@ -4,8 +4,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { menuItems } from "./Sidebar";
-import { Logo } from "./Logo";
+import { menuItems } from "@/constants/navigation";
+import { Logo } from "@/components/Logo";
 import {
   DropdownMenu,
   DropdownMenuContent,

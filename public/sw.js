@@ -1,4 +1,4 @@
-const CACHE_NAME = 'oficina-em-ordem-v9';
+const CACHE_NAME = 'oficina-em-ordem-v10';
 const urlsToCache = [
   '/',
   '/index.html',
