@@ -474,8 +474,6 @@ const EditarOS = () => {
             )}
 
           </div>
-      </div>
-
         {/* Modals */}
         <Dialog open={isPecaModalOpen} onOpenChange={setIsPecaModalOpen}>
           <DialogContent>
