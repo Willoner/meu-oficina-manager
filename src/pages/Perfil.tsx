@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -122,12 +121,8 @@ const Perfil = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="ml-64 min-h-screen">
-        <Header title="Meu Perfil" subtitle="Edite os dados da sua oficina" />
-
-        <div className="p-8 max-w-lg">
+    <DashboardLayout title="Meu Perfil" subtitle="Edite os dados da sua oficina">
+      <div className="max-w-lg">
           <form onSubmit={handleSave} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="nomeOficina">Nome da Oficina *</Label>
@@ -214,9 +209,8 @@ const Perfil = () => {
               ) : "Salvar alterações"}
             </Button>
           </form>
-        </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

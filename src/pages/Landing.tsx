@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, ClipboardList, BellRing, Package, Wrench, Menu, X, ArrowRight, ShieldCheck, ChevronDown, Check } from "lucide-react";
+import { CheckCircle2, ClipboardList, BellRing, Package, Wrench, Menu, X, ArrowRight, ShieldCheck, ChevronDown, Check, Download } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { Smartphone, Share, Layout, Zap, Globe } from "lucide-react";
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isInstallable, installPWA } = usePWAInstall();
 
   const toggleMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
@@ -69,6 +72,16 @@ export default function Landing() {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
+            {isInstallable && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={installPWA}
+                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-semibold gap-2"
+              >
+                <Download className="h-4 w-4" /> Instalar App
+              </Button>
+            )}
             <Link to="/login" className="font-medium text-slate-600 hover:text-blue-600 transition-colors">
               Entrar
             </Link>
@@ -86,10 +99,18 @@ export default function Landing() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b border-slate-200 shadow-lg py-4 px-4 flex flex-col gap-4">
+          <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b border-slate-200 shadow-lg py-4 px-4 flex flex-col gap-4 animate-in fade-in slide-in-from-top-4">
             <a href="#funcionalidades" onClick={toggleMenu} className="text-slate-600 font-medium py-2">Funcionalidades</a>
             <a href="#precos" onClick={toggleMenu} className="text-slate-600 font-medium py-2">Preços</a>
             <a href="#faq" onClick={toggleMenu} className="text-slate-600 font-medium py-2">FAQ</a>
+            {isInstallable && (
+              <button 
+                onClick={() => { installPWA(); toggleMenu(); }}
+                className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-600 font-bold rounded-xl"
+              >
+                <Download className="h-5 w-5" /> Instalar Aplicativo
+              </button>
+            )}
             <div className="h-px bg-slate-100 my-2" />
             <Link to="/login" onClick={toggleMenu} className="text-slate-600 font-medium py-2 text-center">Entrar</Link>
             <Link to="/signup" onClick={toggleMenu} className="w-full">
@@ -126,10 +147,100 @@ export default function Landing() {
                 Ver preços
               </Button>
             </a>
+            {isInstallable && (
+              <Button 
+                onClick={installPWA}
+                className="h-14 px-8 text-lg rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg shadow-blue-600/30 w-full sm:w-auto transition-transform hover:-translate-y-1 gap-2"
+              >
+                <Download className="h-5 w-5" /> Baixar Aplicativo
+              </Button>
+            )}
           </div>
           <div className="mt-10 flex items-center justify-center gap-6 text-sm font-medium text-slate-500">
             <span className="flex items-center gap-1"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> Sem cartão requerido</span>
             <span className="flex items-center gap-1"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> Cancele quando quiser</span>
+          </div>
+        </div>
+      </section>
+
+      {/* App Experience Section */}
+      <section className="py-24 bg-gradient-to-br from-slate-900 to-blue-900 text-white overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="flex-1 space-y-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-400 text-sm font-bold tracking-wide uppercase">
+                <Smartphone className="w-4 h-4" /> Experiência Mobile Total
+              </div>
+              <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+                Sua oficina na palma da mão, <span className="text-blue-400">mais rápido do que nunca.</span>
+              </h2>
+              <p className="text-xl text-slate-300 leading-relaxed max-w-xl">
+                Não é apenas um site. Nosso Aplicativo (PWA) permite que você acesse sua oficina com um toque na tela inicial, com maior velocidade e estabilidade.
+              </p>
+              
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 shrink-0 rounded-xl bg-blue-600/20 flex items-center justify-center text-blue-400">
+                    <Layout className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold mb-1">Ícone na Tela</h4>
+                    <p className="text-sm text-slate-400">Acesse instantaneamente sem precisar digitar a URL.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 shrink-0 rounded-xl bg-emerald-600/20 flex items-center justify-center text-emerald-400">
+                    <Zap className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold mb-1">Mais Velocidade</h4>
+                    <p className="text-sm text-slate-400">Carregamento otimizado para conexões móveis.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6">
+                {isInstallable ? (
+                  <Button 
+                    onClick={installPWA}
+                    className="h-16 px-10 text-xl rounded-full bg-blue-600 hover:bg-blue-500 text-white font-black shadow-2xl shadow-blue-600/40 gap-3"
+                  >
+                    <Download className="h-6 w-6" /> INSTALAR AGORA
+                  </Button>
+                ) : (
+                  <div className="p-6 bg-slate-800/50 border border-slate-700 rounded-2xl">
+                    <h4 className="font-bold flex items-center gap-2 mb-3 text-blue-400">
+                      <Smartphone className="w-5 h-5" /> Dica para iPhone/Safari
+                    </h4>
+                    <ol className="text-sm text-slate-300 space-y-3">
+                      <li className="flex gap-3">
+                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-xs font-bold shrink-0">1</span>
+                        <span>Toque no botão de **Compartilhar** <Share className="inline w-4 h-4 mx-1" /> no rodapé do seu Safari.</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-xs font-bold shrink-0">2</span>
+                        <span>Role para baixo e toque em **"Adicionar à Tela de Início"**.</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-xs font-bold shrink-0">3</span>
+                        <span>Toque em **"Adicionar"** e pronto! O app estará na sua tela inicial.</span>
+                      </li>
+                    </ol>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex-1 relative lg:mt-0 mt-12">
+              <div className="relative z-10 rounded-3xl overflow-hidden border-8 border-slate-800 shadow-2xl max-w-[320px] mx-auto transform rotate-2">
+                <img 
+                  src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&q=80&w=600" 
+                  alt="App Mobile" 
+                  className="w-full h-auto"
+                />
+              </div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-600/20 rounded-full blur-3xl -z-10"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -269,6 +380,26 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      {/* Floating PWA Install Bar (Mobile Only) */}
+      {isInstallable && (
+        <div className="md:hidden fixed bottom-6 left-4 right-4 z-50 animate-in slide-in-from-bottom-10 duration-500">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                <Logo className="w-8 h-8 object-contain" />
+              </div>
+              <div>
+                <p className="text-white font-bold text-sm">Oficina em Ordem</p>
+                <p className="text-slate-400 text-xs">Instalar o aplicativo</p>
+              </div>
+            </div>
+            <Button size="sm" onClick={installPWA} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 rounded-lg">
+              Instalar
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

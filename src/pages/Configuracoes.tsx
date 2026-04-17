@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import { 
   Settings, 
   CreditCard, 
@@ -236,22 +235,17 @@ const Configuracoes = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar />
-        <main className="flex-1 ml-64 p-8 flex items-center justify-center">
+      <DashboardLayout title="Configurações" subtitle="Carregando...">
+        <div className="flex items-center justify-center min-h-[400px]">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </main>
-      </div>
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <main className="flex-1 ml-64 min-h-screen">
-        <Header title="Configurações" subtitle="Gerencie o seu sistema e preferências" />
-        
-        <div className="p-8 max-w-5xl">
+    <DashboardLayout title="Configurações" subtitle="Gerencie o seu sistema e preferências">
+      <div className="space-y-8 max-w-5xl">
           {/* Seção Plano e Limites */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
@@ -465,29 +459,27 @@ const Configuracoes = () => {
               </Card>
             </div>
           </section>
-        </div>
-      </main>
-
-      {/* Modal de Exclusão */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita e os dados não podem ser recuperados no futuro. 
-              Garantimos que você fez o <b>Download</b> planilhado dos seus arquivos acima antes de prosseguir?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={saving}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteAccount} disabled={saving} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {saving ? "Excluindo..." : "Sim, confirmar exclusão"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
-  );
+
+    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Esta ação não pode ser desfeita e os dados não podem ser recuperados no futuro. 
+            Garantimos que você fez o <b>Download</b> planilhado dos seus arquivos acima antes de prosseguir?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={saving}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDeleteAccount} disabled={saving} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            {saving ? "Excluindo..." : "Sim, confirmar exclusão"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </DashboardLayout>
+);
 };
 
 export default Configuracoes;

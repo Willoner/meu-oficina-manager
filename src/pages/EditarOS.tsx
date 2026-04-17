@@ -10,8 +10,7 @@ import {
   Wrench,
   Loader2
 } from "lucide-react";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -302,16 +301,22 @@ const EditarOS = () => {
     }
   };
 
-  if (loading) return <div className="p-8 text-center italic text-muted-foreground">Carregando dados da OS...</div>;
+  if (loading) {
+    return (
+      <DashboardLayout title="Editar OS" subtitle="Carregando...">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <Sidebar />
-      <main className="ml-64 min-h-screen">
-        <Header title="Editar OS" subtitle={`Editando Ordem de Serviço #${id?.substring(0, 8).toUpperCase()}`} />
-
-        <div className="p-8 pb-24">
-          <div className="max-w-5xl mx-auto space-y-6">
+    <DashboardLayout 
+      title="Editar OS" 
+      subtitle={`Editando Ordem de Serviço #${id?.substring(0, 8).toUpperCase()}`}
+    >
+      <div className="space-y-6 pb-24 max-w-5xl mx-auto">
             
             {/* Header Actions */}
             <div className="flex items-center justify-between">
@@ -410,7 +415,8 @@ const EditarOS = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <Table>
+                <div className="overflow-x-auto">
+                  <Table className="min-w-[600px]">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Tipo</TableHead>
@@ -445,6 +451,7 @@ const EditarOS = () => {
                     )}
                   </TableBody>
                 </Table>
+              </div>
 
                 <div className="mt-6 flex justify-end">
                   <div className="text-right space-y-1">
@@ -467,7 +474,7 @@ const EditarOS = () => {
             )}
 
           </div>
-        </div>
+      </div>
 
         {/* Modals */}
         <Dialog open={isPecaModalOpen} onOpenChange={setIsPecaModalOpen}>
@@ -518,9 +525,8 @@ const EditarOS = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </main>
-    </div>
-  );
-};
+      </DashboardLayout>
+    );
+  };
 
 export default EditarOS;

@@ -15,8 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
 type OSData = {
   id: string;
@@ -178,17 +177,13 @@ const VisualizarOS = () => {
   const subtotal = os.valor_total || 0;
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="print:hidden">
-        <Sidebar />
-      </div>
-      
-      <main className="ml-0 md:ml-64 min-h-screen print:m-0 print:p-0">
-        <div className="print:hidden">
-          <Header title="Visualizar OS" subtitle={`Ordem de Serviço #${os.id.substring(0, 8).toUpperCase()}`} />
-        </div>
-
-        <div className="p-4 md:p-8">
+    <DashboardLayout 
+      title="Visualizar OS" 
+      subtitle={`Ordem de Serviço #${os.id.substring(0, 8).toUpperCase()}`}
+      hideSidebarOnPrint
+      hideHeaderOnPrint
+    >
+      <div className="space-y-6">
           {/* Buttons (Hidden on print) */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6 print:hidden">
           <Button variant="ghost" onClick={() => navigate("/ordens-servico")} className="gap-2">
@@ -275,10 +270,10 @@ const VisualizarOS = () => {
               </div>
             </div>
 
-            {/* Items Table */}
             <div className="space-y-4">
-              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">ÍTENS E SERVIÇOS</div>
-              <table className="w-full text-sm border-collapse">
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">ÍTEIS E SERVIÇOS</div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse min-w-[600px]">
                 <thead>
                   <tr className="border-b-2 border-foreground/10 text-left">
                     <th className="py-2 px-1">Descrição</th>
@@ -372,11 +367,11 @@ const VisualizarOS = () => {
               <br />Impresso em {new Date().toLocaleString("pt-BR")}
             </div>
             
+            </div>
           </CardContent>
         </Card>
-        </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

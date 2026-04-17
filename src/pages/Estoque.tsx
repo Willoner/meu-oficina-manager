@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Package, Plus, Search } from "lucide-react";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -73,19 +72,15 @@ const Estoque = () => {
   const filtered = pecas.filter(p => p.nome.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <main className="ml-64 min-h-screen">
-        <Header title="Estoque de Peças" subtitle="Gerencie suas peças e produtos" />
-
-        <div className="p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="relative">
+    <DashboardLayout title="Estoque de Peças" subtitle="Gerencie suas peças e produtos">
+      <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div className="relative w-full sm:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Buscar peça..." className="pl-9 w-64" value={search} onChange={e => setSearch(e.target.value)} />
+              <Input placeholder="Buscar peça..." className="pl-9 w-full sm:w-64" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            <Button className="gap-2" onClick={() => setOpen(true)}>
-              <Plus className="w-4 h-4" /> Nova Peça
+            <Button className="w-full sm:w-auto gap-2" onClick={() => setOpen(true)}>
+              <Plus className="w-4 h-4" /> Novo Peça
             </Button>
           </div>
 
@@ -94,8 +89,9 @@ const Estoque = () => {
               Nenhuma peça cadastrada ainda. Clique em "Nova Peça" para começar.
             </div>
           ) : (
-            <div className="rounded-lg border bg-card">
-              <Table>
+            <div className="rounded-lg border bg-card overflow-hidden">
+              <div className="overflow-x-auto">
+                <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome</TableHead>
@@ -116,9 +112,9 @@ const Estoque = () => {
                 </TableBody>
               </Table>
             </div>
-          )}
-        </div>
-      </main>
+          </div>
+        )}
+      </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
@@ -151,7 +147,7 @@ const Estoque = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardLayout>
   );
 };
 
