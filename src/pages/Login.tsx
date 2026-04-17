@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,23 +9,28 @@ import { Logo } from "@/components/Logo";
 import { Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const emailValue = String(formData.get("email") || "").trim().toLowerCase();
-    const passwordValue = String(formData.get("password") || "").trim();
+    // Prioridade total para as Refs (Conexão Direta)
+    const emailValue = (emailRef.current?.value || "").trim().toLowerCase();
+    const passwordValue = (passwordRef.current?.value || "").trim();
 
     if (!emailValue || !passwordValue) {
-      toast({ title: "Erro", description: "Preencha todos os campos.", variant: "destructive" });
+      toast({ 
+        title: "Erro de Leitura", 
+        description: `Campos detectados como vazios (${!emailValue ? 'E-mail' : 'Senha'}). Tente digitar novamente.`, 
+        variant: "destructive" 
+      });
       setLoading(false);
       return;
     }
@@ -59,17 +64,23 @@ const Login = () => {
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
-            <Input name="email" id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="seu@email.com" />
+            <Input 
+              ref={emailRef}
+              name="email" 
+              id="email" 
+              type="email" 
+              required 
+              placeholder="seu@email.com" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Senha</Label>
             <div className="relative">
               <Input 
+                ref={passwordRef}
                 name="password"
                 id="password" 
                 type={showPassword ? "text" : "password"} 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
                 required 
                 placeholder="••••••••" 
                 className="pr-10"
@@ -104,7 +115,7 @@ const Login = () => {
 
         <div className="text-center pt-4">
           <span className="text-[10px] text-muted-foreground/30 uppercase tracking-[0.2em] font-medium">
-            Versão: 18:50 - Reforçada v5
+            Versão: 18:50 - Reforçada v6 (Direct)
           </span>
         </div>
       </div>
