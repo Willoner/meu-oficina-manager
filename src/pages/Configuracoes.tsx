@@ -11,7 +11,8 @@ import {
   LifeBuoy, 
   ExternalLink,
   Trash2,
-  Phone
+  Phone,
+  Download
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -45,6 +46,7 @@ const Configuracoes = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [osCount, setOsCount] = useState(0);
   const [userPlan, setUserPlan] = useState<string>("Gratuito");
@@ -146,13 +148,90 @@ const Configuracoes = () => {
   };
 
 
-  const handleDeleteAccount = async () => {
-    toast({
-      variant: "destructive",
-      title: "Solicitação enviada",
-      description: "Nossa equipe entrará em contato para processar a exclusão da sua conta.",
+  const exportToCSV = (data: any[], filename: string) => {
+    if (!data || !data.length) return;
+    const headers = Object.keys(data[0]).join(",");
+    const csvRows = data.map(row => {
+      return Object.values(row)
+        .map(value => {
+          if (value === null || value === undefined) return '""';
+          const stringVal = String(value);
+          return `"${stringVal.replace(/"/g, '""')}"`;
+        })
+        .join(",");
     });
-    setIsDeleteDialogOpen(false);
+
+    const csvContent = [headers, ...csvRows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${filename}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportData = async () => {
+    try {
+      setExporting(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      toast({ title: "Iniciando backup", description: "Baixando seus arquivos CSV. Aguarde..." });
+
+      const [clientes, veiculos, os, pecas] = await Promise.all([
+        supabase.from("clientes").select("*").eq("usuario_id", user.id),
+        supabase.from("veiculos").select("*").eq("usuario_id", user.id),
+        supabase.from("ordens_servico").select("*").eq("usuario_id", user.id),
+        supabase.from("pecas").select("*").eq("usuario_id", user.id),
+      ]);
+
+      let baixouAlgo = false;
+      if (clientes.data?.length) { exportToCSV(clientes.data, "clientes"); baixouAlgo = true; }
+      if (veiculos.data?.length) { exportToCSV(veiculos.data, "veiculos"); baixouAlgo = true; }
+      if (os.data?.length) { exportToCSV(os.data, "ordens_servico"); baixouAlgo = true; }
+      if (pecas.data?.length) { exportToCSV(pecas.data, "estoque_pecas"); baixouAlgo = true; }
+
+      if (baixouAlgo) {
+        toast({ title: "Backup Concluído", description: "Seus dados foram salvos no seu computador." });
+      } else {
+        toast({ title: "Nenhum dado encontrado.", description: "Não há registros no sistema para exportar." });
+      }
+    } catch (e: any) {
+      toast({ title: "Erro na exportação", description: e.message, variant: "destructive" });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      setSaving(true);
+      const { error } = await supabase.rpc('delete_user');
+      
+      if (error) {
+        throw error;
+      }
+
+      await supabase.auth.signOut();
+      
+      toast({
+        title: "Conta Excluída com Sucesso",
+        description: "Seus dados e registros foram removidos do servidor.",
+      });
+      navigate("/login");
+      
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Não foi possível excluir a sua conta.",
+        description: "Erro: " + error.message,
+      });
+    } finally {
+      setSaving(false);
+      setIsDeleteDialogOpen(false);
+    }
   };
 
   if (loading) {
@@ -333,7 +412,31 @@ const Configuracoes = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-card border-destructive/20">
+              <Card className="bg-card">
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Download className="w-4 h-4 text-primary" />
+                    Backup de Dados
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Faça o download de todos os seus dados do sistema (Clientes, OS, Veículos e Estoque) no formato CSV.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={handleExportData}
+                    disabled={exporting}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    {exporting ? "Gerando arquivos..." : "Exportar tudo para Excel (.CSV)"}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card border-destructive/20 md:col-span-2">
                 <CardHeader>
                   <CardTitle className="text-sm font-medium flex items-center gap-2 text-destructive">
                     <AlertTriangle className="w-4 h-4" />
@@ -342,12 +445,12 @@ const Configuracoes = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Ao excluir sua conta, todos os seus dados de clientes, veículos e ordens de serviço serão permanentemente removidos.
+                    Ao excluir sua conta, todos os seus dados de clientes, veículos, estoque e ordens de serviço serão permanentemente removidos. Faça um backup antes!
                   </p>
                   <Button 
                     variant="destructive" 
                     size="sm" 
-                    className="w-full"
+                    className="w-full md:w-auto"
                     onClick={() => setIsDeleteDialogOpen(true)}
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
@@ -371,14 +474,14 @@ const Configuracoes = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso excluirá permanentemente sua conta
-              da oficina e removerá seus dados de nossos servidores.
+              Esta ação não pode ser desfeita e os dados não podem ser recuperados no futuro. 
+              Garantimos que você fez o <b>Download</b> planilhado dos seus arquivos acima antes de prosseguir?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Sim, excluir minha conta
+            <AlertDialogCancel disabled={saving}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteAccount} disabled={saving} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {saving ? "Excluindo..." : "Sim, confirmar exclusão"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
