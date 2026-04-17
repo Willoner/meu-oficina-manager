@@ -113,11 +113,6 @@ const Login = () => {
           <Link to="/privacidade" className="hover:text-primary transition-colors">Privacidade</Link>
         </div>
 
-        <div className="text-center pt-4">
-          <span className="text-[10px] text-muted-foreground/30 uppercase tracking-[0.2em] font-medium">
-            Versão: 18:50 - Reforçada v6 (Direct)
-          </span>
-        </div>
       </div>
     </div>
   );
