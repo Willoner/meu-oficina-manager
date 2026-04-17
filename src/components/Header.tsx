@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Search, Bell, User, Settings, LogOut, Menu } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
