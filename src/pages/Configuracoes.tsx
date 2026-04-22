@@ -56,7 +56,7 @@ const Configuracoes = () => {
     notificacoes_email: true,
   });
 
-  const OS_LIMIT = userPlan === "Pro" ? 999999 : 10;
+  const OS_LIMIT = (userPlan === "Pro" || userEmail === 'rafaelfaiad1@gmail.com') ? 999999 : 10;
 
   useEffect(() => {
     fetchData();

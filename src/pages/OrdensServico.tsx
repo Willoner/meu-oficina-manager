@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ClipboardList, Plus, Search, Trash2, Eye, Pencil, AlertTriangle, RefreshCw } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -79,6 +79,7 @@ const OrdensServico = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [userPlan, setUserPlan] = useState<string>("Gratuito");
+  const [userEmail, setUserEmail] = useState<string>("");
   const [osCountMonth, setOsCountMonth] = useState(0);
 
   // Modal OS states
@@ -89,6 +90,7 @@ const OrdensServico = () => {
   const [prazo, setPrazo] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [itensOS, setItensOS] = useState<ItemOS[]>([]);
+  const [agendamentoIdParaConverter, setAgendamentoIdParaConverter] = useState<string | null>(null);
 
   // Modals for add items
   const [isPecaModalOpen, setIsPecaModalOpen] = useState(false);
@@ -139,7 +141,10 @@ const OrdensServico = () => {
     if (resClientes.data) setClientes(resClientes.data);
     if (resVeiculos.data) setVeiculos(resVeiculos.data);
     if (resPecas.data) setPecas(resPecas.data);
-    if (resUserPlan.data) setUserPlan(resUserPlan.data.plano || "Gratuito");
+    if (resUserPlan.data) {
+      setUserPlan(resUserPlan.data.plano || "Gratuito");
+      setUserEmail(user.email || "");
+    }
 
     // Count OS for current month
     const now = new Date();
@@ -173,7 +178,26 @@ const OrdensServico = () => {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  const location = useLocation();
+
+  useEffect(() => {
+    fetchData();
+    
+    // Check for autoFill from Agenda
+    const state = location.state as any;
+    if (state?.autoFill) {
+      const { autoFill } = state;
+      setClienteId(autoFill.clienteId || "");
+      setVeiculoId(autoFill.veiculoId || "");
+      setTipoServico(autoFill.tipoServico || "");
+      setObservacoes(autoFill.observacoes || "");
+      setAgendamentoIdParaConverter(autoFill.agendamentoId || null);
+      setOpen(true);
+      
+      // Clear location state to prevent re-opening on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const veiculosFiltrados = clienteId ? veiculos.filter(v => v.cliente_id === clienteId) : [];
 
@@ -270,7 +294,8 @@ const OrdensServico = () => {
     }
 
     // Check plan limit
-    if (userPlan === "Gratuito" && osCountMonth >= 10) {
+    const isTestUser = user.email === 'rafaelfaiad1@gmail.com';
+    if (userPlan === "Gratuito" && osCountMonth >= 10 && !isTestUser) {
       toast({ 
         title: "Limite atingido", 
         description: "Limite de OS do plano gratuito atingido. Faça upgrade para o Pro.", 
@@ -325,6 +350,15 @@ const OrdensServico = () => {
           }
         }
       }
+    }
+
+    // 4. Se veio de um agendamento, marcar como convertido
+    if (agendamentoIdParaConverter) {
+      await supabase
+        .from("agendamentos")
+        .update({ status: "convertido" })
+        .eq("id", agendamentoIdParaConverter);
+      setAgendamentoIdParaConverter(null);
     }
 
     toast({ title: "Sucesso", description: "Ordem de serviço criada com sucesso!" });
@@ -461,7 +495,7 @@ const OrdensServico = () => {
               <Button variant="outline" size="sm" onClick={() => handleVerificarAtrasos(true)} className="flex-1 sm:flex-none gap-2">
                 <RefreshCw className="w-4 h-4" /> <span className="hidden md:inline">Verificar Atrasos</span>
               </Button>
-              {userPlan === "Gratuito" && osCountMonth >= 10 ? (
+              {userPlan === "Gratuito" && osCountMonth >= 10 && userEmail !== 'rafaelfaiad1@gmail.com' ? (
                 <Button onClick={() => navigate("/configuracoes")} className="flex-1 sm:flex-none gradient-primary animate-pulse">
                   Upgrade para Pro
                 </Button>

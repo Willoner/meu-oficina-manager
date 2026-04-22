@@ -24,6 +24,7 @@ import CheckoutSuccess from "./pages/CheckoutSuccess.tsx";
 import CheckoutCancel from "./pages/CheckoutCancel.tsx";
 import TermosUso from "./pages/TermosUso.tsx";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade.tsx";
+import Agenda from "./pages/Agenda.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 import { Analytics } from "@vercel/analytics/react";
@@ -57,6 +58,7 @@ const App = () => (
           <Route path="/estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
           <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
           <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+          <Route path="/agenda" element={<ProtectedRoute><Agenda /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
