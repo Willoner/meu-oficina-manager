@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,20 @@ import { Eye, EyeOff } from "lucide-react";
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    if (savedEmail && emailRef.current) {
+      emailRef.current.value = savedEmail;
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,6 +56,11 @@ const Login = () => {
         variant: "destructive" 
       });
     } else {
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", emailValue);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+      }
       navigate("/dashboard");
     }
     setLoading(false);
@@ -94,6 +108,19 @@ const Login = () => {
               </button>
             </div>
           </div>
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center space-x-2">
+              <input 
+                type="checkbox" 
+                id="remember" 
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+              />
+              <Label htmlFor="remember" className="text-sm font-medium cursor-pointer">Lembrar-me</Label>
+            </div>
+          </div>
+
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Entrando..." : "Entrar"}
           </Button>
