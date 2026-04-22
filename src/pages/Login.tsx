@@ -68,11 +68,15 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center space-y-2">
-          <Logo className="w-[80px] h-auto mx-auto mb-4" />
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Oficina em Ordem</h1>
-          <p className="text-muted-foreground">Entre na sua conta</p>
+      <div className="w-full max-w-sm space-y-10">
+        <div className="text-center space-y-6">
+          <div className="bg-sidebar p-8 rounded-2xl shadow-xl w-fit mx-auto border border-sidebar-border/50">
+            <Logo className="w-[180px] h-auto" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold tracking-tight text-foreground">Acesso ao Gestor</h2>
+            <p className="text-sm text-muted-foreground">Gerencie sua oficina com eficiência</p>
+          </div>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
