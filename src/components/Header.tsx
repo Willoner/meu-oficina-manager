@@ -191,8 +191,8 @@ const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
               </button>
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0 bg-sidebar border-r-sidebar-border">
-              <div className="flex items-center justify-start px-6 py-6 border-b border-sidebar-border">
-                <Logo className="w-[120px] h-auto" />
+              <div className="flex items-center justify-center px-4 py-8 border-b border-sidebar-border">
+                <Logo className="w-[160px] h-auto" />
               </div>
               <nav className="flex-1 px-3 py-4 space-y-1">
                 {menuItems.map((item) => {

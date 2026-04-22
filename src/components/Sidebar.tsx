@@ -9,8 +9,8 @@ const Sidebar = () => {
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar hidden lg:flex flex-col z-50 overflow-y-auto border-r border-sidebar-border">
       {/* Logo */}
-      <div className="flex items-center justify-start px-6 py-6 border-b border-sidebar-border">
-        <Logo className="w-[120px] h-auto" />
+      <div className="flex items-center justify-center px-4 py-8 border-b border-sidebar-border">
+        <Logo className="w-[160px] h-auto" />
       </div>
 
       {/* Navigation */}
