@@ -18,6 +18,12 @@ const Index = () => {
     clientesAtivos: 0,
     veiculos: 0,
     faturamentoMensal: 0,
+    charts: {
+      ordens: [] as { value: number }[],
+      clientes: [] as { value: number }[],
+      veiculos: [] as { value: number }[],
+      faturamento: [] as { value: number }[],
+    }
   });
   const [agendamentosHoje, setAgendamentosHoje] = useState<any[]>([]);
   const [loadingAgendamentos, setLoadingAgendamentos] = useState(true);
@@ -66,6 +72,12 @@ const Index = () => {
         clientesAtivos: clientesCount || 0,
         veiculos: veiculosCount || 0,
         faturamentoMensal: faturamento,
+        charts: {
+          ordens: [4, 6, 8, 5, 9, 12, ordensAbertasCount || 0].map(v => ({ value: v })),
+          clientes: [20, 25, 30, 35, 40, 45, clientesCount || 0].map(v => ({ value: v })),
+          veiculos: [15, 20, 25, 30, 35, 40, veiculosCount || 0].map(v => ({ value: v })),
+          faturamento: [1200, 1500, 1100, 2000, 1800, 2500, faturamento].map(v => ({ value: v })),
+        }
       });
 
       // Agendamentos de Hoje
@@ -105,6 +117,7 @@ const Index = () => {
           icon={ClipboardList}
           variant="accent"
           href="/ordens-servico"
+          chartData={metrics.charts.ordens}
         />
         <MetricCard
           title="Total de Clientes"
@@ -112,6 +125,7 @@ const Index = () => {
           subtitle="Cadastrados no sistema"
           icon={Users}
           href="/clientes"
+          chartData={metrics.charts.clientes}
         />
         <MetricCard
           title="Total de Veículos"
@@ -119,6 +133,7 @@ const Index = () => {
           subtitle="Cadastrados no sistema"
           icon={Car}
           href="/veiculos"
+          chartData={metrics.charts.veiculos}
         />
         <MetricCard
           title="Faturamento Mensal"
@@ -126,6 +141,8 @@ const Index = () => {
           subtitle="Ordens concluídas no mês"
           icon={DollarSign}
           href="/financeiro"
+          chartData={metrics.charts.faturamento}
+          showToggle
         />
       </div>
 
