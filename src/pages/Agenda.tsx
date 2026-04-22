@@ -123,6 +123,13 @@ const Agenda = () => {
     );
   });
 
+  const proximosAgendamentos = agendamentos.filter(a => {
+    const d = new Date(a.data_agendamento);
+    const hoje = new Date();
+    hoje.setHours(23, 59, 59, 999);
+    return d > hoje && a.status === 'pendente';
+  });
+
   const handleSaveAgendamento = async () => {
     if (!clienteId || !tipoServico || !date || !horario) {
       toast({ title: "Erro", description: "Preencha todos os campos obrigatórios.", variant: "destructive" });
@@ -226,6 +233,36 @@ const Agenda = () => {
           >
             <Plus className="w-5 h-5 mr-2" /> Novo Agendamento
           </Button>
+
+          {/* Novos Agendamentos Futuros */}
+          <Card className="shadow-sm border-primary/10">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-bold flex items-center gap-2">
+                <Clock className="w-4 h-4 text-primary" /> Próximos na Agenda
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {proximosAgendamentos.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic">Nenhum agendamento futuro.</p>
+              ) : (
+                proximosAgendamentos.slice(0, 5).map(item => (
+                  <div 
+                    key={item.id} 
+                    className="group cursor-pointer p-2 rounded-lg hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all"
+                    onClick={() => setDate(new Date(item.data_agendamento))}
+                  >
+                    <p className="text-xs font-bold truncate">{item.clientes?.nome}</p>
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-[10px] text-muted-foreground">
+                        {format(new Date(item.data_agendamento), "dd/MM 'às' HH:mm")}
+                      </span>
+                      <Badge className="text-[8px] h-4 px-1">{item.tipo_servico}</Badge>
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Lado Direito: Listagem do Dia */}
