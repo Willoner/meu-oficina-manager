@@ -70,7 +70,7 @@ export default function Landing() {
             <a href="#funcionalidades" className="hover:text-blue-600 transition-colors">Funcionalidades</a>
             <a href="#precos" className="hover:text-blue-600 transition-colors">Preços</a>
             <a href="#faq" className="hover:text-blue-600 transition-colors">FAQ</a>
-            <a href="#contato" className="hover:text-blue-600 transition-colors">Contato</a>
+            <a href="https://wa.me/5519998156947" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors">Contato</a>
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
@@ -105,6 +105,7 @@ export default function Landing() {
             <a href="#funcionalidades" onClick={toggleMenu} className="text-slate-600 font-medium py-2">Funcionalidades</a>
             <a href="#precos" onClick={toggleMenu} className="text-slate-600 font-medium py-2">Preços</a>
             <a href="#faq" onClick={toggleMenu} className="text-slate-600 font-medium py-2">FAQ</a>
+            <a href="https://wa.me/5519998156947" target="_blank" rel="noopener noreferrer" onClick={toggleMenu} className="text-slate-600 font-medium py-2">Contato</a>
             {(isMobile && !isInstalled) && (
               <button 
                 onClick={() => {
@@ -376,11 +377,14 @@ export default function Landing() {
             <span className="font-bold text-lg tracking-tight">Oficina em Ordem</span>
           </div>
           
-          <div className="flex flex-wrap justify-center gap-8 text-sm">
+          <div className="flex flex-col md:flex-row flex-wrap justify-center gap-x-8 gap-y-4 text-sm">
             <Link to="/termos" className="hover:text-white transition-colors">Termos de Uso</Link>
             <Link to="/privacidade" className="hover:text-white transition-colors">Política de Privacidade</Link>
-            <a href="mailto:contato@oficinaemordem.com.br" className="hover:text-white transition-colors flex items-center gap-2">
-              Contato: contato@oficinaemordem.com.br
+            <a href="mailto:oficina131251@gmail.com" className="hover:text-white transition-colors flex items-center gap-2">
+              E-mail: oficina131251@gmail.com
+            </a>
+            <a href="https://wa.me/5519998156947" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-2">
+              WhatsApp: (19) 99815-6947
             </a>
           </div>
 
