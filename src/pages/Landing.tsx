@@ -11,6 +11,7 @@ export default function Landing() {
   const { isInstallable, installPWA } = usePWAInstall();
 
   const toggleMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
 
   const features = [
     {
@@ -103,7 +104,7 @@ export default function Landing() {
             <a href="#funcionalidades" onClick={toggleMenu} className="text-slate-600 font-medium py-2">Funcionalidades</a>
             <a href="#precos" onClick={toggleMenu} className="text-slate-600 font-medium py-2">Preços</a>
             <a href="#faq" onClick={toggleMenu} className="text-slate-600 font-medium py-2">FAQ</a>
-            {isInstallable && (
+            {(isInstallable || isIOS) && (
               <button 
                 onClick={() => { installPWA(); toggleMenu(); }}
                 className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-600 font-bold rounded-xl"
@@ -164,7 +165,7 @@ export default function Landing() {
       </section>
 
       {/* App Experience Section */}
-      <section className="py-24 bg-gradient-to-br from-slate-900 to-blue-900 text-white overflow-hidden">
+      <section id="app-experience" className="py-24 bg-gradient-to-br from-slate-900 to-blue-900 text-white overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center gap-16">
             <div className="flex-1 space-y-8">
@@ -382,7 +383,7 @@ export default function Landing() {
       </footer>
 
       {/* Floating PWA Install Bar (Mobile Only) */}
-      {isInstallable && (
+      {(isInstallable || (isIOS && !usePWAInstall().isInstalled)) && (
         <div className="md:hidden fixed bottom-6 left-4 right-4 z-50 animate-in slide-in-from-bottom-10 duration-500">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -391,12 +392,20 @@ export default function Landing() {
               </div>
               <div>
                 <p className="text-white font-bold text-sm">Oficina em Ordem</p>
-                <p className="text-slate-400 text-xs">Instalar o aplicativo</p>
+                <p className="text-slate-400 text-xs">Acessar via Aplicativo</p>
               </div>
             </div>
-            <Button size="sm" onClick={installPWA} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 rounded-lg">
-              Instalar
-            </Button>
+            {isInstallable ? (
+              <Button size="sm" onClick={installPWA} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 rounded-lg">
+                Instalar
+              </Button>
+            ) : (
+              <a href="#app-experience">
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 rounded-lg">
+                  Ver como
+                </Button>
+              </a>
+            )}
           </div>
         </div>
       )}
