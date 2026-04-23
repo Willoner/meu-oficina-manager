@@ -56,7 +56,7 @@ const Configuracoes = () => {
     notificacoes_email: true,
   });
 
-  const OS_LIMIT = (userPlan === "Pro" || userEmail === 'rafaelfaiad1@gmail.com') ? 999999 : 10;
+  const OS_LIMIT = (userPlan === "Pro" || userEmail === 'wilson.lisboa@oficinaemordem.com.br') ? 999999 : 10;
 
   useEffect(() => {
     fetchData();
@@ -391,9 +391,9 @@ const Configuracoes = () => {
                   </p>
                   <div className="flex flex-col gap-2">
                     <Button variant="outline" size="sm" asChild className="w-full justify-start">
-                      <a href="mailto:suporte@oficinaemordem.com">
+                      <a href="mailto:suporte@oficinaemordem.com.br">
                         <ExternalLink className="w-4 h-4 mr-2" />
-                        suporte@oficinaemordem.com
+                        suporte@oficinaemordem.com.br
                       </a>
                     </Button>
                     <Button variant="outline" size="sm" asChild className="w-full justify-start">

@@ -4,11 +4,19 @@ import { CheckCircle2, ClipboardList, BellRing, Package, Wrench, Menu, X, ArrowR
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
-import { Smartphone, Share, Layout, Zap, Globe } from "lucide-react";
+import { Smartphone, Share, Layout, Zap, Globe, PlusSquare } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isInstallable, isInstalled, installPWA } = usePWAInstall();
+  const [installDialogOpen, setInstallDialogOpen] = useState(false);
 
   const toggleMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
@@ -74,11 +82,11 @@ export default function Landing() {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
-            {isInstallable && (
+            {(isInstallable || isMobile) && !isInstalled && (
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={installPWA}
+                onClick={() => isInstallable ? installPWA() : setInstallDialogOpen(true)}
                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-semibold gap-2"
               >
                 <Download className="h-4 w-4" /> Instalar App
@@ -112,7 +120,7 @@ export default function Landing() {
                   if (isInstallable) {
                     installPWA();
                   } else {
-                    document.getElementById('app-experience')?.scrollIntoView({ behavior: 'smooth' });
+                    setInstallDialogOpen(true);
                   }
                   toggleMenu();
                 }}
@@ -157,9 +165,9 @@ export default function Landing() {
                 Ver preços
               </Button>
             </a>
-            {isInstallable && (
+            {((isInstallable || isMobile) && !isInstalled) && (
               <Button 
-                onClick={installPWA}
+                onClick={() => isInstallable ? installPWA() : setInstallDialogOpen(true)}
                 className="h-14 px-8 text-lg rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg shadow-blue-600/30 w-full sm:w-auto transition-transform hover:-translate-y-1 gap-2"
               >
                 <Download className="h-5 w-5" /> Baixar Aplicativo
@@ -380,8 +388,8 @@ export default function Landing() {
           <div className="flex flex-col md:flex-row flex-wrap justify-center gap-x-8 gap-y-4 text-sm">
             <Link to="/termos" className="hover:text-white transition-colors">Termos de Uso</Link>
             <Link to="/privacidade" className="hover:text-white transition-colors">Política de Privacidade</Link>
-            <a href="mailto:oficina131251@gmail.com" className="hover:text-white transition-colors flex items-center gap-2">
-              E-mail: oficina131251@gmail.com
+            <a href="mailto:suporte@oficinaemordem.com.br" className="hover:text-white transition-colors flex items-center gap-2">
+              E-mail: suporte@oficinaemordem.com.br
             </a>
             <a href="https://wa.me/5519998156947" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-2">
               WhatsApp: (19) 99815-6947
@@ -412,15 +420,75 @@ export default function Landing() {
                 Instalar
               </Button>
             ) : (
-              <a href="#app-experience">
-                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 rounded-lg">
-                  Ver como
-                </Button>
-              </a>
+              <Button 
+                size="sm" 
+                onClick={() => setInstallDialogOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 rounded-lg"
+              >
+                Instalar
+              </Button>
             )}
           </div>
         </div>
       )}
+      {/* PWA Install Instruction Dialog */}
+      <Dialog open={installDialogOpen} onOpenChange={setInstallDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-bold">Instalar Oficina em Ordem</DialogTitle>
+            <DialogDescription className="text-center text-slate-500 pt-2">
+              Siga os passos abaixo para ter o aplicativo na sua tela inicial
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-6 space-y-6">
+            {isIOS ? (
+              <div className="space-y-4">
+                <div className="flex gap-4 items-start bg-blue-50 p-4 rounded-xl border border-blue-100">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shrink-0">1</div>
+                  <p className="text-slate-700 text-sm leading-relaxed">
+                    Toque no botão de <strong>Compartilhar</strong> <Share className="inline-block w-4 h-4 mx-1 text-blue-600" /> no menu do Safari.
+                  </p>
+                </div>
+                <div className="flex gap-4 items-start bg-blue-50 p-4 rounded-xl border border-blue-100">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shrink-0">2</div>
+                  <p className="text-slate-700 text-sm leading-relaxed">
+                    Role a lista e selecione <strong>Adicionar à Tela de Início</strong> <PlusSquare className="inline-block w-4 h-4 mx-1 text-blue-600" />.
+                  </p>
+                </div>
+                <div className="flex gap-4 items-start bg-blue-50 p-4 rounded-xl border border-blue-100">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shrink-0">3</div>
+                  <p className="text-slate-700 text-sm leading-relaxed">
+                    Toque em <strong>Adicionar</strong> no canto superior direito.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex gap-4 items-start bg-blue-50 p-4 rounded-xl border border-blue-100">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shrink-0">1</div>
+                  <p className="text-slate-700 text-sm leading-relaxed">
+                    Toque nos <strong>três pontinhos</strong> (Menu) no canto superior do navegador.
+                  </p>
+                </div>
+                <div className="flex gap-4 items-start bg-blue-50 p-4 rounded-xl border border-blue-100">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shrink-0">2</div>
+                  <p className="text-slate-700 text-sm leading-relaxed">
+                    Selecione <strong>Instalar Aplicativo</strong> ou <strong>Adicionar à Tela Inicial</strong>.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <Button 
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-6 font-bold"
+            onClick={() => setInstallDialogOpen(false)}
+          >
+            Entendi
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

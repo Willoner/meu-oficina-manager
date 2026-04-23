@@ -305,7 +305,7 @@ const OrdensServico = () => {
     }
 
     // Check plan limit
-    const isTestUser = user.email === 'rafaelfaiad1@gmail.com';
+    const isTestUser = user.email === 'wilson.lisboa@oficinaemordem.com.br';
     if (userPlan === "Gratuito" && osCountMonth >= 10 && !isTestUser) {
       toast({ 
         title: "Limite atingido", 
@@ -506,7 +506,7 @@ const OrdensServico = () => {
               <Button variant="outline" size="sm" onClick={() => handleVerificarAtrasos(true)} className="flex-1 sm:flex-none gap-2">
                 <RefreshCw className="w-4 h-4" /> <span className="hidden md:inline">Verificar Atrasos</span>
               </Button>
-              {userPlan === "Gratuito" && osCountMonth >= 10 && userEmail !== 'rafaelfaiad1@gmail.com' ? (
+              {userPlan === "Gratuito" && osCountMonth >= 10 && userEmail !== 'wilson.lisboa@oficinaemordem.com.br' ? (
                 <Button onClick={() => navigate("/configuracoes")} className="flex-1 sm:flex-none gradient-primary animate-pulse">
                   Upgrade para Pro
                 </Button>
