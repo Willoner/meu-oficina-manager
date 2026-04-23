@@ -8,10 +8,11 @@ import { Smartphone, Share, Layout, Zap, Globe } from "lucide-react";
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isInstallable, installPWA } = usePWAInstall();
+  const { isInstallable, isInstalled, installPWA } = usePWAInstall();
 
   const toggleMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   const features = [
     {
@@ -104,9 +105,16 @@ export default function Landing() {
             <a href="#funcionalidades" onClick={toggleMenu} className="text-slate-600 font-medium py-2">Funcionalidades</a>
             <a href="#precos" onClick={toggleMenu} className="text-slate-600 font-medium py-2">Preços</a>
             <a href="#faq" onClick={toggleMenu} className="text-slate-600 font-medium py-2">FAQ</a>
-            {(isInstallable || isIOS) && (
+            {(isMobile && !isInstalled) && (
               <button 
-                onClick={() => { installPWA(); toggleMenu(); }}
+                onClick={() => {
+                  if (isInstallable) {
+                    installPWA();
+                  } else {
+                    document.getElementById('app-experience')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                  toggleMenu();
+                }}
                 className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-600 font-bold rounded-xl"
               >
                 <Download className="h-5 w-5" /> Instalar Aplicativo
@@ -383,7 +391,7 @@ export default function Landing() {
       </footer>
 
       {/* Floating PWA Install Bar (Mobile Only) */}
-      {(isInstallable || (isIOS && !usePWAInstall().isInstalled)) && (
+      {(isMobile && !isInstalled) && (
         <div className="md:hidden fixed bottom-6 left-4 right-4 z-50 animate-in slide-in-from-bottom-10 duration-500">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
