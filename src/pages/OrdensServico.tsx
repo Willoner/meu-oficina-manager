@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
-import { ClipboardList, Plus, Search, Trash2, Eye, Pencil, AlertTriangle, RefreshCw } from "lucide-react";
+import { 
+  ClipboardList, Plus, Search, Trash2, Eye, Pencil, AlertTriangle, RefreshCw,
+  Activity, Wrench, CirclePlay, Zap, Cpu, Paintbrush, Sparkles, Wind, Disc, Settings2 
+} from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Input } from "@/components/ui/input";
@@ -55,8 +58,16 @@ type ItemOS = {
 };
 
 const servicosDisponiveis = [
-  "Motor", "Suspensão", "Freios", "Elétrica", "Eletrônica", 
-  "Funilaria", "Estética", "Ar-condicionado", "Pneus", "Transmissão"
+  { label: "Motor", icon: Activity },
+  { label: "Suspensão", icon: Wrench },
+  { label: "Freios", icon: Disc },
+  { label: "Elétrica", icon: Zap },
+  { label: "Eletrônica", icon: Cpu },
+  { label: "Funilaria", icon: Paintbrush },
+  { label: "Estética", icon: Sparkles },
+  { label: "Ar-condicionado", icon: Wind },
+  { label: "Pneus", icon: CirclePlay },
+  { label: "Transmissão", icon: Settings2 }
 ];
 
 const statusColor: Record<string, string> = {
@@ -625,10 +636,17 @@ const OrdensServico = () => {
               <div>
                 <Label>Tipo de Serviço Principal *</Label>
                 <Select value={tipoServico} onValueChange={setTipoServico}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione o tipo de serviço" /></SelectTrigger>
+                  <SelectTrigger className="mt-1 text-sm h-10">
+                    <SelectValue placeholder="Selecione o tipo de serviço" />
+                  </SelectTrigger>
                   <SelectContent>
                     {servicosDisponiveis.map(s => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                      <SelectItem key={s.label} value={s.label}>
+                        <div className="flex items-center gap-2">
+                          <s.icon className="w-4 h-4 text-muted-foreground" />
+                          <span>{s.label}</span>
+                        </div>
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -870,10 +888,15 @@ const OrdensServico = () => {
             <div className="space-y-2">
               <Label>Tipo de Serviço Principal</Label>
               <Select value={editTipo} onValueChange={setEditTipo}>
-                <SelectTrigger><SelectValue placeholder="Selecione o tipo de serviço" /></SelectTrigger>
+                <SelectTrigger className="text-sm h-10"><SelectValue placeholder="Selecione o tipo de serviço" /></SelectTrigger>
                 <SelectContent>
                   {servicosDisponiveis.map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                    <SelectItem key={s.label} value={s.label}>
+                      <div className="flex items-center gap-2">
+                        <s.icon className="w-4 h-4 text-muted-foreground" />
+                        <span>{s.label}</span>
+                      </div>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>

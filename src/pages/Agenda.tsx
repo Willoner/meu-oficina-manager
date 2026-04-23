@@ -11,7 +11,14 @@ import {
   CheckCircle2, 
   XCircle, 
   FileText,
-  AlertCircle
+  AlertCircle,
+  ClipboardList,
+  Droplets,
+  Disc,
+  Wrench,
+  Settings2,
+  Zap,
+  MoreHorizontal
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -377,7 +384,7 @@ const Agenda = () => {
             <div className="space-y-2">
               <Label>Cliente *</Label>
               <Select value={clienteId} onValueChange={setClienteId}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm h-10">
                   <SelectValue placeholder="Selecione o cliente" />
                 </SelectTrigger>
                 <SelectContent>
@@ -391,7 +398,7 @@ const Agenda = () => {
             <div className="space-y-2">
               <Label>Veículo (Opcional)</Label>
               <Select value={veiculoId} onValueChange={setVeiculoId} disabled={!clienteId}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm h-10">
                   <SelectValue placeholder={clienteId ? "Selecione o veículo" : "Selecione um cliente primeiro"} />
                 </SelectTrigger>
                 <SelectContent>
@@ -416,17 +423,52 @@ const Agenda = () => {
             <div className="space-y-2">
               <Label>Tipo de Serviço *</Label>
               <Select value={tipoServico} onValueChange={setTipoServico}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm h-10">
                   <SelectValue placeholder="Selecione o serviço" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Revisão Geral">Revisão Geral</SelectItem>
-                  <SelectItem value="Troca de Óleo">Troca de Óleo</SelectItem>
-                  <SelectItem value="Freios">Freios</SelectItem>
-                  <SelectItem value="Suspensão">Suspensão</SelectItem>
-                  <SelectItem value="Diferencial/Câmbio">Diferencial/Câmbio</SelectItem>
-                  <SelectItem value="Elétrica">Elétrica</SelectItem>
-                  <SelectItem value="Outro">Outro</SelectItem>
+                  <SelectItem value="Revisão Geral">
+                    <div className="flex items-center gap-2">
+                      <ClipboardList className="w-4 h-4 text-muted-foreground" />
+                      <span>Revisão Geral</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Troca de Óleo">
+                    <div className="flex items-center gap-2">
+                      <Droplets className="w-4 h-4 text-muted-foreground" />
+                      <span>Troca de Óleo</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Freios">
+                    <div className="flex items-center gap-2">
+                      <Disc className="w-4 h-4 text-muted-foreground" />
+                      <span>Freios</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Suspensão">
+                    <div className="flex items-center gap-2">
+                      <Wrench className="w-4 h-4 text-muted-foreground" />
+                      <span>Suspensão</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Diferencial/Câmbio">
+                    <div className="flex items-center gap-2">
+                      <Settings2 className="w-4 h-4 text-muted-foreground" />
+                      <span>Diferencial/Câmbio</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Elétrica">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-muted-foreground" />
+                      <span>Elétrica</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="Outro">
+                    <div className="flex items-center gap-2">
+                      <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                      <span>Outro</span>
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
