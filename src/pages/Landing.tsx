@@ -4,7 +4,7 @@ import { CheckCircle2, ClipboardList, BellRing, Package, Wrench, Menu, X, ArrowR
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
-import { Smartphone, Share, Layout, Zap, Globe, PlusSquare } from "lucide-react";
+import { Smartphone, Share, Layout, Zap, Globe, PlusSquare, Database, Lock, Server } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -375,6 +375,52 @@ export default function Landing() {
             Criar conta grátis agora
           </Button>
         </Link>
+      </section>
+
+      {/* Security Section */}
+      <section className="py-16 bg-slate-50 border-y border-slate-100">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Segurança em primeiro lugar</h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">
+              Utilizamos as tecnologias mais modernas de proteção para garantir que os dados da sua oficina e dos seus clientes estejam sempre protegidos.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white shadow-sm border border-slate-100 group hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-900 mb-1">Criptografia SSL</h3>
+              <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Conexão 100% Segura</p>
+            </div>
+
+            <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white shadow-sm border border-slate-100 group hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Database className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-900 mb-1">Backup Diário</h3>
+              <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Seus dados salvos</p>
+            </div>
+
+            <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white shadow-sm border border-slate-100 group hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-900 mb-1">LGPD Ready</h3>
+              <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Privacidade Total</p>
+            </div>
+
+            <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white shadow-sm border border-slate-100 group hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Server className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-900 mb-1">Nuvem AWS</h3>
+              <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Alta Disponibilidade</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Footer */}
