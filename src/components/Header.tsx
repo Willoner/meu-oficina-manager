@@ -180,13 +180,13 @@ const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b px-4 md:px-8 py-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b px-3 md:px-8 py-3 md:py-4">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-3 min-w-0">
           {/* Menu Mobile */}
           <Sheet>
             <SheetTrigger asChild>
-              <button className="lg:hidden w-10 h-10 rounded-lg bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors">
+              <button className="lg:hidden w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors shrink-0">
                 <Menu className="w-5 h-5 text-secondary-foreground" />
               </button>
             </SheetTrigger>
@@ -203,7 +203,7 @@ const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
                       onClick={() => navigate(item.path)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                         isActive
-                          ? "bg-sidebar-accent text-sidebar-primary"
+                           ? "bg-sidebar-accent text-sidebar-primary"
                           : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       }`}
                     >
@@ -216,9 +216,9 @@ const Header = ({ title, subtitle, showSearch = false }: HeaderProps) => {
             </SheetContent>
           </Sheet>
 
-          <div className="flex flex-col">
-            <h1 className="text-lg md:text-2xl font-bold text-foreground line-clamp-1">{title}</h1>
-            <p className="text-xs md:text-sm text-muted-foreground line-clamp-1">{subtitle}</p>
+          <div className="flex flex-col min-w-0">
+            <h1 className="text-base md:text-2xl font-bold text-foreground truncate">{title}</h1>
+            <p className="text-[10px] md:text-sm text-muted-foreground truncate">{subtitle}</p>
           </div>
         </div>
 

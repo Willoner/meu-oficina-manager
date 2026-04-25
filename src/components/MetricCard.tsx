@@ -30,12 +30,12 @@ const MetricCard = ({
   const [isVisible, setIsVisible] = useState(true);
 
   const content = (
-    <Card className="shadow-card hover:shadow-card-hover transition-all hover:-translate-y-0.5 cursor-pointer h-full">
-      <CardContent className="p-5 flex flex-col justify-between h-full space-y-4">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
+    <Card className="shadow-card hover:shadow-card-hover transition-all hover:-translate-y-0.5 cursor-pointer h-full overflow-hidden">
+      <CardContent className="p-4 md:p-5 flex flex-col justify-between h-full space-y-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="space-y-1 min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-medium text-muted-foreground">{title}</p>
+              <p className="text-xs md:text-sm font-medium text-muted-foreground truncate">{title}</p>
               {showToggle && (
                 <button 
                   onClick={(e) => {
@@ -43,22 +43,22 @@ const MetricCard = ({
                     e.stopPropagation();
                     setIsVisible(!isVisible);
                   }}
-                  className="p-1 hover:bg-muted rounded-full transition-colors"
+                  className="p-1 hover:bg-muted rounded-full transition-colors shrink-0"
                 >
                   {isVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </button>
               )}
             </div>
-            <p className="text-2xl font-bold text-card-foreground">
+            <p className="text-xl md:text-2xl font-bold text-card-foreground break-words">
               {showToggle && !isVisible ? "••••••" : value}
             </p>
           </div>
           <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+            className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 ${
               variant === "accent" ? "gradient-accent shadow-lg shadow-accent/20" : "bg-primary/10"
             }`}
           >
-            <Icon className={`w-5 h-5 ${variant === "accent" ? "text-accent-foreground" : "text-primary"}`} />
+            <Icon className={`w-4 h-4 md:w-5 md:h-5 ${variant === "accent" ? "text-accent-foreground" : "text-primary"}`} />
           </div>
         </div>
 

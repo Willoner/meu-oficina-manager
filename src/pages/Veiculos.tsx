@@ -212,7 +212,7 @@ const Veiculos = () => {
             </div>
           ) : (
             <div className="rounded-lg border bg-card overflow-hidden">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-muted-foreground/20">
                 <Table>
                 <TableHeader>
                   <TableRow>
@@ -269,7 +269,7 @@ const Veiculos = () => {
               <Label htmlFor="placa">Placa *</Label>
               <Input id="placa" value={placa} onChange={e => setPlaca(e.target.value.toUpperCase())} placeholder="ABC-1234" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="marca">Marca *</Label>
                 <Input id="marca" value={marca} onChange={e => setMarca(e.target.value)} placeholder="Ex: Fiat" />
@@ -279,7 +279,7 @@ const Veiculos = () => {
                 <Input id="modelo" value={modelo} onChange={e => setModelo(e.target.value)} placeholder="Ex: Uno" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="ano">Ano</Label>
                 <Input id="ano" value={ano} onChange={e => setAno(e.target.value)} placeholder="2024" type="number" />

@@ -524,7 +524,7 @@ const OrdensServico = () => {
             </div>
           ) : (
             <div className="rounded-lg border bg-card overflow-hidden">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-muted-foreground/20">
                 <Table>
                 <TableHeader>
                   <TableRow>
@@ -597,7 +597,7 @@ const OrdensServico = () => {
             <DialogDescription>Preencha os detalhes e insira os itens (peças ou serviços avulsos).</DialogDescription>
           </DialogHeader>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
                 <Label>Cliente *</Label>
@@ -672,7 +672,7 @@ const OrdensServico = () => {
                 </div>
               </div>
               
-              <div className="flex-1 overflow-y-auto mb-4 border rounded bg-card min-h-[200px]">
+              <div className="flex-1 overflow-x-auto mb-4 border rounded bg-card min-h-[200px]">
                 {itensOS.length === 0 ? (
                   <div className="p-4 text-center text-sm text-muted-foreground mt-10">
                     Nenhum item adicionado.

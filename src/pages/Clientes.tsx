@@ -182,7 +182,7 @@ const Clientes = () => {
             </div>
           ) : (
             <div className="rounded-lg border bg-card overflow-hidden">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-muted-foreground/20">
                 <Table>
                 <TableHeader>
                   <TableRow>

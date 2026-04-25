@@ -26,13 +26,13 @@ const DashboardLayout = ({
       </div>
 
       {/* Margem dinâmica: ml-0 no mobile, ml-64 no desktop */}
-      <main className={`lg:ml-64 min-h-screen transition-all duration-300 ${hideSidebarOnPrint ? "print:ml-0" : ""}`}>
+      <main className={`lg:ml-64 min-h-screen transition-all duration-300 overflow-x-hidden ${hideSidebarOnPrint ? "print:ml-0" : ""}`}>
         <div className={hideHeaderOnPrint ? "print:hidden" : ""}>
           <Header title={title} subtitle={subtitle} showSearch={showSearch} />
         </div>
         
         {/* Padding responsivo para o conteúdo */}
-        <div className="p-4 md:p-8 space-y-6">
+        <div className="p-3 md:p-8 space-y-6 max-w-full">
           {children}
         </div>
       </main>
