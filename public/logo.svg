@@ -1,19 +1,28 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Fundo Circular Marinho -->
+  <!-- Fundo Circular e Bordas -->
   <circle cx="256" cy="256" r="240" fill="#1A1F2C" stroke="#82E9DE" stroke-width="12"/>
+  <circle cx="256" cy="256" r="222" fill="none" stroke="#82E9DE" stroke-width="3"/>
   
-  <g transform="translate(256, 220) rotate(-45) translate(-100, -100)">
-    <!-- Chave de Boca Estilizada -->
-    <rect x="0" y="85" width="200" height="30" rx="15" fill="#82E9DE"/>
-    <path d="M190 100 A40 40 0 1 1 270 100" stroke="#82E9DE" stroke-width="12" fill="none"/>
+  <g transform="translate(256, 210) rotate(-45) translate(-120, -120)">
+    <!-- Chave de Boca (Wrench) -->
+    <rect x="20" y="105" width="200" height="34" rx="4" fill="none" stroke="#82E9DE" stroke-width="12"/>
+    <path d="M200 122C200 122 210 85 245 85C280 85 290 122 290 122C290 122 280 159 245 159C210 159 200 122 200 122Z" fill="#1A1F2C" stroke="#82E9DE" stroke-width="12"/>
+    <path d="M240 105L275 122L240 139" stroke="#82E9DE" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     
-    <!-- Mão Simplificada (Formato de garra firme) -->
-    <path d="M60 70 C 60 70, 40 100, 60 130 L 140 130 C 160 130, 180 100, 160 70 Z" fill="#1A1F2C" stroke="#82E9DE" stroke-width="14" stroke-linejoin="round"/>
-    <line x1="85" y1="75" x2="85" y2="125" stroke="#82E9DE" stroke-width="8" stroke-linecap="round"/>
-    <line x1="110" y1="75" x2="110" y2="125" stroke="#82E9DE" stroke-width="8" stroke-linecap="round"/>
-    <line x1="135" y1="75" x2="135" y2="125" stroke="#82E9DE" stroke-width="8" stroke-linecap="round"/>
+    <!-- Mão (Hand) - Traços Geométricos da Imagem -->
+    <path d="M80 140V240M115 140V240" stroke="#82E9DE" stroke-width="12" stroke-linecap="round"/>
+    <path d="M80 240C80 240 85 260 115 260C145 260 150 240 150 240V180" stroke="#82E9DE" stroke-width="12" stroke-linecap="round" fill="none"/>
+    
+    <!-- Dedos Dobrados -->
+    <path d="M110 105C110 85 135 85 135 105V140" stroke="#82E9DE" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <path d="M140 105C140 85 165 85 165 105V140" stroke="#82E9DE" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <path d="M170 105C170 85 195 85 195 105V140" stroke="#82E9DE" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <path d="M200 105C200 85 225 85 225 105V140" stroke="#82E9DE" stroke-width="12" stroke-linecap="round" fill="none"/>
+
+    <!-- Polegar (Thumb) -->
+    <path d="M80 140C60 140 50 110 80 105" stroke="#82E9DE" stroke-width="12" stroke-linecap="round" fill="none"/>
   </g>
 
-  <text x="256" y="385" fill="#82E9DE" font-family="sans-serif" font-weight="900" font-size="42" text-anchor="middle" style="letter-spacing: 2px;">OFICINA EM</text>
-  <text x="256" y="445" fill="#82E9DE" font-family="sans-serif" font-weight="900" font-size="60" text-anchor="middle" style="letter-spacing: 4px;">ORDEM</text>
+  <!-- Texto Principal (Fiel à tipografia da imagem) -->
+  <text x="256" y="380" fill="#82E9DE" font-family="Arial, sans-serif" font-weight="900" font-size="44" text-anchor="middle" style="text-transform: uppercase; letter-spacing: 1px;">OFICINA EM ORDEM</text>
 </svg>
