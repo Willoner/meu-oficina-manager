@@ -8,7 +8,7 @@ export const Logo: React.FC<LogoProps> = ({ className = "w-40 h-auto", ...props 
   return (
     <div className="flex items-center justify-center">
       <img
-        src="/logo.svg"
+        src="/logo.png"
         alt="Oficina em Ordem Logo"
         className={className}
         {...props}
