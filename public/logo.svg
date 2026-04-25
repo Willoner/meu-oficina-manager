@@ -1,23 +1,29 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <circle cx="256" cy="256" r="240" fill="#1A1F2C" stroke="#82E9DE" stroke-width="12"/>
-  <circle cx="256" cy="256" r="225" fill="none" stroke="#82E9DE" stroke-width="2" stroke-dasharray="10 5"/>
+  <circle cx="256" cy="256" r="225" fill="none" stroke="#82E9DE" stroke-width="2" stroke-dasharray="10 5" opacity="0.5"/>
   
-  <g transform="translate(120, 100) scale(1.1)">
-    <path d="M211.5 190.5L257.5 144.5C266.5 135.5 266.5 120.5 257.5 111.5L245.5 99.5C236.5 90.5 221.5 90.5 212.5 99.5L166.5 145.5" stroke="#82E9DE" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M125.5 231.5L145.5 211.5M145.5 211.5L165.5 191.5M165.5 191.5L185.5 171.5" stroke="#82E9DE" stroke-width="14" stroke-linecap="round"/>
+  <g transform="translate(256, 210) rotate(-45) translate(-128, -128)">
+    <!-- Wrench Body -->
+    <path d="M40 128H216" stroke="#82E9DE" stroke-width="32" stroke-linecap="round"/>
     
-    <!-- Wrench Head -->
-    <path d="M152 75C140 60 115 55 95 65C75 75 65 100 75 120L115 160" stroke="#82E9DE" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    <path d="M85 85L110 110" stroke="#82E9DE" stroke-width="14" stroke-linecap="round"/>
+    <!-- Wrench Head (Top) -->
+    <path d="M216 128C216 128 225 100 255 100C285 100 295 128 295 128C295 128 285 156 255 156C225 156 216 128 216 128Z" fill="#1A1F2C" stroke="#82E9DE" stroke-width="12"/>
+    <rect x="250" y="115" width="50" height="26" transform="rotate(0 250 115)" fill="#1A1F2C"/>
     
-    <!-- Hand Symbol Simplified and Robust -->
-    <path d="M110 240C90 260 60 260 40 240L20 220C0 200 0 170 20 150L80 90" stroke="#82E9DE" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    <path d="M60 170C80 150 110 150 130 170" stroke="#82E9DE" stroke-width="14" stroke-linecap="round" fill="none"/>
-    <path d="M80 190C100 170 130 170 150 190" stroke="#82E9DE" stroke-width="14" stroke-linecap="round" fill="none"/>
-    <path d="M100 210C120 190 150 190 170 210" stroke="#82E9DE" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <!-- Hand Fingers (Wrapped around wrench) -->
+    <path d="M100 110C100 110 110 80 140 80C170 80 170 110 170 110" stroke="#82E9DE" stroke-width="20" stroke-linecap="round" fill="none"/>
+    <path d="M130 110C130 110 140 80 170 80C200 80 200 110 200 110" stroke="#82E9DE" stroke-width="20" stroke-linecap="round" fill="none"/>
+    <path d="M160 110C160 110 170 80 200 80C230 80 230 110 230 110" stroke="#82E9DE" stroke-width="20" stroke-linecap="round" fill="none"/>
+    <path d="M190 110C190 110 200 80 230 80C260 80 260 110 260 110" stroke="#82E9DE" stroke-width="20" stroke-linecap="round" fill="none"/>
+    
+    <!-- Hand Base / Palm -->
+    <path d="M80 145C80 145 70 200 120 220C170 240 220 200 220 160" stroke="#82E9DE" stroke-width="20" stroke-linecap="round" fill="none"/>
+    
+    <!-- Thumb -->
+    <path d="M85 130C85 130 60 100 90 80" stroke="#82E9DE" stroke-width="20" stroke-linecap="round" fill="none"/>
   </g>
 
   <!-- Text -->
-  <text x="256" y="380" fill="#82E9DE" font-family="Inter, sans-serif" font-weight="800" font-size="48" text-anchor="middle" letter-spacing="2">OFICINA EM</text>
-  <text x="256" y="440" fill="#82E9DE" font-family="Inter, sans-serif" font-weight="800" font-size="56" text-anchor="middle" letter-spacing="4">ORDEM</text>
+  <text x="256" y="385" fill="#82E9DE" font-family="Inter, sans-serif" font-weight="800" font-size="44" text-anchor="middle" letter-spacing="3">OFICINA EM</text>
+  <text x="256" y="445" fill="#82E9DE" font-family="Inter, sans-serif" font-weight="800" font-size="58" text-anchor="middle" letter-spacing="5">ORDEM</text>
 </svg>
