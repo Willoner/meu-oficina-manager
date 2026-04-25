@@ -109,7 +109,7 @@ const Index = () => {
   return (
     <DashboardLayout title="Dashboard" subtitle="Visão geral da sua oficina" showSearch>
       {/* Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
         <MetricCard
           title="Ordens Abertas"
           value={metrics.ordensAbertas.toString()}

@@ -52,14 +52,6 @@
     --sidebar-ring: 220 70% 45%;
     --sidebar-muted: 220 10% 50%;
   }
-
-  /* Forçar tema claro mesmo se o sistema estiver em dark mode */
-  .dark {
-    --background: 220 20% 97% !important;
-    --foreground: 220 30% 12% !important;
-    --card: 0 0% 100% !important;
-    --card-foreground: 220 30% 12% !important;
-  }
 }
 
 @layer base {
