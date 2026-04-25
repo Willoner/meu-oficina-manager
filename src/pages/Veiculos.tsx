@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Car, Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { Car, Plus, Search, Pencil, Trash2, History } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { VehicleHistoryTimeline } from "@/components/VehicleHistoryTimeline";
 
 type Veiculo = {
   id: string;
@@ -39,6 +41,8 @@ const Veiculos = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [historyVehicleId, setHistoryVehicleId] = useState<string | null>(null);
+  const [historyVehiclePlaca, setHistoryVehiclePlaca] = useState("");
   
   // Form state
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -238,8 +242,21 @@ const Veiculos = () => {
                           size="icon" 
                           className="h-8 w-8 text-muted-foreground hover:text-primary"
                           onClick={() => handleEdit(v)}
+                          title="Editar"
                         >
                           <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          onClick={() => {
+                            setHistoryVehicleId(v.id);
+                            setHistoryVehiclePlaca(v.placa);
+                          }}
+                          title="Ver histórico"
+                        >
+                          <History className="h-4 w-4" />
                         </Button>
                         <Button 
                           variant="ghost" 
@@ -325,6 +342,21 @@ const Veiculos = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Sheet open={!!historyVehicleId} onOpenChange={(isOpen) => !isOpen && setHistoryVehicleId(null)}>
+        <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
+          <SheetHeader className="mb-6">
+            <SheetTitle className="flex items-center gap-2">
+              <History className="w-5 h-5 text-primary" />
+              Histórico do Veículo
+            </SheetTitle>
+            <SheetDescription>
+              Linha do tempo de serviços realizados no veículo de placa <span className="font-bold text-foreground">{historyVehiclePlaca}</span>.
+            </SheetDescription>
+          </SheetHeader>
+          {historyVehicleId && <VehicleHistoryTimeline vehicleId={historyVehicleId} />}
+        </SheetContent>
+      </Sheet>
     </DashboardLayout>
   );
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { 
   ClipboardList, Plus, Search, Trash2, Eye, Pencil, AlertTriangle, RefreshCw,
-  Activity, Wrench, CirclePlay, Zap, Cpu, Paintbrush, Sparkles, Wind, Disc, Settings2 
+  Activity, Wrench, CirclePlay, Zap, Cpu, Paintbrush, Sparkles, Wind, Disc, Settings2, History
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -27,6 +27,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateClientDialog } from "@/components/modals/CreateClientDialog";
 import { CreateVehicleDialog } from "@/components/modals/CreateVehicleDialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { VehicleHistoryTimeline } from "@/components/VehicleHistoryTimeline";
 
 type OS = {
   id: string;
@@ -133,6 +135,9 @@ const OrdensServico = () => {
 
   // Delete OS State
   const [deleteOSId, setDeleteOSId] = useState<string | null>(null);
+  
+  // History Sheet state
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -630,6 +635,18 @@ const OrdensServico = () => {
                   <Button type="button" variant="outline" size="icon" onClick={() => setIsVehicleModalOpen(true)} disabled={!clienteId} title="Cadastrar Novo Veículo">
                     <Plus className="h-4 w-4" />
                   </Button>
+                  {veiculoId && (
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={() => setHistoryOpen(true)} 
+                      className="text-primary hover:text-primary/80 border-primary/20 hover:border-primary/40 bg-primary/5"
+                      title="Ver Histórico deste Veículo"
+                    >
+                      <History className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -932,6 +949,21 @@ const OrdensServico = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
+        <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
+          <SheetHeader className="mb-6">
+            <SheetTitle className="flex items-center gap-2">
+              <History className="w-5 h-5 text-primary" />
+              Histórico do Veículo
+            </SheetTitle>
+            <SheetDescription>
+              Serviços anteriores realizados neste veículo para consulta rápida.
+            </SheetDescription>
+          </SheetHeader>
+          {veiculoId && <VehicleHistoryTimeline vehicleId={veiculoId} />}
+        </SheetContent>
+      </Sheet>
     </DashboardLayout>
   );
 };
