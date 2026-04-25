@@ -7,12 +7,12 @@ interface LogoProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 export const Logo: React.FC<LogoProps> = ({ className = "w-40 h-auto", ...props }) => {
   return (
     <div className="flex items-center justify-center">
-      <div className="relative overflow-hidden rounded-full border-0">
+      <div className="relative overflow-hidden rounded-full border-0 bg-[#1A1F2C]">
         <img
           src="/logo.png"
           alt="Oficina em Ordem Logo"
-          className={`${className} scale-[1.02]`} // Pequeno ajuste de escala para garantir que a borda fique limpa
-          style={{ clipPath: "circle(48.5%)" }} // Corta exatamente no limite do badge circular
+          className={`${className} scale-[1.15] translate-y-[1%]`} // Aumenta escala e ajusta posição para centralizar o círculo real
+          style={{ clipPath: "circle(44%)" }} // Corte mais agressivo para eliminar resquícios do fundo
           {...props}
         />
       </div>
