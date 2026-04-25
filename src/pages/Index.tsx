@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { MonthlyTrendsChart } from "@/components/MonthlyTrendsChart";
 
 const Index = () => {
   const [metrics, setMetrics] = useState({
@@ -218,6 +219,11 @@ const Index = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Charts and Trends */}
+      <div className="grid grid-cols-1 gap-6">
+        <MonthlyTrendsChart />
+      </div>
 
       {/* Content Grid */}
       <div className="grid grid-cols-1 gap-6">
