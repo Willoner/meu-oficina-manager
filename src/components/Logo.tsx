@@ -11,8 +11,8 @@ export const Logo: React.FC<LogoProps> = ({ className = "w-48 h-auto", ...props 
         <img
           src="/logo.png"
           alt="Oficina em Ordem Logo"
-          className={`${className} scale-[1.2] translate-y-[1%]`} // Aumenta escala para garantir que a borda fique limpa
-          style={{ clipPath: "circle(42%)" }} // Corte ainda mais agressivo para eliminar resquícios do fundo
+          className={`${className} scale-[1.25]`} // Ajuste de escala final para perfeição
+          style={{ clipPath: "circle(40.5%)" }} // Corte de precisão cirúrgica
           {...props}
         />
       </div>
