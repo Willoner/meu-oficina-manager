@@ -4,7 +4,7 @@ interface LogoProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   className?: string;
 }
 
-export const Logo: React.FC<LogoProps> = ({ className = "w-40 h-auto", ...props }) => {
+export const Logo: React.FC<LogoProps> = ({ className = "w-48 h-auto", ...props }) => {
   return (
     <div className="flex items-center justify-center">
       <div className="relative overflow-hidden rounded-full border-0 bg-[#1A1F2C]">
