@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#17AD7F",
+  "theme_color": "#82E9DE",
   "icons": [
     {
       "src": "/logo-pwa-512.png",

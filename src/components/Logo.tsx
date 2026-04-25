@@ -4,14 +4,16 @@ interface LogoProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   className?: string;
 }
 
-export const Logo: React.FC<LogoProps> = ({ className = "w-32 h-auto", ...props }) => {
+export const Logo: React.FC<LogoProps> = ({ className = "w-40 h-auto", ...props }) => {
   return (
-    <img
-      src="/logo.svg"
-      alt="Oficina em Ordem Logo"
-      className={className}
-      {...props}
-    />
+    <div className="flex items-center justify-center">
+      <img
+        src="/logo.svg"
+        alt="Oficina em Ordem Logo"
+        className={className}
+        {...props}
+      />
+    </div>
   );
 };
 
