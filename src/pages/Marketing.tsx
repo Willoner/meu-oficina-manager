@@ -133,19 +133,25 @@ const Marketing = () => {
           >
             <div className="w-full bg-white/5 border border-white/10 rounded-xl p-5 shadow-2xl">
               <h3 className="text-xs text-white/60 font-bold uppercase mb-4">Movimentação (Últimos Meses)</h3>
-              <div className="flex items-end gap-2 h-24 mt-4">
-                {[40, 60, 45, 80, 55, 100].map((height, i, arr) => (
-                  <div key={i} className="flex-1 flex flex-col justify-end items-center gap-2">
+              <div className="flex items-end gap-2 h-32 mt-4">
+                {[
+                  { height: 40, label: 'Out' },
+                  { height: 60, label: 'Nov' },
+                  { height: 45, label: 'Dez' },
+                  { height: 80, label: 'Jan' },
+                  { height: 55, label: 'Fev' },
+                  { height: 100, label: 'Mar' }
+                ].map((item, i, arr) => (
+                  <div key={i} className="flex-1 flex flex-col justify-end items-center gap-2 h-full">
                     <div 
                       className={`w-full rounded-t-sm ${i === arr.length - 1 ? "bg-primary" : "bg-white/20"}`} 
-                      style={{ height: `${height}%` }}
+                      style={{ height: `${item.height}%` }}
                     ></div>
+                    <span className={`text-[10px] ${i === arr.length - 1 ? "text-primary font-bold" : "text-white/40"}`}>
+                      {item.label}
+                    </span>
                   </div>
                 ))}
-              </div>
-              <div className="flex justify-between mt-2">
-                <span className="text-[10px] text-white/40">Out</span>
-                <span className="text-[10px] text-primary font-bold">Mar (Atual)</span>
               </div>
             </div>
           </InstagramPost>
