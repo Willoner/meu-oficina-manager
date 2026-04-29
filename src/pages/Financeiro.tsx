@@ -31,10 +31,10 @@ const Financeiro = () => {
       const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
       const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
 
-      // 1. Buscar OS concluídas no mês com seus itens (Join)
+      // 1. Buscar OS concluídas no mês
       const { data: ordens, error: ordensError } = await supabase
         .from("ordens_servico")
-        .select("id, valor_total, itens_os(tipo, valor_total)")
+        .select("id, valor_total")
         .eq("usuario_id", user.id)
         .eq("status", "concluida")
         .gte("data_conclusao", firstDay)
@@ -48,19 +48,33 @@ const Financeiro = () => {
 
       const receitaTotal = ordens?.reduce((acc, os) => acc + (os.valor_total || 0), 0) || 0;
 
+      if (!ordens || ordens.length === 0) {
+        setMetrics({ receitaTotal: 0, totalPecas: 0, totalServicos: 0 });
+        setLoading(false);
+        return;
+      }
+
+      // 2. Buscar itens dessas OS para separar peças vs serviços
+      const osIds = ordens.map((o) => o.id);
+      const { data: itens, error: itensError } = await supabase
+        .from("itens_os")
+        .select("tipo, valor_total")
+        .in("ordem_servico_id", osIds);
+
+      if (itensError) {
+        console.error("Erro ao buscar itens:", itensError);
+      }
+
       let totalPecas = 0;
       let totalServicos = 0;
 
-      ordens?.forEach((os) => {
-        // @ts-ignore - itens_os vem como array devido ao join
-        os.itens_os?.forEach((item: any) => {
-          const tipoNorm = item.tipo?.toLowerCase() || "";
-          if (tipoNorm === "peca") {
-            totalPecas += item.valor_total || 0;
-          } else {
-            totalServicos += item.valor_total || 0;
-          }
-        });
+      itens?.forEach((item) => {
+        const tipoNorm = item.tipo?.toLowerCase() || "";
+        if (tipoNorm === "peca") {
+          totalPecas += item.valor_total || 0;
+        } else {
+          totalServicos += item.valor_total || 0;
+        }
       });
 
       setMetrics({ receitaTotal, totalPecas, totalServicos });

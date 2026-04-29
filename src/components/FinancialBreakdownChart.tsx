@@ -79,25 +79,50 @@ export const FinancialBreakdownChart: React.FC = () => {
         });
       }
 
-      // 1. Buscar OS concluídas com seus itens em uma única query
+      // 1. Buscar IDs de OS concluídas do usuário nos últimos 6 meses
       const { data: ordens, error: ordensError } = await supabase
         .from("ordens_servico")
-        .select("id, data_conclusao, data_abertura, itens_os(tipo, valor_total)")
+        .select("id, data_conclusao, data_abertura")
         .eq("usuario_id", user.id)
         .eq("status", "concluida")
         .gte("data_conclusao", months[0].start)
         .lte("data_conclusao", months[months.length - 1].end);
 
-      if (ordensError || !ordens) {
-        console.error("Erro no gráfico:", ordensError);
+      if (ordensError || !ordens || ordens.length === 0) {
+        if (ordensError) console.error("Erro ao buscar ordens para o gráfico:", ordensError);
         setData(months.map((m) => ({ name: m.label, pecas: 0, servicos: 0 })));
         setLoading(false);
         return;
       }
 
-      ordens.forEach((os) => {
-        // Fallback de data
-        const dataReferencia = os.data_conclusao || os.data_abertura;
+      const osIds = ordens.map((o) => o.id);
+
+      // 2. Buscar itens dessas OS
+      const { data: itens, error: itensError } = await supabase
+        .from("itens_os")
+        .select("tipo, valor_total, ordem_servico_id")
+        .in("ordem_servico_id", osIds);
+
+      if (itensError) {
+        console.error("Erro ao buscar itens para o gráfico:", itensError);
+      }
+
+      // 3. Criar mapa: OS ID -> data de referência
+      const osDateMap = new Map<string, string>();
+      ordens.forEach((o) => {
+        const dataRef = o.data_conclusao || o.data_abertura;
+        if (dataRef) osDateMap.set(o.id, dataRef);
+      });
+
+      // 4. Agrupar por mês e tipo
+      const monthlyData = months.map((m) => ({
+        name: m.label,
+        pecas: 0,
+        servicos: 0,
+      }));
+
+      itens?.forEach((item) => {
+        const dataReferencia = osDateMap.get(item.ordem_servico_id);
         if (!dataReferencia) return;
 
         const osDate = new Date(dataReferencia);
@@ -109,15 +134,12 @@ export const FinancialBreakdownChart: React.FC = () => {
 
         if (monthIndex === -1) return;
 
-        // @ts-ignore
-        os.itens_os?.forEach((item: any) => {
-          const tipoNorm = item.tipo?.toLowerCase() || "";
-          if (tipoNorm === "peca") {
-            monthlyData[monthIndex].pecas += item.valor_total || 0;
-          } else {
-            monthlyData[monthIndex].servicos += item.valor_total || 0;
-          }
-        });
+        const tipoNorm = item.tipo?.toLowerCase() || "";
+        if (tipoNorm === "peca") {
+          monthlyData[monthIndex].pecas += item.valor_total || 0;
+        } else {
+          monthlyData[monthIndex].servicos += item.valor_total || 0;
+        }
       });
 
       setData(monthlyData);
