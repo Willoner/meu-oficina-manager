@@ -397,7 +397,7 @@ const Configuracoes = () => {
                       </a>
                     </Button>
                     <Button variant="outline" size="sm" asChild className="w-full justify-start">
-                      <a href="https://wa.me/5516981974355" target="_blank" rel="noreferrer">
+                      <a href="https://wa.me/551998156947" target="_blank" rel="noreferrer">
                         <Phone className="w-4 h-4 mr-2" />
                         Falar via WhatsApp
                       </a>
