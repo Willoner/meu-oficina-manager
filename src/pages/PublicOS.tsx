@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import SignatureCanvas from "react-signature-canvas";
+import { useRef } from "react";
 
 type OSData = {
   id: string;
@@ -25,6 +27,7 @@ type OSData = {
   veiculo_id: string;
   assinatura_cliente_aceito: boolean;
   assinatura_cliente_em: string | null;
+  assinatura_cliente_img?: string | null;
   assinatura_mecanico_aceito: boolean;
   assinatura_mecanico_em: string | null;
   clientes: { nome: string; telefone: string; email: string } | null;
@@ -48,6 +51,8 @@ const PublicOS = () => {
   const [items, setItems] = useState<ItemOS[]>([]);
   const [loading, setLoading] = useState(true);
   const [signing, setSigning] = useState(false);
+  const [useSignaturePad, setUseSignaturePad] = useState(true);
+  const sigCanvas = useRef<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,7 +95,20 @@ const PublicOS = () => {
     if (!os || os.assinatura_cliente_aceito) return;
 
     setSigning(true);
-    const { error } = await supabase.rpc('assinar_os_cliente_publico', { os_id: os.id });
+    let signatureBase64 = null;
+
+    if (useSignaturePad && sigCanvas.current && !sigCanvas.current.isEmpty()) {
+      signatureBase64 = sigCanvas.current.getTrimmedCanvas().toDataURL("image/png");
+    } else if (useSignaturePad && (!sigCanvas.current || sigCanvas.current.isEmpty())) {
+      toast({ title: "Aviso", description: "Por favor, desenhe sua assinatura ou mude para o clique simples.", variant: "destructive" });
+      setSigning(false);
+      return;
+    }
+
+    const { error } = await supabase.rpc('assinar_os_cliente_publico_v2', { 
+      p_os_id: os.id,
+      p_assinatura_img: signatureBase64
+    });
 
     if (error) {
       toast({ title: "Erro", description: "Falha ao registrar assinatura. Tente novamente.", variant: "destructive" });
@@ -98,7 +116,8 @@ const PublicOS = () => {
       setOs({ 
         ...os, 
         assinatura_cliente_aceito: true, 
-        assinatura_cliente_em: new Date().toISOString() 
+        assinatura_cliente_em: new Date().toISOString(),
+        assinatura_cliente_img: signatureBase64
       });
       toast({ title: "Sucesso", description: "Sua assinatura foi registrada com sucesso!" });
     }
@@ -213,24 +232,50 @@ const PublicOS = () => {
                   {os.assinatura_cliente_aceito ? (
                     <CheckCircle2 className="w-5 h-5 text-green-600" />
                   ) : (
-                    <div className="flex items-center gap-2">
-                       <Checkbox 
-                        id="client-sign" 
-                        checked={os.assinatura_cliente_aceito}
-                        onCheckedChange={() => handlePublicSignature()}
-                        disabled={signing || os.status === 'concluida'}
-                        className="w-5 h-5"
-                       />
-                       <label htmlFor="client-sign" className="text-xs font-semibold cursor-pointer">Li e concordo</label>
-                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => setUseSignaturePad(!useSignaturePad)} className="text-[10px] h-6 px-2">
+                      Mudar para {useSignaturePad ? "Clique Simples" : "Desenho"}
+                    </Button>
                   )}
                 </div>
                 <div className="h-[1px] bg-muted-foreground/10 mb-3"></div>
-                <p className="text-[10px] text-muted-foreground text-center uppercase tracking-tighter">
-                  {os.assinatura_cliente_aceito 
-                    ? `Aceito em: ${new Date(os.assinatura_cliente_em!).toLocaleString("pt-BR")}` 
-                    : "Toque no checkbox para assinar digitalmente"}
-                </p>
+                
+                {os.assinatura_cliente_aceito ? (
+                  <div className="flex flex-col items-center">
+                    {os.assinatura_cliente_img ? (
+                      <img src={os.assinatura_cliente_img} alt="Assinatura Cliente" className="h-16 object-contain mb-2 invert dark:invert-0 opacity-80" />
+                    ) : (
+                      <p className="text-sm font-bold text-foreground py-4">Assinado Digitalmente</p>
+                    )}
+                    <p className="text-[10px] text-muted-foreground text-center uppercase tracking-tighter">
+                      Aceito em: {new Date(os.assinatura_cliente_em!).toLocaleString("pt-BR")}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {useSignaturePad ? (
+                      <div className="flex flex-col gap-2 items-center">
+                        <div className="w-full bg-white border-2 border-dashed border-primary/40 rounded-lg overflow-hidden touch-none h-[120px]">
+                          <SignatureCanvas 
+                            ref={sigCanvas}
+                            canvasProps={{ className: "w-full h-full cursor-crosshair" }}
+                            penColor="black"
+                          />
+                        </div>
+                        <div className="flex w-full gap-2">
+                          <Button variant="outline" size="sm" className="flex-1 text-[10px] h-8" onClick={() => sigCanvas.current?.clear()}>Limpar</Button>
+                          <Button size="sm" className="flex-1 text-[10px] h-8" onClick={handlePublicSignature} disabled={signing}>Assinar e Confirmar</Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <Checkbox id="client-sign" checked={false} onCheckedChange={() => handlePublicSignature()} disabled={signing} className="w-5 h-5" />
+                          <label htmlFor="client-sign" className="text-xs font-semibold cursor-pointer">Li e concordo com os termos e serviços desta O.S.</label>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Mecânico - Read Only for Client */}

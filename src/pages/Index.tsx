@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { MonthlyTrendsChart } from "@/components/MonthlyTrendsChart";
+import { FinancialBreakdownChart } from "@/components/FinancialBreakdownChart";
 
 const Index = () => {
   const [metrics, setMetrics] = useState({
@@ -221,8 +222,9 @@ const Index = () => {
       )}
 
       {/* Charts and Trends */}
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <MonthlyTrendsChart />
+        <FinancialBreakdownChart />
       </div>
 
       {/* Content Grid */}
