@@ -345,7 +345,7 @@ const OrdensServico = () => {
     if (itensOS.length > 0) {
       const itemsToInsert = itensOS.map(item => ({
         ordem_servico_id: osData.id,
-        item_id: item.item_id || null, // Garante NULL se estiver vazio
+        item_id: item.item_id || null,
         tipo: item.tipo,
         quantidade: item.quantidade,
         valor_unitario: item.valor_unitario,
@@ -358,10 +358,14 @@ const OrdensServico = () => {
       
       if (itemsError) {
         console.error("Erro detalhado itens_os:", itemsError);
+        // Alerta que trava a tela para você conseguir ler
+        window.alert(`ERRO AO SALVAR ITENS: ${itemsError.message}\n\nCódigo: ${itemsError.code}`);
+        
         toast({ 
           title: "Erro crítico nos itens", 
-          description: `A OS foi criada (#${osData.id.substring(0,8)}), mas as peças/serviços não foram salvos. Erro: ${itemsError.message}. Por favor, tire um print desta tela e envie ao suporte.`, 
-          variant: "destructive" 
+          description: itemsError.message, 
+          variant: "destructive",
+          duration: 10000 // Fica 10 segundos na tela
         });
       }
 
