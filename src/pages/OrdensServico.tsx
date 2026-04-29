@@ -345,16 +345,24 @@ const OrdensServico = () => {
     if (itensOS.length > 0) {
       const itemsToInsert = itensOS.map(item => ({
         ordem_servico_id: osData.id,
-        item_id: item.item_id,
+        item_id: item.item_id || null, // Garante NULL se estiver vazio
         tipo: item.tipo,
         quantidade: item.quantidade,
         valor_unitario: item.valor_unitario,
         valor_total: item.valor_total
       }));
 
+      console.log("Tentando inserir itens:", itemsToInsert);
+
       const { error: itemsError } = await supabase.from("itens_os").insert(itemsToInsert);
+      
       if (itemsError) {
-        toast({ title: "Aviso", description: "OS criada, mas erro ao salvar itens: " + itemsError.message, variant: "destructive" });
+        console.error("Erro detalhado itens_os:", itemsError);
+        toast({ 
+          title: "Erro crítico nos itens", 
+          description: `A OS foi criada (#${osData.id.substring(0,8)}), mas as peças/serviços não foram salvos. Erro: ${itemsError.message}. Por favor, tire um print desta tela e envie ao suporte.`, 
+          variant: "destructive" 
+        });
       }
 
       // 3. Atualizar o estoque
@@ -362,7 +370,8 @@ const OrdensServico = () => {
         if (item.tipo === "peca" && item.item_id) {
           const peca = pecas.find(p => p.id === item.item_id);
           if (peca && peca.estoque !== null) {
-             await supabase.from("pecas").update({ estoque: peca.estoque - item.quantidade }).eq("id", item.item_id);
+             const novoEstoque = peca.estoque - item.quantidade;
+             await supabase.from("pecas").update({ estoque: novoEstoque }).eq("id", item.item_id);
           }
         }
       }
