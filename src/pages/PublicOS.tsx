@@ -42,6 +42,8 @@ type ItemOS = {
   quantidade: number;
   valor_unitario: number;
   valor_total: number;
+  descricao?: string;
+  nome?: string;
 };
 
 const PublicOS = () => {
@@ -199,7 +201,7 @@ const PublicOS = () => {
                   {items.map((item, idx) => (
                     <tr key={idx}>
                       <td className="py-3 pr-4">
-                        <div className="font-medium text-foreground">{item.tipo === 'servico' ? 'Serviço' : 'Peça'}</div>
+                        <div className="font-medium text-foreground">{item.descricao || (item.tipo === 'servico' ? 'Serviço' : 'Peça')}</div>
                         <div className="text-[10px] text-muted-foreground">Qtd: {item.quantidade} x R$ {item.valor_unitario?.toFixed(2)}</div>
                       </td>
                       <td className="py-3 text-right font-bold text-foreground">R$ {item.valor_total?.toFixed(2)}</td>

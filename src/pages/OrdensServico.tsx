@@ -347,6 +347,7 @@ const OrdensServico = () => {
         ordem_servico_id: osData.id,
         item_id: item.item_id || null,
         tipo: item.tipo,
+        descricao: item.descricao, // Salva o nome exato (Ex: Pneu Aro 14)
         quantidade: item.quantidade,
         valor_unitario: item.valor_unitario,
         valor_total: item.valor_total

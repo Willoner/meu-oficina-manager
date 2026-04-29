@@ -44,6 +44,7 @@ type ItemOS = {
   quantidade: number;
   valor_unitario: number;
   valor_total: number;
+  descricao?: string;
   nome?: string;
 };
 
@@ -286,7 +287,7 @@ const VisualizarOS = () => {
                 <tbody>
                   {items.map((item) => (
                     <tr key={item.id} className="border-b border-foreground/5 hover:bg-muted/50 transition-colors">
-                      <td className="py-3 px-1 font-medium">{item.tipo === 'servico' ? 'Mão de Obra / Serviço' : (item.item_id ? 'Peça / Componente' : 'Item avulso')}</td>
+                      <td className="py-3 px-1 font-medium">{item.descricao || (item.tipo === 'servico' ? 'Serviço' : 'Peça')}</td>
                       <td className="py-3 px-4 text-center uppercase text-[10px] font-bold text-muted-foreground">{item.tipo === 'peca' ? 'Peça' : 'Serviço'}</td>
                       <td className="py-3 px-4 text-center font-mono">{item.quantidade}</td>
                       <td className="py-3 px-4 text-right font-mono text-muted-foreground">R$ {item.valor_unitario?.toFixed(2)}</td>
