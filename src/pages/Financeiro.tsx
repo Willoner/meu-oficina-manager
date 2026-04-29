@@ -59,7 +59,8 @@ const Financeiro = () => {
       let totalServicos = 0;
 
       itens?.forEach((item) => {
-        if (item.tipo === "peca") {
+        const tipoNorm = item.tipo?.toLowerCase() || "";
+        if (tipoNorm === "peca") {
           totalPecas += item.valor_total || 0;
         } else {
           totalServicos += item.valor_total || 0;

@@ -69,11 +69,13 @@ export const FinancialBreakdownChart: React.FC = () => {
       const months: { start: string; end: string; label: string }[] = [];
       for (let i = 5; i >= 0; i--) {
         const d = new Date();
-        d.setMonth(d.getMonth() - i);
+        // Usar o dia 1 para evitar problemas de meses com tamanhos diferentes (ex: dia 31)
+        const targetMonth = new Date(d.getFullYear(), d.getMonth() - i, 1);
+        
         months.push({
-          start: new Date(d.getFullYear(), d.getMonth(), 1).toISOString(),
-          end: new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59).toISOString(),
-          label: d.toLocaleString("pt-BR", { month: "short" }).replace(".", "").toUpperCase(),
+          start: new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1).toISOString(),
+          end: new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0, 23, 59, 59).toISOString(),
+          label: targetMonth.toLocaleString("pt-BR", { month: "short" }).replace(".", "").toUpperCase(),
         });
       }
 
@@ -114,6 +116,7 @@ export const FinancialBreakdownChart: React.FC = () => {
       }));
 
       itens?.forEach((item) => {
+        // Fallback: se data_conclusao da OS estiver nula (registros antigos), usa data_abertura
         const dataConclusao = osDateMap.get(item.ordem_servico_id);
         if (!dataConclusao) return;
 
@@ -126,7 +129,8 @@ export const FinancialBreakdownChart: React.FC = () => {
 
         if (monthIndex === -1) return;
 
-        if (item.tipo === "peca") {
+        const tipoNorm = item.tipo?.toLowerCase() || "";
+        if (tipoNorm === "peca") {
           monthlyData[monthIndex].pecas += item.valor_total || 0;
         } else {
           monthlyData[monthIndex].servicos += item.valor_total || 0;

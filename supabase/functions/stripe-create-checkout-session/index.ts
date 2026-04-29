@@ -29,8 +29,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Criar sessão de checkout no Stripe usando o Price ID correto da ENV ou fallback
-    const priceId = Deno.env.get('STRIPE_PRICE_PRO_ID') || 'price_1TMYkpGXblrqLqtki2TvA6rd';
+    // Criar sessão de checkout no Stripe usando o Price ID correto da ENV
+    const priceId = Deno.env.get('STRIPE_PRICE_PRO_ID');
+    if (!priceId) {
+       throw new Error('STRIPE_PRICE_PRO_ID não configurado no Supabase Secrets');
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -48,7 +51,8 @@ Deno.serve(async (req) => {
     });
   } catch (error: any) {
     console.error('Erro na criação do checkout:', error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const priceId = Deno.env.get('STRIPE_PRICE_PRO_ID') || 'unknown';
+    return new Response(JSON.stringify({ error: error.message, debug_price_id: priceId }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
