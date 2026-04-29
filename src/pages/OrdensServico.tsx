@@ -352,21 +352,18 @@ const OrdensServico = () => {
         valor_total: item.valor_total
       }));
 
-      console.log("MODO DIAGNÓSTICO - Dados para itens_os:", itemsToInsert);
-
       const { error: itemsError } = await supabase.from("itens_os").insert(itemsToInsert);
       
       if (itemsError) {
-        console.error("ERRO CRÍTICO NO BANCO (itens_os):", itemsError);
-        setLoading(false);
-        
-        // MODO DIAGNÓSTICO: Não fecha o modal e mostra o erro
-        window.alert(`FALHA AO SALVAR ITENS!\n\nMensagem: ${itemsError.message}\nCódigo: ${itemsError.code}\nDetalhes: ${itemsError.details || 'Nenhum'}`);
-        return; // PARA A EXECUÇÃO AQUI para o usuário ver o erro
+        console.error("Erro ao salvar itens:", itemsError);
+        toast({ 
+          title: "Erro nos itens", 
+          description: "A OS foi criada, mas as peças/serviços não foram salvos: " + itemsError.message, 
+          variant: "destructive" 
+        });
       }
 
-      /* 
-      // 3. Atualizar o estoque (DESATIVADO TEMPORARIAMENTE PARA DIAGNÓSTICO)
+      // 3. Atualizar o estoque
       for (const item of itensOS) {
         if (item.tipo === "peca" && item.item_id) {
           const peca = pecas.find(p => p.id === item.item_id);
@@ -376,7 +373,6 @@ const OrdensServico = () => {
           }
         }
       }
-      */
     }
 
     // 4. Se veio de um agendamento, marcar como convertido
@@ -389,7 +385,7 @@ const OrdensServico = () => {
     }
 
     toast({ title: "Sucesso", description: "Ordem de serviço criada com sucesso!" });
-    setOpen(false); // Só fecha se tudo der certo
+    setOpen(false);
     setLoading(false);
     fetchData();
   };
