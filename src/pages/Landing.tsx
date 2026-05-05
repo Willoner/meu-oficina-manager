@@ -194,7 +194,6 @@ export default function Landing() {
             <span className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Cancele quando quiser</span>
             <span className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Teste grátis por 7 dias</span>
           </div>
-        </div>
       </section>
 
       {/* App Experience Section - Condensed */}
