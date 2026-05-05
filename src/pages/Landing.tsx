@@ -24,23 +24,23 @@ export default function Landing() {
 
   const features = [
     {
-      title: "Controle de OS Digital",
-      description: "Crie, edite e envie Ordens de Serviço com assinatura digital de forma rápida e segura.",
+      title: "OS com Assinatura Digital",
+      description: "Esqueça o papel. Seu cliente assina o serviço com o dedo direto na tela do seu celular.",
       icon: <ClipboardList className="h-6 w-6 text-blue-600" />
     },
     {
-      title: "Histórico Completo",
-      description: "Acesse o histórico de todos os serviços prestados para cada cliente e veículo em um clique.",
+      title: "Histórico na Palma da Mão",
+      description: "Acesse tudo o que já foi feito em qualquer veículo ou cliente em segundos.",
       icon: <Wrench className="h-6 w-6 text-blue-600" />
     },
     {
-      title: "Notificações em Tempo Real",
-      description: "Mantenha o cliente avisado sobre o status do serviço diretamente pelo sistema ou WhatsApp.",
+      title: "Status via WhatsApp",
+      description: "Envie orçamentos e atualizações automáticas direto para o WhatsApp do seu cliente.",
       icon: <BellRing className="h-6 w-6 text-blue-600" />
     },
     {
-      title: "Gestão de Estoque e Prazos",
-      description: "Controle as peças da sua oficina e os prazos de entrega com alertas automáticos.",
+      title: "Controle de Estoque Real",
+      description: "Saiba exatamente o que tem na prateleira e evite prejuízos com peças paradas.",
       icon: <Package className="h-6 w-6 text-blue-600" />
     }
   ];
@@ -147,121 +147,107 @@ export default function Landing() {
           <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
         </div>
 
-        <div className="container mx-auto px-4 text-center max-w-4xl mt-12">
-          <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
-            Sua oficina organizada do <span className="text-blue-600">jeito que merece</span>
-          </h1>
-          <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Controle de OS, histórico completo e notificações em tempo real – tudo em um só lugar. Preço que cabe no bolso.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/signup">
-              <Button className="h-14 px-8 text-lg rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-500/30 w-full sm:w-auto transition-transform hover:-translate-y-1">
-                Começar agora <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <a href="#precos">
-              <Button variant="outline" className="h-14 px-8 text-lg rounded-full font-semibold w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-200 transition-transform hover:-translate-y-1">
-                Ver preços
-              </Button>
-            </a>
-            {((isInstallable || isMobile) && !isInstalled) && (
-              <Button 
-                onClick={() => isInstallable ? installPWA() : setInstallDialogOpen(true)}
-                className="h-14 px-8 text-lg rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg shadow-blue-600/30 w-full sm:w-auto transition-transform hover:-translate-y-1 gap-2"
-              >
-                <Download className="h-5 w-5" /> Baixar Aplicativo
-              </Button>
-            )}
+        <div className="container mx-auto px-4 mt-12">
+          <div className="flex flex-col lg:flex-row items-center gap-12 max-w-6xl mx-auto">
+            <div className="flex-1 text-center lg:text-left">
+              <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
+                Sua oficina organizada <br className="hidden lg:block" /> em poucos cliques
+              </h1>
+              <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl lg:mx-0 mx-auto leading-relaxed">
+                Controle de OS, histórico de clientes e estoque num único lugar. Simples, rápido e direto ao ponto.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-4">
+                <Link to="/signup" className="w-full sm:w-auto">
+                  <Button className="h-14 px-8 text-lg rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-500/30 w-full transition-transform hover:-translate-y-1">
+                    Começar agora <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <a href="#precos" className="w-full sm:w-auto">
+                  <Button variant="outline" className="h-14 px-8 text-lg rounded-full font-semibold w-full bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-200 transition-transform hover:-translate-y-1">
+                    Ver preços
+                  </Button>
+                </a>
+              </div>
+              {((isInstallable || isMobile) && !isInstalled) && (
+                <div className="mt-4">
+                  <Button 
+                    onClick={() => isInstallable ? installPWA() : setInstallDialogOpen(true)}
+                    variant="ghost"
+                    className="text-blue-600 font-bold hover:bg-blue-50 gap-2"
+                  >
+                    <Download className="h-5 w-5" /> Baixar Aplicativo
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="flex-1 relative">
+              <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl transform lg:rotate-2 hover:rotate-0 transition-transform duration-500">
+                <img src="/mechanic_phone.png" alt="Mecânico usando o sistema no celular" className="w-full h-auto object-cover" />
+              </div>
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-blue-100 rounded-full -z-10 blur-2xl"></div>
+              <div className="absolute -top-6 -left-6 w-32 h-32 bg-emerald-100 rounded-full -z-10 blur-2xl"></div>
+            </div>
           </div>
-          <div className="mt-10 flex items-center justify-center gap-6 text-sm font-medium text-slate-500">
-            <span className="flex items-center gap-1"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> Sem cartão requerido</span>
-            <span className="flex items-center gap-1"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> Cancele quando quiser</span>
+        </div>
+          <div className="mt-16 flex items-center justify-center gap-8 text-sm font-medium text-slate-500 border-t border-slate-100 pt-8">
+            <span className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Sem cartão de crédito</span>
+            <span className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Cancele quando quiser</span>
+            <span className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Teste grátis por 7 dias</span>
           </div>
         </div>
       </section>
 
-      {/* App Experience Section */}
-      <section id="app-experience" className="py-24 bg-gradient-to-br from-slate-900 to-blue-900 text-white overflow-hidden">
+      {/* App Experience Section - Condensed */}
+      <section id="app-experience" className="py-20 bg-slate-900 text-white overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-            <div className="flex-1 space-y-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-400 text-sm font-bold tracking-wide uppercase">
-                <Smartphone className="w-4 h-4" /> Experiência Mobile Total
+          <div className="flex flex-col lg:flex-row items-center gap-12 max-w-5xl mx-auto">
+            <div className="flex-1 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider">
+                <Smartphone className="w-3 h-3" /> App Web Progressivo
               </div>
-              <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
-                Sua oficina na palma da mão, <span className="text-blue-400">mais rápido do que nunca.</span>
+              <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+                Instale no seu celular <br /> e use como um aplicativo
               </h2>
-              <p className="text-xl text-slate-300 leading-relaxed max-w-xl">
-                Não é apenas um site. Nosso Aplicativo (PWA) permite que você acesse sua oficina com um toque na tela inicial, com maior velocidade e estabilidade.
+              <p className="text-lg text-slate-400 leading-relaxed">
+                Acesse sua oficina com um toque na tela inicial. Mais rápido, estável e sempre à mão.
               </p>
               
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 shrink-0 rounded-xl bg-blue-600/20 flex items-center justify-center text-blue-400">
-                    <Layout className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold mb-1">Ícone na Tela</h4>
-                    <p className="text-sm text-slate-400">Acesse instantaneamente sem precisar digitar a URL.</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 shrink-0 rounded-xl bg-emerald-600/20 flex items-center justify-center text-emerald-400">
-                    <Zap className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold mb-1">Mais Velocidade</h4>
-                    <p className="text-sm text-slate-400">Carregamento otimizado para conexões móveis.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-6">
+              <div className="pt-4">
                 {isInstallable ? (
                   <Button 
                     onClick={installPWA}
-                    className="h-16 px-10 text-xl rounded-full bg-blue-600 hover:bg-blue-500 text-white font-black shadow-2xl shadow-blue-600/40 gap-3"
+                    className="h-14 px-8 text-lg rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xl shadow-blue-600/20 gap-3"
                   >
-                    <Download className="h-6 w-6" /> INSTALAR AGORA
+                    <Download className="h-5 w-5" /> INSTALAR AGORA
                   </Button>
                 ) : (
-                  <div className="p-6 bg-slate-800/50 border border-slate-700 rounded-2xl">
-                    <h4 className="font-bold flex items-center gap-2 mb-3 text-blue-400">
-                      <Smartphone className="w-5 h-5" /> Dica para iPhone/Safari
+                  <div className="p-5 bg-slate-800/40 border border-slate-700/50 rounded-2xl text-sm">
+                    <h4 className="font-bold flex items-center gap-2 mb-2 text-blue-400">
+                      <Smartphone className="w-4 h-4" /> No iPhone/Safari:
                     </h4>
-                    <ol className="text-sm text-slate-300 space-y-3">
-                      <li className="flex gap-3">
-                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-xs font-bold shrink-0">1</span>
-                        <span>Toque no botão de **Compartilhar** <Share className="inline w-4 h-4 mx-1" /> no rodapé do seu Safari.</span>
-                      </li>
-                      <li className="flex gap-3">
-                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-xs font-bold shrink-0">2</span>
-                        <span>Role para baixo e toque em **"Adicionar à Tela de Início"**.</span>
-                      </li>
-                      <li className="flex gap-3">
-                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-xs font-bold shrink-0">3</span>
-                        <span>Toque em **"Adicionar"** e pronto! O app estará na sua tela inicial.</span>
-                      </li>
-                    </ol>
+                    <p className="text-slate-300">Toque em <Share className="inline w-4 h-4 mx-1" /> e depois em **"Adicionar à Tela de Início"**.</p>
                   </div>
                 )}
               </div>
             </div>
             
-            <div className="flex-1 relative lg:mt-0 mt-12">
-              <div className="relative z-10 rounded-3xl overflow-hidden border-8 border-slate-800 shadow-2xl max-w-[320px] mx-auto transform rotate-2">
-                <img 
-                  src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&q=80&w=600" 
-                  alt="App Mobile" 
-                  className="w-full h-auto"
-                />
+            <div className="flex-1 flex justify-center">
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-emerald-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                <div className="relative bg-slate-800 rounded-2xl p-2 border border-slate-700 shadow-2xl">
+                  <img 
+                    src="/mechanic_phone.png" 
+                    alt="App Mobile Mockup" 
+                    className="w-full max-w-[280px] h-auto rounded-xl"
+                  />
+                </div>
               </div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-600/20 rounded-full blur-3xl -z-10"></div>
             </div>
           </div>
         </div>
       </section>
+            
+
 
       {/* Features */}
       <section id="funcionalidades" className="py-24 bg-white">
@@ -319,27 +305,27 @@ export default function Landing() {
             {/* Pro */}
             <div className="bg-white rounded-3xl p-8 border-2 border-blue-600 shadow-2xl relative flex flex-col transform md:-translate-y-4">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold tracking-wide shadow-sm">
-                MENOS DE R$ 1 POR DIA
+                POPULAR: MENOS DE R$ 1 POR DIA
               </div>
               <div className="mb-8 mt-4">
-                <h3 className="text-2xl font-bold text-blue-600 mb-2">Pro</h3>
-                <p className="text-slate-500 mb-6">Controle total para oficinas que querem crescer rápido.</p>
+                <h3 className="text-2xl font-bold text-blue-600 mb-2">Plano Pro</h3>
+                <p className="text-slate-500 mb-6">Controle total para oficinas que buscam profissionalismo.</p>
                 <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-extrabold text-slate-900">R$ 29</span>
                   <span className="text-slate-500 font-medium">/mês</span>
                 </div>
               </div>
               <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex gap-3 text-slate-900 font-medium"><Check className="h-5 w-5 text-blue-600 shrink-0" /> Tudo do plano Grátis</li>
-                <li className="flex gap-3 text-slate-600"><Check className="h-5 w-5 text-blue-600 shrink-0" /> Ordens de Serviço Ilimitadas</li>
-                <li className="flex gap-3 text-slate-600"><Check className="h-5 w-5 text-blue-600 shrink-0" /> Gestão de Estoque</li>
-                <li className="flex gap-3 text-slate-600"><Check className="h-5 w-5 text-blue-600 shrink-0" /> Notificações automáticas</li>
-                <li className="flex gap-3 text-slate-600"><Check className="h-5 w-5 text-blue-600 shrink-0" /> Relatórios financeiros avançados</li>
-                <li className="flex gap-3 text-slate-600"><Check className="h-5 w-5 text-blue-600 shrink-0" /> Suporte prioritário</li>
+                <li className="flex gap-3 text-slate-900 font-medium"><Check className="h-5 w-5 text-blue-600 shrink-0" /> Tudo do Grátis e mais:</li>
+                <li className="flex gap-3 text-slate-600"><Check className="h-5 w-5 text-blue-600 shrink-0" /> OS Ilimitadas</li>
+                <li className="flex gap-3 text-slate-600"><Check className="h-5 w-5 text-blue-600 shrink-0" /> Gestão de Estoque Completa</li>
+                <li className="flex gap-3 text-slate-600"><Check className="h-5 w-5 text-blue-600 shrink-0" /> Notificações WhatsApp</li>
+                <li className="flex gap-3 text-slate-600"><Check className="h-5 w-5 text-blue-600 shrink-0" /> Relatórios de Lucro</li>
+                <li className="flex gap-3 text-slate-600"><Check className="h-5 w-5 text-blue-600 shrink-0" /> Suporte VIP</li>
               </ul>
               <Link to="/signup">
                 <Button className="w-full py-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-lg shadow-blue-600/30">
-                  Assinar Pro
+                  Assinar agora
                 </Button>
               </Link>
             </div>
@@ -347,19 +333,56 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Security Section - Moved up */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Sua oficina em boas mãos</h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">
+              Privacidade e segurança para você focar no que importa: o serviço.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
+            <div className="flex flex-col items-center text-center p-4">
+              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-sm">Criptografia SSL</h3>
+            </div>
+            <div className="flex flex-col items-center text-center p-4">
+              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                <Database className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-sm">Backup Diário</h3>
+            </div>
+            <div className="flex flex-col items-center text-center p-4">
+              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-sm">LGPD Ready</h3>
+            </div>
+            <div className="flex flex-col items-center text-center p-4">
+              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                <Server className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-sm">Cloud AWS</h3>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ */}
-      <section id="faq" className="py-24 bg-white">
+      <section id="faq" className="py-24 bg-slate-50">
         <div className="container mx-auto px-4 max-w-3xl">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Perguntas Frequentes</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Dúvidas comuns</h2>
           </div>
-          <div className="space-y-6">
+          <div className="space-y-4">
             {faqs.map((faq, i) => (
-              <div key={i} className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
-                <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-emerald-500" /> {faq.q}
-                </h3>
-                <p className="text-slate-600 ml-7">{faq.a}</p>
+              <div key={i} className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{faq.q}</h3>
+                <p className="text-slate-600">{faq.a}</p>
               </div>
             ))}
           </div>
@@ -367,59 +390,19 @@ export default function Landing() {
       </section>
 
       {/* CTA Bottom */}
-      <section className="py-20 bg-blue-600 text-center px-4">
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Pronto para organizar sua oficina?</h2>
-        <p className="text-blue-100 mb-10 max-w-2xl mx-auto text-lg">Junte-se a dezenas de oficinas que já modernizaram seu atendimento e economizam horas toda semana.</p>
-        <Link to="/signup">
-          <Button className="h-14 px-10 text-lg rounded-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold shadow-xl">
-            Criar conta grátis agora
-          </Button>
-        </Link>
-      </section>
-
-      {/* Security Section */}
-      <section className="py-16 bg-slate-50 border-y border-slate-100">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Segurança em primeiro lugar</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">
-              Utilizamos as tecnologias mais modernas de proteção para garantir que os dados da sua oficina e dos seus clientes estejam sempre protegidos.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white shadow-sm border border-slate-100 group hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-slate-900 mb-1">Criptografia SSL</h3>
-              <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Conexão 100% Segura</p>
-            </div>
-
-            <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white shadow-sm border border-slate-100 group hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Database className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-slate-900 mb-1">Backup Diário</h3>
-              <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Seus dados salvos</p>
-            </div>
-
-            <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white shadow-sm border border-slate-100 group hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Lock className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-slate-900 mb-1">LGPD Ready</h3>
-              <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Privacidade Total</p>
-            </div>
-
-            <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white shadow-sm border border-slate-100 group hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Server className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-slate-900 mb-1">Nuvem AWS</h3>
-              <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Alta Disponibilidade</p>
-            </div>
-          </div>
+      <section className="py-24 bg-blue-600 text-center px-4 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-white rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
+        </div>
+        <div className="relative z-10">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6">Recupere o controle da sua oficina</h2>
+          <p className="text-blue-100 mb-12 max-w-2xl mx-auto text-xl">Organização gera lucro. Comece hoje mesmo gratuitamente.</p>
+          <Link to="/signup">
+            <Button className="h-16 px-12 text-xl rounded-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold shadow-2xl transition-transform hover:scale-105">
+              Criar minha conta grátis
+            </Button>
+          </Link>
         </div>
       </section>
 
