@@ -222,7 +222,7 @@ export default function Landing() {
               <div className="mt-16 flex flex-wrap items-center justify-center gap-8 text-sm font-medium text-slate-500 border-t border-slate-100 pt-8 max-w-4xl mx-auto">
                 <span className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Sem cartão de crédito</span>
                 <span className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Cancele quando quiser</span>
-                <span className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Teste grátis por 7 dias</span>
+                <span className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> inicie grátis agora</span>
               </div>
             </section>
 
