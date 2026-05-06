@@ -82,7 +82,7 @@ export const FinancialBreakdownChart: React.FC = () => {
       // 1. Buscar IDs de OS concluídas do usuário nos últimos 6 meses
       const { data: ordens, error: ordensError } = await supabase
         .from("ordens_servico")
-        .select("id, data_conclusao, data_abertura")
+        .select("id, data_conclusao, data_abertura, valor_total")
         .eq("usuario_id", user.id)
         .eq("status", "concluida")
         .gte("data_conclusao", months[0].start)
@@ -114,13 +114,38 @@ export const FinancialBreakdownChart: React.FC = () => {
         if (dataRef) osDateMap.set(o.id, dataRef);
       });
 
-      // 4. Agrupar por mês e tipo
+      // 4. Agrupar por mês
       const monthlyData = months.map((m) => ({
         name: m.label,
         pecas: 0,
         servicos: 0,
       }));
 
+      // Primeiro, processamos as ordens para garantir que o valor total seja contado 
+      // mesmo que não existam itens específicos vinculados.
+      ordens.forEach((o) => {
+        const dataReferencia = o.data_conclusao || o.data_abertura;
+        if (!dataReferencia) return;
+
+        const osDate = new Date(dataReferencia);
+        const monthIndex = months.findIndex((m) => {
+          const start = new Date(m.start);
+          const end = new Date(m.end);
+          return osDate >= start && osDate <= end;
+        });
+
+        if (monthIndex === -1) return;
+
+        // Se a OS tem itens, vamos contar pelos itens. 
+        // Se NÃO tem itens, mas tem valor total, contamos como serviço (mão de obra).
+        const temItens = itens?.some(item => item.ordem_servico_id === o.id);
+        
+        if (!temItens && (o.valor_total || 0) > 0) {
+          monthlyData[monthIndex].servicos += o.valor_total || 0;
+        }
+      });
+
+      // Agora processamos os itens para faturamento detalhado
       itens?.forEach((item) => {
         const dataReferencia = osDateMap.get(item.ordem_servico_id);
         if (!dataReferencia) return;

@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, Package, Wrench, DollarSign } from "lucide-react";
+import { TrendingUp, Package, Wrench, DollarSign, FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FinancialBreakdownChart } from "@/components/FinancialBreakdownChart";
+import { Button } from "@/components/ui/button";
+import { ExportReportDialog } from "@/components/modals/ExportReportDialog";
 
 interface FinanceMetrics {
   receitaTotal: number;
@@ -19,6 +21,7 @@ const Financeiro = () => {
     totalServicos: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchFinancialData = async () => {
@@ -58,7 +61,7 @@ const Financeiro = () => {
       const osIds = ordens.map((o) => o.id);
       const { data: itens, error: itensError } = await supabase
         .from("itens_os")
-        .select("tipo, valor_total")
+        .select("tipo, valor_total, ordem_servico_id")
         .in("ordem_servico_id", osIds);
 
       if (itensError) {
@@ -68,12 +71,21 @@ const Financeiro = () => {
       let totalPecas = 0;
       let totalServicos = 0;
 
+      // Handle items
       itens?.forEach((item) => {
         const tipoNorm = item.tipo?.toLowerCase() || "";
         if (tipoNorm === "peca") {
           totalPecas += item.valor_total || 0;
         } else {
           totalServicos += item.valor_total || 0;
+        }
+      });
+
+      // Handle OS without items (count as service)
+      ordens.forEach(o => {
+        const hasItems = itens?.some(i => i.ordem_servico_id === o.id);
+        if (!hasItems && (o.valor_total || 0) > 0) {
+          totalServicos += o.valor_total || 0;
         }
       });
 
@@ -117,6 +129,13 @@ const Financeiro = () => {
   return (
     <DashboardLayout title="Financeiro" subtitle="Faturamento e controle financeiro">
       <div className="space-y-6">
+        <div className="flex justify-end">
+          <Button onClick={() => setIsExportDialogOpen(true)} className="gap-2 bg-slate-900 hover:bg-slate-800">
+            <FileDown className="w-4 h-4" />
+            Exportar Relatório
+          </Button>
+        </div>
+
         {/* Cards de Métricas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {cards.map((card) => (
@@ -152,6 +171,7 @@ const Financeiro = () => {
         {/* Gráfico Principal */}
         <FinancialBreakdownChart />
       </div>
+      <ExportReportDialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen} />
     </DashboardLayout>
   );
 };
