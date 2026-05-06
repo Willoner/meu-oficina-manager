@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,22 +16,46 @@ export function CreateVehicleDialog({
   open: boolean; 
   onOpenChange: (open: boolean) => void; 
   clienteId: string;
-  onSuccess?: (veiculoId: string) => void;
+  onSuccess?: (veiculoId: string, clienteId: string) => void;
 }) {
   const [placa, setPlaca] = useState("");
   const [modelo, setModelo] = useState("");
   const [marca, setMarca] = useState("");
   const [ano, setAno] = useState<string>("");
   const [km, setKm] = useState<string>("");
+  const [selectedClienteId, setSelectedClienteId] = useState(clienteId);
+  const [clientes, setClientes] = useState<{id: string, nome: string}[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (open) {
+      setSelectedClienteId(clienteId);
+      if (!clienteId) {
+        fetchClientes();
+      }
+    }
+  }, [open, clienteId]);
+
+  const fetchClientes = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data } = await supabase
+      .from("clientes")
+      .select("id, nome")
+      .eq("usuario_id", user.id)
+      .order("nome");
+    if (data) setClientes(data);
+  };
+
   const handleSave = async () => {
+    const finalClienteId = clienteId || selectedClienteId;
+    
     if (!placa) {
       toast({ title: "Erro", description: "A placa do veículo é obrigatória.", variant: "destructive" });
       return;
     }
-    if (!clienteId) {
+    if (!finalClienteId) {
       toast({ title: "Erro", description: "É necessário selecionar um cliente antes de cadastrar um veículo.", variant: "destructive" });
       return;
     }
@@ -50,7 +75,7 @@ export function CreateVehicleDialog({
       marca,
       ano: ano ? parseInt(ano) : null,
       km_atual: km ? parseInt(km) : null,
-      cliente_id: clienteId,
+      cliente_id: finalClienteId,
       usuario_id: user.id
     }).select().single();
 
@@ -62,7 +87,7 @@ export function CreateVehicleDialog({
       setPlaca(""); setModelo(""); setMarca(""); setAno(""); setKm("");
       onOpenChange(false);
       if (onSuccess && data) {
-        onSuccess(data.id);
+        onSuccess(data.id, data.cliente_id);
       }
     }
   };
@@ -74,6 +99,21 @@ export function CreateVehicleDialog({
           <DialogTitle>Novo Veículo</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          {!clienteId && (
+            <div>
+              <Label>Cliente *</Label>
+              <Select value={selectedClienteId} onValueChange={setSelectedClienteId}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Selecione o cliente" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clientes.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div>
             <Label>Placa *</Label>
             <Input value={placa} onChange={(e) => setPlaca(e.target.value.toUpperCase())} placeholder="ABC-1234" maxLength={8} />

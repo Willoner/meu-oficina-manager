@@ -633,14 +633,14 @@ const OrdensServico = () => {
                 <Label>Veículo *</Label>
                 <div className="flex gap-2 mt-1">
                   <Select value={veiculoId} onValueChange={setVeiculoId} disabled={!clienteId}>
-                    <SelectTrigger className="flex-1"><SelectValue placeholder={clienteId ? "Selecione o veículo" : "Selecione um cliente primeiro"} /></SelectTrigger>
+                    <SelectTrigger className="flex-1"><SelectValue placeholder={clienteId ? (veiculosFiltrados.length > 0 ? "Selecione o veículo" : "Nenhum veículo encontrado") : "Selecione um cliente primeiro"} /></SelectTrigger>
                     <SelectContent>
                       {veiculosFiltrados.map(v => (
                         <SelectItem key={v.id} value={v.id}>{v.placa} - {v.modelo}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button type="button" variant="outline" size="icon" onClick={() => setIsVehicleModalOpen(true)} disabled={!clienteId} title="Cadastrar Novo Veículo">
+                  <Button type="button" variant="outline" size="icon" onClick={() => setIsVehicleModalOpen(true)} title="Cadastrar Novo Veículo">
                     <Plus className="h-4 w-4" />
                   </Button>
                   {veiculoId && (
@@ -879,7 +879,17 @@ const OrdensServico = () => {
       </Dialog>
 
       <CreateClientDialog open={isClientModalOpen} onOpenChange={setIsClientModalOpen} onSuccess={(id) => { fetchData(); setClienteId(id); setIsClientModalOpen(false); }} />
-      <CreateVehicleDialog open={isVehicleModalOpen} onOpenChange={setIsVehicleModalOpen} clienteId={clienteId} onSuccess={(id) => { fetchData(); setVeiculoId(id); setIsVehicleModalOpen(false); }} />
+      <CreateVehicleDialog 
+        open={isVehicleModalOpen} 
+        onOpenChange={setIsVehicleModalOpen} 
+        clienteId={clienteId} 
+        onSuccess={(id, newClienteId) => { 
+          fetchData(); 
+          if (!clienteId && newClienteId) setClienteId(newClienteId);
+          setVeiculoId(id); 
+          setIsVehicleModalOpen(false); 
+        }} 
+      />
 
       {/* Modal Editar OS */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
