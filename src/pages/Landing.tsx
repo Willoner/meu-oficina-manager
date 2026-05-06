@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ClipboardList, BellRing, Package, Wrench, Menu, X, ArrowRight, ShieldCheck, ChevronDown, Check, Download } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Logo } from "@/components/Logo";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { supabase } from "@/integrations/supabase/client";
 import { Smartphone, Share, Layout, Zap, Globe, PlusSquare, Database, Lock, Server, MessageSquare } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -19,13 +20,22 @@ export default function Landing() {
   const { isInstallable, isInstalled, installPWA } = usePWAInstall();
   const [installDialogOpen, setInstallDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
+  const navigate = useNavigate();
 
   const toggleMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-  // Sync tab with hash if needed
+  // Check for existing session and sync tab with hash
   useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/dashboard");
+      }
+    };
+    checkUser();
+
     const hash = window.location.hash.replace('#', '');
     if (["home", "funcionalidades", "precos", "faq", "contato"].includes(hash)) {
       setActiveTab(hash);

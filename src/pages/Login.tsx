@@ -19,12 +19,20 @@ const Login = () => {
   const passwordRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/dashboard");
+      }
+    };
+    checkUser();
+
     const savedEmail = localStorage.getItem("rememberedEmail");
     if (savedEmail && emailRef.current) {
       emailRef.current.value = savedEmail;
       setRememberMe(true);
     }
-  }, []);
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
