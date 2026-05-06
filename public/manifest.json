@@ -1,6 +1,6 @@
 {
   "name": "Oficina em Ordem",
-  "short_name": "Oficina",
+  "short_name": "Oficina em Ordem",
   "description": "Sistema de Gestão para Oficina Mecânica",
   "start_url": "/",
   "display": "standalone",
