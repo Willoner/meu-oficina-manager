@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { 
   ClipboardList, Plus, Search, Trash2, Eye, Pencil, AlertTriangle, RefreshCw,
-  Activity, Wrench, CirclePlay, Zap, Cpu, Paintbrush, Sparkles, Wind, Disc, Settings2, History
+  Activity, Wrench, CirclePlay, Zap, Cpu, Paintbrush, Sparkles, Wind, Disc, Settings2, History,
+  Filter, X
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -90,6 +91,11 @@ const OrdensServico = () => {
   const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
   const [pecas, setPecas] = useState<Peca[]>([]);
   const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("todos");
+  const [filterCliente, setFilterCliente] = useState("todos");
+  const [filterDateStart, setFilterDateStart] = useState("");
+  const [filterDateEnd, setFilterDateEnd] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userPlan, setUserPlan] = useState<string>("Gratuito");
   const [userEmail, setUserEmail] = useState<string>("");
@@ -507,6 +513,33 @@ const OrdensServico = () => {
 
   const getClienteNome = (id: string) => clientes.find(c => c.id === id)?.nome || "—";
   
+  const filteredOrdens = ordens.filter(o => {
+    const matchesSearch = !search || 
+      getClienteNome(o.cliente_id).toLowerCase().includes(search.toLowerCase()) ||
+      veiculos.find(v => v.id === o.veiculo_id)?.modelo.toLowerCase().includes(search.toLowerCase()) ||
+      veiculos.find(v => v.id === o.veiculo_id)?.placa.toLowerCase().includes(search.toLowerCase()) ||
+      o.id.toLowerCase().includes(search.toLowerCase());
+
+    const matchesStatus = !filterStatus || filterStatus === "todos" || o.status === filterStatus;
+    const matchesCliente = !filterCliente || filterCliente === "todos" || o.cliente_id === filterCliente;
+    
+    const osDate = o.data_abertura ? new Date(o.data_abertura) : null;
+    const matchesDateStart = !filterDateStart || !osDate || osDate >= new Date(filterDateStart + "T00:00:00");
+    const matchesDateEnd = !filterDateEnd || !osDate || osDate <= new Date(filterDateEnd + "T23:59:59");
+
+    return matchesSearch && matchesStatus && matchesCliente && matchesDateStart && matchesDateEnd;
+  });
+
+  const clearFilters = () => {
+    setSearch("");
+    setFilterStatus("todos");
+    setFilterCliente("todos");
+    setFilterDateStart("");
+    setFilterDateEnd("");
+  };
+
+  const hasActiveFilters = search || filterStatus !== "todos" || filterCliente !== "todos" || filterDateStart || filterDateEnd;
+
   return (
     <DashboardLayout title="Ordens de Serviço" subtitle="Gerencie todas as ordens de serviço">
       <div className="space-y-6">
@@ -516,6 +549,16 @@ const OrdensServico = () => {
               <Input placeholder="Buscar ordem..." className="pl-9 w-full sm:w-64" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
+              <Button 
+                variant={showFilters ? "secondary" : "outline"} 
+                size="sm" 
+                onClick={() => setShowFilters(!showFilters)}
+                className="gap-2"
+              >
+                <Filter className="w-4 h-4" /> 
+                <span className="hidden sm:inline">Filtros</span>
+                {hasActiveFilters && <Badge variant="default" className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded-full bg-primary text-[10px]">!</Badge>}
+              </Button>
               <Button variant="outline" size="sm" onClick={() => handleVerificarAtrasos(true)} className="flex-1 sm:flex-none gap-2">
                 <RefreshCw className="w-4 h-4" /> <span className="hidden md:inline">Verificar Atrasos</span>
               </Button>
@@ -531,9 +574,76 @@ const OrdensServico = () => {
             </div>
           </div>
 
-          {ordens.length === 0 ? (
+          {showFilters && (
+            <div className="bg-muted/30 p-4 rounded-lg border border-border/50 mb-6 space-y-4 animate-in fade-in slide-in-from-top-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase text-muted-foreground">Status</Label>
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue placeholder="Todos Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos Status</SelectItem>
+                      <SelectItem value="aberta">Aberta</SelectItem>
+                      <SelectItem value="em_andamento">Em Andamento</SelectItem>
+                      <SelectItem value="concluida">Concluída</SelectItem>
+                      <SelectItem value="cancelada">Cancelada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase text-muted-foreground">Cliente</Label>
+                  <Select value={filterCliente} onValueChange={setFilterCliente}>
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue placeholder="Todos Clientes" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos Clientes</SelectItem>
+                      {clientes.map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase text-muted-foreground">De (Data)</Label>
+                  <Input 
+                    type="date" 
+                    className="h-9 text-sm" 
+                    value={filterDateStart} 
+                    onChange={e => setFilterDateStart(e.target.value)} 
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase text-muted-foreground">Até (Data)</Label>
+                  <Input 
+                    type="date" 
+                    className="h-9 text-sm" 
+                    value={filterDateEnd} 
+                    onChange={e => setFilterDateEnd(e.target.value)} 
+                  />
+                </div>
+              </div>
+              
+              {hasActiveFilters && (
+                <div className="flex justify-end border-t border-border/50 pt-2">
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 text-xs text-muted-foreground hover:text-destructive gap-1">
+                    <X className="w-3 h-3" /> Limpar Filtros
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {filteredOrdens.length === 0 ? (
             <div className="rounded-lg border bg-card p-12 text-center text-muted-foreground">
-              Nenhuma ordem de serviço cadastrada ainda. Clique em "Nova Ordem" para começar.
+              {hasActiveFilters 
+                ? "Nenhuma ordem de serviço encontrada com os filtros selecionados." 
+                : "Nenhuma ordem de serviço cadastrada ainda. Clique em \"Nova Ordem\" para começar."}
             </div>
           ) : (
             <div className="rounded-lg border bg-card overflow-hidden">
@@ -552,7 +662,7 @@ const OrdensServico = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {ordens.map(o => {
+                  {filteredOrdens.map(o => {
                     const isAtrasada = o.status !== 'concluida' && o.status !== 'cancelada' && o.prazo && new Date(o.prazo) < new Date(new Date().setHours(0,0,0,0));
                     
                     return (
