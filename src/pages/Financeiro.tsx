@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, Package, Wrench, DollarSign, FileDown } from "lucide-react";
+import { TrendingUp, Package, Wrench, DollarSign, FileDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,6 +22,7 @@ const Financeiro = () => {
   });
   const [loading, setLoading] = useState(true);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     const fetchFinancialData = async () => {
@@ -29,10 +30,9 @@ const Financeiro = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Período: mês atual
-      const now = new Date();
-      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+      // Período: mês selecionado
+      const firstDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).toISOString();
+      const lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
 
       // 1. Buscar OS concluídas no mês
       const { data: ordens, error: ordensError } = await supabase
@@ -94,7 +94,17 @@ const Financeiro = () => {
     };
 
     fetchFinancialData();
-  }, []);
+  }, [selectedDate]);
+
+  const handlePrevMonth = () => {
+    setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1));
+  };
+
+  const monthLabel = selectedDate.toLocaleString("pt-BR", { month: "long", year: "numeric" });
 
   const formatCurrency = (value: number) =>
     `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -127,10 +137,22 @@ const Financeiro = () => {
   ];
 
   return (
-    <DashboardLayout title="Financeiro" subtitle="Faturamento e controle financeiro">
+    <DashboardLayout title="Financeiro" subtitle={`Faturamento de ${monthLabel}`}>
       <div className="space-y-6">
-        <div className="flex justify-end">
-          <Button onClick={() => setIsExportDialogOpen(true)} className="gap-2 bg-slate-900 hover:bg-slate-800">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-4 bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
+            <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-8 w-8">
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm font-medium min-w-[120px] text-center capitalize">
+              {monthLabel}
+            </span>
+            <Button variant="ghost" size="icon" onClick={handleNextMonth} className="h-8 w-8" disabled={selectedDate >= new Date(new Date().getFullYear(), new Date().getMonth(), 1)}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <Button onClick={() => setIsExportDialogOpen(true)} className="gap-2 bg-slate-900 hover:bg-slate-800 w-full sm:w-auto">
             <FileDown className="w-4 h-4" />
             Exportar Relatório
           </Button>
