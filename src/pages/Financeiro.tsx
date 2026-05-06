@@ -152,7 +152,7 @@ const Financeiro = () => {
             </Button>
           </div>
 
-          <Button onClick={() => setIsExportDialogOpen(true)} className="gap-2 bg-slate-900 hover:bg-slate-800 w-full sm:w-auto">
+          <Button onClick={() => setIsExportDialogOpen(true)} className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto shadow-sm">
             <FileDown className="w-4 h-4" />
             Exportar Relatório
           </Button>

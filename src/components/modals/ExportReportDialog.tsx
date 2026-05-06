@@ -149,7 +149,7 @@ export function ExportReportDialog({ open, onOpenChange }: ExportReportDialogPro
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={handleExport} disabled={loading} className="gap-2">
+          <Button onClick={handleExport} disabled={loading} className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calendar className="w-4 h-4" />}
             Gerar PDF
           </Button>
