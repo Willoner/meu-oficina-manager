@@ -15,7 +15,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { generateFinancialReport } from "@/utils/reportGenerator";
 import { startOfMonth, endOfMonth, subMonths, format, startOfDay, endOfDay } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 interface ExportReportDialogProps {
   open: boolean;
