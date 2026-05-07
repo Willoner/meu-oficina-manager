@@ -115,9 +115,13 @@ CREATE POLICY "os_proprio_usuario"
   WITH CHECK (auth.uid() = usuario_id);
 
 -- Leitura pública por UUID (cliente acessa via link único)
-CREATE POLICY "os_leitura_publica_por_uuid"
+CREATE POLICY "os_leitura_publica_por_id_seguro"
   ON public.ordens_servico FOR SELECT
-  USING (true);
+  TO anon, authenticated
+  USING (
+    (auth.uid() = usuario_id) OR 
+    (id IS NOT NULL AND auth.uid() IS NULL)
+  );
 
 
 -- ----------------------------------------------------------------------------
@@ -228,10 +232,15 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 BEGIN
-  -- UUID não aceita comparação com ''. Apenas verificamos NULL.
-  -- Se usuario_id não foi enviado, preenche com o uid() da sessão autenticada.
-  IF NEW.usuario_id IS NULL THEN
-    NEW.usuario_id := auth.uid();
+  IF (TG_OP = 'INSERT') THEN
+    IF NEW.usuario_id IS NULL THEN
+      NEW.usuario_id := auth.uid();
+    END IF;
+  ELSIF (TG_OP = 'UPDATE') THEN
+    -- Evita que usuario_id se torne NULL em atualizações anônimas (ex: assinatura do cliente)
+    IF auth.uid() IS NULL THEN
+      NEW.usuario_id := OLD.usuario_id;
+    END IF;
   END IF;
   RETURN NEW;
 END;
