@@ -8,7 +8,8 @@ import {
   AlertTriangle,
   Package,
   Wrench,
-  Loader2
+  Loader2,
+  Pencil
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -148,6 +149,8 @@ const EditarOS = () => {
 
   const veiculosFiltrados = clienteId ? veiculos.filter(v => v.cliente_id === clienteId) : [];
 
+  const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
+
   const handleAddPeca = () => {
     if (!selectedPecaId) return;
     const peca = pecas.find(p => p.id === selectedPecaId);
@@ -166,7 +169,19 @@ const EditarOS = () => {
       return;
     }
 
-    if (itemExistente) {
+    if (editingItemIndex !== null) {
+      const updatedItens = [...itensOS];
+      updatedItens[editingItemIndex] = {
+        tipo: "peca",
+        item_id: peca.id,
+        descricao: peca.nome,
+        quantidade: Number(qtdPeca),
+        valor_unitario: valorUnitario,
+        valor_total: valorUnitario * Number(qtdPeca)
+      };
+      setItensOS(updatedItens);
+      setEditingItemIndex(null);
+    } else if (itemExistente) {
       setItensOS(itensOS.map(i => i.item_id === peca.id && i.tipo === 'peca' 
         ? { ...i, quantidade: totalQtd, valor_total: i.valor_unitario * totalQtd }
         : i
@@ -201,10 +216,33 @@ const EditarOS = () => {
       valor_total: valorNum
     };
 
-    setItensOS([...itensOS, item]);
+    if (editingItemIndex !== null) {
+      const updatedItens = [...itensOS];
+      updatedItens[editingItemIndex] = item;
+      setItensOS(updatedItens);
+      setEditingItemIndex(null);
+    } else {
+      setItensOS([...itensOS, item]);
+    }
+
     setIsServicoModalOpen(false);
     setDescServico("");
     setValorServico("");
+  };
+
+  const handleEditItem = (index: number) => {
+    const item = itensOS[index];
+    setEditingItemIndex(index);
+    
+    if (item.tipo === "peca") {
+      setSelectedPecaId(item.item_id || "");
+      setQtdPeca(item.quantidade);
+      setIsPecaModalOpen(true);
+    } else {
+      setDescServico(item.descricao);
+      setValorServico(item.valor_unitario.toString().replace('.', ','));
+      setIsServicoModalOpen(true);
+    }
   };
 
   const handleRemoveItem = (index: number) => {
@@ -437,9 +475,14 @@ const EditarOS = () => {
                         <TableCell className="text-right">R$ {item.valor_unitario.toFixed(2)}</TableCell>
                         <TableCell className="text-right font-bold">R$ {item.valor_total.toFixed(2)}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(idx)} className="text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <div className="flex justify-end gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditItem(idx)} className="text-primary">
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(idx)} className="text-destructive">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -476,9 +519,9 @@ const EditarOS = () => {
 
           </div>
         {/* Modals */}
-        <Dialog open={isPecaModalOpen} onOpenChange={setIsPecaModalOpen}>
+        <Dialog open={isPecaModalOpen} onOpenChange={(open) => { setIsPecaModalOpen(open); if (!open) setEditingItemIndex(null); }}>
           <DialogContent>
-            <DialogHeader><DialogTitle>Adicionar Peça do Estoque</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editingItemIndex !== null ? "Editar Peça" : "Adicionar Peça do Estoque"}</DialogTitle></DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>Selecione a Peça</Label>
@@ -500,14 +543,14 @@ const EditarOS = () => {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsPecaModalOpen(false)}>Cancelar</Button>
-              <Button onClick={handleAddPeca}>Adicionar à OS</Button>
+              <Button onClick={handleAddPeca}>{editingItemIndex !== null ? "Salvar Alteração" : "Adicionar à OS"}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isServicoModalOpen} onOpenChange={setIsServicoModalOpen}>
+        <Dialog open={isServicoModalOpen} onOpenChange={(open) => { setIsServicoModalOpen(open); if (!open) setEditingItemIndex(null); }}>
           <DialogContent>
-            <DialogHeader><DialogTitle>Adicionar Mão de Obra / Serviço</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editingItemIndex !== null ? "Editar Serviço" : "Adicionar Mão de Obra / Serviço"}</DialogTitle></DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>Descrição do Serviço</Label>
@@ -520,7 +563,7 @@ const EditarOS = () => {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsServicoModalOpen(false)}>Cancelar</Button>
-              <Button onClick={handleAddServico}>Adicionar à OS</Button>
+              <Button onClick={handleAddServico}>{editingItemIndex !== null ? "Salvar Alteração" : "Adicionar à OS"}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

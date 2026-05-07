@@ -267,7 +267,15 @@ const OrdensServico = () => {
       valor_total: valorUnitario * Number(qtdPeca)
     };
 
-    setItensOS([...itensOS, item]);
+    if (editingItemIndex !== null) {
+      const updatedItens = [...itensOS];
+      updatedItens[editingItemIndex] = item;
+      setItensOS(updatedItens);
+      setEditingItemIndex(null);
+    } else {
+      setItensOS([...itensOS, item]);
+    }
+
     setIsPecaModalOpen(false);
     setSelectedPecaId("");
     setQtdPeca(1);
@@ -294,10 +302,33 @@ const OrdensServico = () => {
       valor_total: valorNum
     };
 
-    setItensOS([...itensOS, item]);
+    if (editingItemIndex !== null) {
+      const updatedItens = [...itensOS];
+      updatedItens[editingItemIndex] = item;
+      setItensOS(updatedItens);
+      setEditingItemIndex(null);
+    } else {
+      setItensOS([...itensOS, item]);
+    }
+
     setIsServicoModalOpen(false);
     setDescServico("");
     setValorServico("");
+  };
+
+  const handleEditItem = (index: number) => {
+    const item = itensOS[index];
+    setEditingItemIndex(index);
+    
+    if (item.tipo === "peca") {
+      setSelectedPecaId(item.item_id || "");
+      setQtdPeca(item.quantidade);
+      setIsPecaModalOpen(true);
+    } else {
+      setDescServico(item.descricao);
+      setValorServico(item.valor_unitario.toString().replace('.', ','));
+      setIsServicoModalOpen(true);
+    }
   };
 
   const handleRemoveItem = (index: number) => {
@@ -844,9 +875,14 @@ const OrdensServico = () => {
                           <TableCell className="text-xs py-2">{item.quantidade}</TableCell>
                           <TableCell className="text-xs py-2">{formatCurrency(item.valor_total)}</TableCell>
                           <TableCell className="text-xs py-2 text-right">
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleRemoveItem(idx)}>
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
+                            <div className="flex justify-end gap-1">
+                              <Button variant="ghost" size="icon" className="h-6 w-6 text-primary" onClick={() => handleEditItem(idx)}>
+                                <Pencil className="w-3 h-3" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleRemoveItem(idx)}>
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -870,10 +906,10 @@ const OrdensServico = () => {
       </Dialog>
 
       {/* Modal Adicionar Peça */}
-      <Dialog open={isPecaModalOpen} onOpenChange={setIsPecaModalOpen}>
+      <Dialog open={isPecaModalOpen} onOpenChange={(open) => { setIsPecaModalOpen(open); if (!open) setEditingItemIndex(null); }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Adicionar Peça do Estoque</DialogTitle>
+            <DialogTitle>{editingItemIndex !== null ? "Editar Peça" : "Adicionar Peça do Estoque"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <div>
@@ -898,16 +934,16 @@ const OrdensServico = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsPecaModalOpen(false)}>Cancelar</Button>
-            <Button onClick={handleAddPeca}>Adicionar à OS</Button>
+            <Button onClick={handleAddPeca}>{editingItemIndex !== null ? "Salvar Alteração" : "Adicionar à OS"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Modal Adicionar Serviço */}
-      <Dialog open={isServicoModalOpen} onOpenChange={setIsServicoModalOpen}>
+      <Dialog open={isServicoModalOpen} onOpenChange={(open) => { setIsServicoModalOpen(open); if (!open) setEditingItemIndex(null); }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Adicionar Serviço Avulso</DialogTitle>
+            <DialogTitle>{editingItemIndex !== null ? "Editar Serviço" : "Adicionar Serviço Avulso"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <div>
@@ -921,7 +957,7 @@ const OrdensServico = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsServicoModalOpen(false)}>Cancelar</Button>
-            <Button onClick={handleAddServico}>Adicionar à OS</Button>
+            <Button onClick={handleAddServico}>{editingItemIndex !== null ? "Salvar Alteração" : "Adicionar à OS"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
