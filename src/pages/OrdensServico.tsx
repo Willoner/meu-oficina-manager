@@ -475,7 +475,10 @@ const OrdensServico = () => {
     
     try {
       const osToDelete = ordens.find(o => o.id === deleteOSId);
-      const shouldRestoreStock = osToDelete && osToDelete.status !== 'concluida';
+      
+      // Normalização do status para comparação segura
+      const statusNormalizado = osToDelete?.status?.toLowerCase().trim() || "";
+      const shouldRestoreStock = osToDelete && statusNormalizado !== 'concluida' && statusNormalizado !== 'cancelada';
 
       if (shouldRestoreStock) {
         // Obter itens da OS primeiro para repor no estoque
