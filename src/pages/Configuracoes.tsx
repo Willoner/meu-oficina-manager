@@ -11,7 +11,9 @@ import {
   ExternalLink,
   Trash2,
   Phone,
-  Download
+  Download,
+  ShieldCheck,
+  Key
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -233,6 +235,30 @@ const Configuracoes = () => {
     }
   };
 
+  const handleRequestPasswordReset = async () => {
+    try {
+      setSaving(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(userEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "E-mail enviado!",
+        description: "Enviamos um link para você redefinir sua senha com segurança.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao solicitar",
+        description: error.message,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout title="Configurações" subtitle="Carregando...">
@@ -368,6 +394,40 @@ const Configuracoes = () => {
                   {saving ? "Salvando..." : "Salvar Alterações"}
                 </Button>
               </CardFooter>
+            </Card>
+          </section>
+
+          {/* Seção Segurança */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <ShieldCheck className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-semibold">Segurança e Acesso</h2>
+            </div>
+            <Card>
+              <CardContent className="pt-6 space-y-6">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-xl border bg-slate-50/50">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Key className="w-4 h-4 text-primary" />
+                      <h4 className="font-bold text-card-foreground">Senha de Acesso</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Sua senha é pessoal e intransferível. Recomendamos trocá-la periodicamente.
+                    </p>
+                    <p className="text-xs font-medium text-slate-400 mt-2 italic">
+                      E-mail da conta: {userEmail}
+                    </p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleRequestPasswordReset} 
+                    disabled={saving}
+                    className="w-full md:w-auto border-primary/20 text-primary hover:bg-primary/5 hover:text-primary"
+                  >
+                    {saving ? "Solicitando..." : "Redefinir Senha"}
+                  </Button>
+                </div>
+              </CardContent>
             </Card>
           </section>
 
