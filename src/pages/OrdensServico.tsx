@@ -474,14 +474,19 @@ const OrdensServico = () => {
     if (!deleteOSId) return;
     
     try {
-      // Obter itens da OS primeiro para repor no estoque
-      const { data: itens } = await supabase.from('itens_os').select('*').eq('ordem_servico_id', deleteOSId);
-      if (itens && itens.length > 0) {
-        for (const item of itens) {
-          if (item.tipo === 'peca' && item.item_id) {
-            const { data: p } = await supabase.from('pecas').select('estoque').eq('id', item.item_id).single();
-            if (p && p.estoque !== null) {
-              await supabase.from('pecas').update({ estoque: p.estoque + (item.quantidade || 1) }).eq('id', item.item_id);
+      const osToDelete = ordens.find(o => o.id === deleteOSId);
+      const shouldRestoreStock = osToDelete && osToDelete.status !== 'concluida';
+
+      if (shouldRestoreStock) {
+        // Obter itens da OS primeiro para repor no estoque
+        const { data: itens } = await supabase.from('itens_os').select('*').eq('ordem_servico_id', deleteOSId);
+        if (itens && itens.length > 0) {
+          for (const item of itens) {
+            if (item.tipo === 'peca' && item.item_id) {
+              const { data: p } = await supabase.from('pecas').select('estoque').eq('id', item.item_id).single();
+              if (p && p.estoque !== null) {
+                await supabase.from('pecas').update({ estoque: p.estoque + (item.quantidade || 1) }).eq('id', item.item_id);
+              }
             }
           }
         }
