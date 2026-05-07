@@ -224,6 +224,7 @@ const OrdensServico = () => {
   }, [location]);
 
   const veiculosFiltrados = clienteId ? veiculos.filter(v => v.cliente_id === clienteId) : [];
+  const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
 
   const handleClienteChange = (value: string) => {
     setClienteId(value);
