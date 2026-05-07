@@ -79,6 +79,9 @@ const ResetPassword = () => {
         variant: "destructive" 
       });
     } else {
+      // Limpa o lembrete de recuperação para permitir a entrada no dashboard
+      localStorage.removeItem("recovery_active");
+      
       toast({ 
         title: "Senha atualizada com sucesso!", 
         description: "Sua conta está segura agora. Você será redirecionado." 

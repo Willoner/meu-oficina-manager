@@ -27,9 +27,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // GATILHO DE SEGURANÇA: Se o usuário cair aqui vindo de um e-mail de recuperação,
-  // forçamos o redirecionamento para a página de nova senha antes de mostrar qualquer dado.
-  if (window.location.hash && window.location.hash.includes("type=recovery")) {
+  // GATILHO DE SEGURANÇA: Se o usuário estiver em um fluxo de recuperação (marcado no App.tsx),
+  // forçamos o redirecionamento para a página de nova senha, mesmo que tente entrar no dashboard.
+  const isRecoveryActive = localStorage.getItem("recovery_active") === "true";
+  
+  if (isRecoveryActive) {
+    console.log("Proteção: Recuperação ativa detectada. Redirecionando para /reset-password");
     return <Navigate to="/reset-password" replace />;
   }
 

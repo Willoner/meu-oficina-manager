@@ -39,9 +39,18 @@ const AuthEventsHandler = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
+    // 1. Verificação de URL (Marca o lembrete se detectar o link)
+    const hash = window.location.hash || "";
+    const search = window.location.search || "";
+    if (hash.includes("recovery") || hash.includes("access_token=") || search.includes("recovery")) {
+      console.log("Lembrete de recuperação ativado.");
+      localStorage.setItem("recovery_active", "true");
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       console.log("Evento Auth:", event);
       if (event === "PASSWORD_RECOVERY") {
+        localStorage.setItem("recovery_active", "true");
         navigate("/reset-password");
       }
     });
