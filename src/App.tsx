@@ -30,6 +30,7 @@ import Marketing from "./pages/Marketing.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 import { Analytics } from "@vercel/analytics/react";
+import { supabase } from "@/integrations/supabase/client";
 
 const queryClient = new QueryClient();
 
