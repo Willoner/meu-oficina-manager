@@ -37,45 +37,17 @@ const queryClient = new QueryClient();
 
 const AuthEventsHandler = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   
   useEffect(() => {
-    const checkRecovery = () => {
-      const hash = window.location.hash;
-      
-      // DETECÇÃO DE ERRO (Link Expirado)
-      if (hash.includes("error=access_denied") || hash.includes("otp_expired")) {
-        console.error("ERRO: O link de recuperação expirou ou é inválido.");
-        toast({
-          title: "Link Expirado",
-          description: "Este link de recuperação não é mais válido. Por favor, solicite um novo e-mail de redefinição.",
-          variant: "destructive"
-        });
-        // Limpa o hash para não ficar repetindo o erro
-        window.history.replaceState(null, "", window.location.pathname);
-        return;
-      }
-
-      const search = window.location.search;
-      const isRecovery = hash.includes("recovery") || 
-                         hash.includes("access_token=") || 
-                         search.includes("recovery");
-
-      if (isRecovery) {
-        console.log("Link de recuperação detectado. Redirecionando instantaneamente...");
-        navigate("/reset-password", { replace: true });
-      }
-    };
-    checkRecovery();
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      console.log("Evento Auth:", event);
       if (event === "PASSWORD_RECOVERY") {
         navigate("/reset-password");
       }
     });
     
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, [navigate]);
   
   return null;
 };

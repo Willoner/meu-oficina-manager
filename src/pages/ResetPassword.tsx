@@ -42,14 +42,19 @@ const ResetPassword = () => {
     e.preventDefault();
     setPasswordError("");
 
-    // Verificação de última hora
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    setLoading(true);
+
+    // Tentativa final de pegar a sessão antes de atualizar
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (!session || sessionError) {
+      console.error("Sessão não encontrada ao tentar atualizar:", sessionError);
       toast({ 
-        title: "Sessão Ausente", 
-        description: "O link de recuperação parece inválido ou expirou. Por favor, peça um novo e-mail.", 
+        title: "Sessão Expirada", 
+        description: "Não conseguimos validar sua identidade. Por favor, feche esta aba e clique novamente no link do seu e-mail.", 
         variant: "destructive" 
       });
+      setLoading(false);
       return;
     }
 
