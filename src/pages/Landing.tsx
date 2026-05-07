@@ -33,7 +33,11 @@ export default function Landing() {
       
       // GATILHO DE SEGURANÇA: Se estivermos em um fluxo de recuperação de senha,
       // NÃO redirecionamos para o dashboard, deixamos o AuthEventsHandler do App.tsx agir.
-      const isRecovery = window.location.hash && window.location.hash.includes("type=recovery");
+      const hash = window.location.hash || "";
+      const search = window.location.search || "";
+      const isRecovery = hash.includes("recovery") || 
+                         hash.includes("access_token=") || 
+                         search.includes("recovery");
       
       if (session && !isRecovery) {
         navigate("/dashboard");

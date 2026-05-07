@@ -62,9 +62,8 @@ const AuthEventsHandler = () => {
                          search.includes("recovery");
 
       if (isRecovery) {
-        setTimeout(() => {
-          navigate("/reset-password");
-        }, 800);
+        console.log("Link de recuperação detectado. Redirecionando instantaneamente...");
+        navigate("/reset-password", { replace: true });
       }
     };
     checkRecovery();
