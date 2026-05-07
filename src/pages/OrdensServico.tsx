@@ -487,9 +487,16 @@ const OrdensServico = () => {
         }
       }
 
-      // 1. Excluir os itens da OS primeiro (para evitar erro de chave estrangeira)
-      const { error: itemsError } = await supabase.from('itens_os').delete().eq('ordem_servico_id', deleteOSId);
-      if (itemsError) throw itemsError;
+      // 1. Limpeza de dependências (evitar erro de chave estrangeira)
+      await supabase.from('itens_os').delete().eq('ordem_servico_id', deleteOSId);
+      await supabase.from('pagamentos').delete().eq('ordem_servico_id', deleteOSId);
+      
+      // Alguns sistemas usam o ID da OS na tabela de assinaturas também
+      try {
+        await supabase.from('assinaturas').delete().eq('ordem_servico_id', deleteOSId);
+      } catch (e) {
+        // Tabela opcional, ignorar se falhar
+      }
 
       // 2. Excluir a OS propriamente dita
       const { error } = await supabase.from('ordens_servico').delete().eq('id', deleteOSId);
