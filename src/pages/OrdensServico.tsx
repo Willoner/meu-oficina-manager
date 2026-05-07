@@ -487,7 +487,11 @@ const OrdensServico = () => {
         }
       }
 
-      // Excluir OS
+      // 1. Excluir os itens da OS primeiro (para evitar erro de chave estrangeira)
+      const { error: itemsError } = await supabase.from('itens_os').delete().eq('ordem_servico_id', deleteOSId);
+      if (itemsError) throw itemsError;
+
+      // 2. Excluir a OS propriamente dita
       const { error } = await supabase.from('ordens_servico').delete().eq('id', deleteOSId);
       if (error) throw error;
 
