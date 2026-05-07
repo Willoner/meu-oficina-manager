@@ -495,10 +495,20 @@ const OrdensServico = () => {
       const { error } = await supabase.from('ordens_servico').delete().eq('id', deleteOSId);
       if (error) throw error;
 
+      // 3. Forçar atualização da interface (Remover do estado local imediatamente)
+      setOrdens(prev => prev.filter(o => o.id !== deleteOSId));
+
       toast({ title: "Sucesso", description: "Ordem excluída com sucesso." });
+      
+      // Recarregar tudo para garantir sincronia total
       fetchData();
     } catch (error: any) {
-      toast({ title: "Erro", description: "Falha ao excluir. " + error.message, variant: "destructive" });
+      console.error("Erro crítico na exclusão:", error);
+      toast({ 
+        title: "Erro na Exclusão", 
+        description: "Não foi possível apagar. Verifique se há faturamentos vinculados ou tente novamente. Detalhe: " + error.message, 
+        variant: "destructive" 
+      });
     } finally {
       setDeleteOSId(null);
     }
