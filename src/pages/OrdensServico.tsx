@@ -434,18 +434,10 @@ const OrdensServico = () => {
 
     setLoading(true);
 
-    let dataConclusao = editingOS.data_conclusao;
-    if (editStatus === "concluida" && editingOS.status !== "concluida") {
-      dataConclusao = new Date().toISOString();
-    } else if (editStatus !== "concluida" && editingOS.status === "concluida") {
-      dataConclusao = null;
-    }
-
     const updates: any = {
       status: editStatus,
       tipo_servico: editTipo,
-      observacoes: editObs.trim() || null,
-      data_conclusao: dataConclusao
+      observacoes: editObs.trim() || null
     };
 
     // Resetar assinaturas se houver mudanças em OS já assinadas
@@ -466,13 +458,11 @@ const OrdensServico = () => {
       toast({ title: "Erro", description: "Falha ao atualizar OS: " + error.message, variant: "destructive" });
     } else {
       let msg = hasSignatures 
-        ? "Alterações salvas. As assinaturas foram resetadas porque o conteúdo da OS mudou." 
+        ? "Alterações salvas. As assinaturas foram resetadas para segurança." 
         : "Ordem de serviço atualizada!";
         
-      if (editStatus === "concluida" && editingOS.status !== "concluida") {
-        msg = "Ordem concluída e faturamento atualizado com sucesso!";
-      } else if (editStatus !== "concluida" && editingOS.status === "concluida") {
-        msg = "Ordem reaberta e faturamento ajustado.";
+      if (editStatus === "concluida") {
+        msg = "Ordem concluída com sucesso!";
       }
 
       toast({ title: "Sucesso", description: msg });
