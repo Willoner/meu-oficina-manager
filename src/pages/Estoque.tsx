@@ -54,7 +54,7 @@ const Estoque = () => {
     const { error } = await supabase.from("pecas").insert({
       nome: nome.trim(),
       codigo: codigo.trim() || null,
-      valor_venda: valorVenda ? parseFloat(valorVenda) : null,
+      valor_venda: valorVenda ? parseFloat(valorVenda.replace(',', '.')) : null,
       estoque: estoque ? parseInt(estoque) : 0,
       usuario_id: user.id,
     });
@@ -133,7 +133,7 @@ const Estoque = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Valor de Venda</Label>
-                <Input value={valorVenda} onChange={e => setValorVenda(e.target.value)} placeholder="0.00" type="number" step="0.01" />
+                <Input value={valorVenda} onChange={e => setValorVenda(e.target.value)} placeholder="0,00" type="text" />
               </div>
               <div>
                 <Label>Estoque</Label>

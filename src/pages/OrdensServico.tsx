@@ -916,7 +916,7 @@ const OrdensServico = () => {
             </div>
             <div>
               <Label>Valor (R$)</Label>
-              <Input placeholder="Ex: 150.00" type="number" step="0.01" className="mt-1" value={valorServico} onChange={e => setValorServico(e.target.value)} />
+              <Input placeholder="Ex: 150,00" type="text" className="mt-1" value={valorServico} onChange={e => setValorServico(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
