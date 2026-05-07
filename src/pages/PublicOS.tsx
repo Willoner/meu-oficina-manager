@@ -60,33 +60,26 @@ const PublicOS = () => {
     const fetchData = async () => {
       if (!id) return;
       
-      const { data, error } = await supabase
-        .from("ordens_servico")
-        .select(`
-          *,
-          clientes (nome, telefone, email),
-          veiculos (modelo, placa, marca, ano, km_atual),
-          usuarios (nome_oficina, telefone, email, cnpj, endereco, logotipo_url)
-        `)
-        .eq("id", id)
-        .single();
+      const { data, error } = await supabase.rpc('get_public_os_data', { p_os_id: id });
 
-      if (error) {
+      if (error || !data) {
         toast({ title: "Erro", description: "Não foi possível carregar a OS. Verifique o link.", variant: "destructive" });
+        setLoading(false);
         return;
       }
 
-      setOs(data as unknown as OSData);
+      const publicData = data as any;
+      
+      // Mapear dados retornados pela RPC para o formato esperado pelo componente
+      const formattedOS: OSData = {
+        ...publicData.os,
+        clientes: publicData.cliente,
+        veiculos: publicData.veiculo,
+        usuarios: publicData.oficina
+      };
 
-      const { data: itemsData } = await supabase
-        .from("itens_os")
-        .select("*")
-        .eq("ordem_servico_id", id);
-
-      if (itemsData) {
-        setItems(itemsData as ItemOS[]);
-      }
-
+      setOs(formattedOS);
+      setItems(publicData.itens || []);
       setLoading(false);
     };
 

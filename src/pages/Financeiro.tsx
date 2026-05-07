@@ -71,7 +71,7 @@ const Financeiro = () => {
       let totalPecas = 0;
       let totalServicos = 0;
 
-      // Handle items
+      // 1. Somar itens detalhados
       itens?.forEach((item) => {
         const tipoNorm = item.tipo?.toLowerCase() || "";
         if (tipoNorm === "peca") {
@@ -81,11 +81,17 @@ const Financeiro = () => {
         }
       });
 
-      // Handle OS without items (count as service)
+      // 2. Tratar O.S. sem itens detalhados (evitar buraco financeiro)
       ordens.forEach(o => {
-        const hasItems = itens?.some(i => i.ordem_servico_id === o.id);
-        if (!hasItems && (o.valor_total || 0) > 0) {
-          totalServicos += o.valor_total || 0;
+        const osTotal = o.valor_total || 0;
+        const totalItensOS = itens?.filter(i => i.ordem_servico_id === o.id)
+                                  .reduce((sum, i) => sum + (i.valor_total || 0), 0) || 0;
+        
+        // Se a OS tem um valor total mas os itens não somam esse valor (ou não existem),
+        // a diferença é considerada "Serviço/Mão de Obra" não detalhada.
+        const diferenca = osTotal - totalItensOS;
+        if (diferenca > 0.01) {
+          totalServicos += diferenca;
         }
       });
 

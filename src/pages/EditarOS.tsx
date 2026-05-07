@@ -265,13 +265,6 @@ const EditarOS = () => {
       // 4. Atualizar Ordem de Serviço (incluindo Reset de Assinaturas se houver)
       const hasSignatures = os.assinatura_cliente_aceito || os.assinatura_mecanico_aceito;
       
-      let dataConclusao = os.data_conclusao;
-      if (status === "concluida" && os.status !== "concluida") {
-        dataConclusao = new Date().toISOString();
-      } else if (status !== "concluida" && os.status === "concluida") {
-        dataConclusao = null;
-      }
-
       const updates: any = {
         cliente_id: clienteId,
         veiculo_id: veiculoId,
@@ -279,8 +272,7 @@ const EditarOS = () => {
         status: status,
         prazo: prazo || null,
         observacoes: observacoes.trim() || null,
-        valor_total: totalOS,
-        data_conclusao: dataConclusao
+        valor_total: totalOS
       };
 
       if (hasSignatures) {

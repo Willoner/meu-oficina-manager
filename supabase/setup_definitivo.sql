@@ -353,15 +353,43 @@ GRANT EXECUTE ON FUNCTION public.handle_new_user   TO authenticated;
 
 
 -- ============================================================================
--- PASSO 8 — PERMISSÕES MÍNIMAS PARA ANON (PublicOS, assinatura pública)
+-- PASSO 8 — PERMISSÕES MÍNIMAS PARA ANON (Segurança por RPC)
 -- ============================================================================
 
 GRANT USAGE  ON SCHEMA public TO anon;
-GRANT SELECT ON public.ordens_servico TO anon;
-GRANT SELECT ON public.clientes       TO anon;
-GRANT SELECT ON public.veiculos       TO anon;
-GRANT SELECT ON public.itens_os       TO anon;
-GRANT SELECT ON public.usuarios       TO anon;
+
+-- Revoga acesso direto para evitar "pescagem" de dados
+REVOKE SELECT ON public.ordens_servico FROM anon;
+REVOKE SELECT ON public.clientes       FROM anon;
+REVOKE SELECT ON public.veiculos       FROM anon;
+REVOKE SELECT ON public.itens_os       FROM anon;
+REVOKE SELECT ON public.usuarios       FROM anon;
+
+-- Criação da função de entrega segura (Cofre Blindado)
+CREATE OR REPLACE FUNCTION public.get_public_os_data(p_os_id uuid)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_result json;
+BEGIN
+  SELECT json_build_object(
+    'os', os.*,
+    'cliente', (SELECT row_to_json(c) FROM (SELECT nome, telefone, email FROM public.clientes WHERE id = os.cliente_id) c),
+    'veiculo', (SELECT row_to_json(v) FROM (SELECT modelo, placa, marca, ano, km_atual FROM public.veiculos WHERE id = os.veiculo_id) v),
+    'oficina', (SELECT row_to_json(u) FROM (SELECT nome_oficina, telefone, email, cnpj, endereco, logotipo_url FROM public.usuarios WHERE id = os.usuario_id) u),
+    'itens', (SELECT json_agg(i) FROM (SELECT * FROM public.itens_os WHERE ordem_servico_id = os.id) i)
+  ) INTO v_result
+  FROM public.ordens_servico os
+  WHERE os.id = p_os_id;
+
+  RETURN v_result;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_public_os_data(uuid) TO anon;
+GRANT EXECUTE ON FUNCTION public.get_public_os_data(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.assinar_os_cliente_publico(UUID) TO anon;
 GRANT EXECUTE ON FUNCTION public.assinar_os_cliente_publico(UUID) TO authenticated;
 
