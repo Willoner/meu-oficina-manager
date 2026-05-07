@@ -4,6 +4,7 @@ import {
   Activity, Wrench, CirclePlay, Zap, Cpu, Paintbrush, Sparkles, Wind, Disc, Settings2, History,
   Filter, X
 } from "lucide-react";
+import { PlanLimitModal } from "@/components/modals/PlanLimitModal";
 import { useNavigate, useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Input } from "@/components/ui/input";
@@ -141,6 +142,7 @@ const OrdensServico = () => {
 
   // Delete OS State
   const [deleteOSId, setDeleteOSId] = useState<string | null>(null);
+  const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
   
   // History Sheet state
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -317,12 +319,8 @@ const OrdensServico = () => {
 
     // Check plan limit
     const isTestUser = user.email === 'wilson.lisboa@oficinaemordem.com.br';
-    if (userPlan === "Gratuito" && osCountMonth >= 10 && !isTestUser) {
-      toast({ 
-        title: "Limite atingido", 
-        description: "Limite de OS do plano gratuito atingido. Faça upgrade para o Pro.", 
-        variant: "destructive" 
-      });
+    if (userPlan !== "Pro" && osCountMonth >= 10 && !isTestUser) {
+      setIsLimitModalOpen(true);
       setLoading(false);
       return;
     }
@@ -552,15 +550,19 @@ const OrdensServico = () => {
               <Button variant="outline" size="sm" onClick={() => handleVerificarAtrasos(true)} className="flex-1 sm:flex-none gap-2">
                 <RefreshCw className="w-4 h-4" /> <span className="hidden md:inline">Verificar Atrasos</span>
               </Button>
-              {userPlan === "Gratuito" && osCountMonth >= 10 && userEmail !== 'wilson.lisboa@oficinaemordem.com.br' ? (
-                <Button onClick={() => navigate("/configuracoes")} className="flex-1 sm:flex-none gradient-primary animate-pulse">
-                  Upgrade para Pro
-                </Button>
-              ) : (
-                <Button onClick={() => setOpen(true)} className="flex-1 sm:flex-none gradient-primary">
-                  <Plus className="w-4 h-4" /> Nova <span className="hidden sm:inline">Ordem</span>
-                </Button>
-              )}
+              <Button 
+                onClick={() => {
+                  const isTestUser = userEmail === 'wilson.lisboa@oficinaemordem.com.br';
+                  if (userPlan !== "Pro" && osCountMonth >= 10 && !isTestUser) {
+                    setIsLimitModalOpen(true);
+                  } else {
+                    setOpen(true);
+                  }
+                }} 
+                className="flex-1 sm:flex-none gradient-primary"
+              >
+                <Plus className="w-4 h-4" /> Nova <span className="hidden sm:inline">Ordem</span>
+              </Button>
             </div>
           </div>
 
@@ -1082,6 +1084,12 @@ const OrdensServico = () => {
           {veiculoId && <VehicleHistoryTimeline vehicleId={veiculoId} />}
         </SheetContent>
       </Sheet>
+      <PlanLimitModal 
+        open={isLimitModalOpen} 
+        onOpenChange={setIsLimitModalOpen} 
+        limit={10} 
+        usage={osCountMonth} 
+      />
     </DashboardLayout>
   );
 };

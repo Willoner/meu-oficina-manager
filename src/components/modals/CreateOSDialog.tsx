@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Plus } from "lucide-react";
 import { CreateClientDialog } from "@/components/modals/CreateClientDialog";
 import { CreateVehicleDialog } from "@/components/modals/CreateVehicleDialog";
+import { PlanLimitModal } from "@/components/modals/PlanLimitModal";
 
 type Cliente = { id: string; nome: string };
 type Veiculo = { id: string; placa: string; modelo: string; cliente_id: string };
@@ -28,14 +29,46 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
   const [loading, setLoading] = useState(false);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+  const [userPlan, setUserPlan] = useState("Gratuito");
+  const [osCountMonth, setOsCountMonth] = useState(0);
+  const [userEmail, setUserEmail] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
     if (open) {
       fetchClientes();
       fetchVeiculos();
+      fetchUserPlan();
     }
   }, [open]);
+
+  const fetchUserPlan = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    setUserEmail(user.email || "");
+
+    const { data: userData } = await supabase
+      .from("usuarios")
+      .select("plano")
+      .eq("id", user.id)
+      .single();
+    
+    if (userData?.plano) {
+      setUserPlan(userData.plano);
+    }
+
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const { count } = await supabase
+      .from("ordens_servico")
+      .select("*", { count: "exact", head: true })
+      .eq("usuario_id", user.id)
+      .gte("created_at", firstDay);
+    
+    setOsCountMonth(count || 0);
+  };
 
   const fetchClientes = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -92,6 +125,14 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
       toast({ title: "Erro", description: "Você precisa estar logado.", variant: "destructive" }); 
       setLoading(false); 
       return; 
+    }
+
+    // Check plan limit
+    const isTestUser = user.email === 'wilson.lisboa@oficinaemordem.com.br';
+    if (userPlan !== "Pro" && osCountMonth >= 10 && !isTestUser) {
+      setIsLimitModalOpen(true);
+      setLoading(false);
+      return;
     }
 
     const { error } = await supabase.from("ordens_servico").insert({
@@ -177,6 +218,12 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
     </Dialog>
     <CreateClientDialog open={isClientModalOpen} onOpenChange={setIsClientModalOpen} onSuccess={handleClientCreated} />
     <CreateVehicleDialog open={isVehicleModalOpen} onOpenChange={setIsVehicleModalOpen} clienteId={clienteId} onSuccess={handleVehicleCreated} />
+      <PlanLimitModal 
+        open={isLimitModalOpen} 
+        onOpenChange={setIsLimitModalOpen} 
+        limit={10} 
+        usage={osCountMonth} 
+      />
     </>
   );
 }
