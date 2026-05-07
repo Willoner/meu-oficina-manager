@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing.tsx";
 import Index from "./pages/Index.tsx";
@@ -36,24 +37,31 @@ const queryClient = new QueryClient();
 
 const AuthEventsHandler = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   useEffect(() => {
-    // RASTREADOR DE DEBUG (Pode ver no console F12)
-    console.log("DEBUG URL HASH:", window.location.hash);
-    console.log("DEBUG URL SEARCH:", window.location.search);
-
     const checkRecovery = () => {
       const hash = window.location.hash;
-      const search = window.location.search;
       
+      // DETECÇÃO DE ERRO (Link Expirado)
+      if (hash.includes("error=access_denied") || hash.includes("otp_expired")) {
+        console.error("ERRO: O link de recuperação expirou ou é inválido.");
+        toast({
+          title: "Link Expirado",
+          description: "Este link de recuperação não é mais válido. Por favor, solicite um novo e-mail de redefinição.",
+          variant: "destructive"
+        });
+        // Limpa o hash para não ficar repetindo o erro
+        window.history.replaceState(null, "", window.location.pathname);
+        return;
+      }
+
+      const search = window.location.search;
       const isRecovery = hash.includes("recovery") || 
                          hash.includes("access_token=") || 
-                         search.includes("recovery") || 
-                         search.includes("type=recovery");
+                         search.includes("recovery");
 
       if (isRecovery) {
-        console.log("RASTREADOR: Link de recuperação detectado! Redirecionando para /reset-password...");
-        // Pequeno delay para garantir que o Supabase inicializou a sessão
         setTimeout(() => {
           navigate("/reset-password");
         }, 800);
@@ -61,20 +69,14 @@ const AuthEventsHandler = () => {
     };
     checkRecovery();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("EVENTO SUPABASE:", event);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
-        navigate("/reset-password");
-      }
-      
-      // Captura caso o Supabase já tenha limpado a URL mas o evento SIGNED_IN seja fruto de recovery
-      if (event === "SIGNED_IN" && (window.location.hash.includes("recovery") || window.location.search.includes("recovery"))) {
         navigate("/reset-password");
       }
     });
     
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
   
   return null;
 };
