@@ -38,16 +38,27 @@ const AuthEventsHandler = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // 1. Verificação imediata via URL (mais agressiva para usuários já logados)
-    if (window.location.hash && window.location.hash.includes("type=recovery")) {
-      console.log("Detectado link de recuperação via Hash. Redirecionando...");
-      navigate("/reset-password");
-    }
+    // 1. Verificação inicial agressiva (Pega o token antes que o Supabase limpe a URL)
+    const checkRecovery = () => {
+      const hash = window.location.hash;
+      if (hash && (hash.includes("type=recovery") || hash.includes("access_token="))) {
+        // Se houver um token, esperamos um pouco para o Supabase processar e então forçamos o redirecionamento
+        setTimeout(() => {
+          navigate("/reset-password");
+        }, 500);
+      }
+    };
+    checkRecovery();
 
-    // 2. Ouvinte de eventos oficial do Supabase
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      console.log("Evento Auth detectado:", event);
+    // 2. Ouvinte de eventos oficial (Cobre o caso de troca de estado)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Evento Auth detectado no App:", event);
       if (event === "PASSWORD_RECOVERY") {
+        navigate("/reset-password");
+      }
+      
+      // Caso extra: Se o usuário estiver logado mas o link ainda tiver vestígios de recovery
+      if (event === "SIGNED_IN" && window.location.hash.includes("recovery")) {
         navigate("/reset-password");
       }
     });
