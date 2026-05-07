@@ -38,7 +38,15 @@ const AuthEventsHandler = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
+    // 1. Verificação imediata via URL (mais agressiva para usuários já logados)
+    if (window.location.hash && window.location.hash.includes("type=recovery")) {
+      console.log("Detectado link de recuperação via Hash. Redirecionando...");
+      navigate("/reset-password");
+    }
+
+    // 2. Ouvinte de eventos oficial do Supabase
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      console.log("Evento Auth detectado:", event);
       if (event === "PASSWORD_RECOVERY") {
         navigate("/reset-password");
       }
