@@ -38,27 +38,37 @@ const AuthEventsHandler = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // 1. Verificação inicial agressiva (Pega o token antes que o Supabase limpe a URL)
+    // RASTREADOR DE DEBUG (Pode ver no console F12)
+    console.log("DEBUG URL HASH:", window.location.hash);
+    console.log("DEBUG URL SEARCH:", window.location.search);
+
     const checkRecovery = () => {
       const hash = window.location.hash;
-      if (hash && (hash.includes("type=recovery") || hash.includes("access_token="))) {
-        // Se houver um token, esperamos um pouco para o Supabase processar e então forçamos o redirecionamento
+      const search = window.location.search;
+      
+      const isRecovery = hash.includes("recovery") || 
+                         hash.includes("access_token=") || 
+                         search.includes("recovery") || 
+                         search.includes("type=recovery");
+
+      if (isRecovery) {
+        console.log("RASTREADOR: Link de recuperação detectado! Redirecionando para /reset-password...");
+        // Pequeno delay para garantir que o Supabase inicializou a sessão
         setTimeout(() => {
           navigate("/reset-password");
-        }, 500);
+        }, 800);
       }
     };
     checkRecovery();
 
-    // 2. Ouvinte de eventos oficial (Cobre o caso de troca de estado)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Evento Auth detectado no App:", event);
+      console.log("EVENTO SUPABASE:", event);
       if (event === "PASSWORD_RECOVERY") {
         navigate("/reset-password");
       }
       
-      // Caso extra: Se o usuário estiver logado mas o link ainda tiver vestígios de recovery
-      if (event === "SIGNED_IN" && window.location.hash.includes("recovery")) {
+      // Captura caso o Supabase já tenha limpado a URL mas o evento SIGNED_IN seja fruto de recovery
+      if (event === "SIGNED_IN" && (window.location.hash.includes("recovery") || window.location.search.includes("recovery"))) {
         navigate("/reset-password");
       }
     });
