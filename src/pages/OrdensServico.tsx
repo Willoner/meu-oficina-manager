@@ -487,33 +487,23 @@ const OrdensServico = () => {
         }
       }
 
-      // 1. Limpeza de dependências (evitar erro de chave estrangeira)
-      await supabase.from('itens_os').delete().eq('ordem_servico_id', deleteOSId);
-      await supabase.from('pagamentos').delete().eq('ordem_servico_id', deleteOSId);
+      // 1. Chamar a função de exclusão pesada no banco (RPC)
+      // Esta função limpa itens, pagamentos e a OS em uma única transação segura.
+      const { error } = await supabase.rpc('fn_excluir_os_completa', { p_os_id: deleteOSId });
       
-      // Alguns sistemas usam o ID da OS na tabela de assinaturas também
-      try {
-        await supabase.from('assinaturas').delete().eq('ordem_servico_id', deleteOSId);
-      } catch (e) {
-        // Tabela opcional, ignorar se falhar
-      }
-
-      // 2. Excluir a OS propriamente dita
-      const { error } = await supabase.from('ordens_servico').delete().eq('id', deleteOSId);
       if (error) throw error;
 
-      // 3. Forçar atualização da interface (Remover do estado local imediatamente)
+      // 2. Forçar atualização da interface
       setOrdens(prev => prev.filter(o => o.id !== deleteOSId));
 
       toast({ title: "Sucesso", description: "Ordem excluída com sucesso." });
       
-      // Recarregar tudo para garantir sincronia total
       fetchData();
     } catch (error: any) {
       console.error("Erro crítico na exclusão:", error);
       toast({ 
         title: "Erro na Exclusão", 
-        description: "Não foi possível apagar. Verifique se há faturamentos vinculados ou tente novamente. Detalhe: " + error.message, 
+        description: "Falha ao apagar no banco de dados. Detalhe: " + error.message, 
         variant: "destructive" 
       });
     } finally {
