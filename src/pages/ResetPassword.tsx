@@ -13,24 +13,45 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  const [hasSession, setHasSession] = useState(false);
+  const [checking, setChecking] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if we have a recovery session
+    // Check if we have a valid session for password update
     const checkSession = async () => {
+      setChecking(true);
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        // We might not have a session yet if redirecting from hash, 
-        // but onAuthStateChange in App.tsx should handle the redirection.
+      
+      if (session) {
+        setHasSession(true);
+      } else {
+        console.warn("Nenhuma sessão ativa detectada inicialmente. Aguardando processamento do link...");
+        setHasSession(false);
       }
+      setChecking(false);
     };
-    checkSession();
+
+    // Pequeno delay para garantir que o hash foi processado pelo Supabase
+    const timer = setTimeout(checkSession, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError("");
+
+    // Verificação de última hora
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({ 
+        title: "Sessão Ausente", 
+        description: "O link de recuperação parece inválido ou expirou. Por favor, peça um novo e-mail.", 
+        variant: "destructive" 
+      });
+      return;
+    }
 
     if (password.length < 6) {
       setPasswordError("A senha deve ter pelo menos 6 caracteres.");
@@ -58,7 +79,6 @@ const ResetPassword = () => {
         description: "Sua conta está segura agora. Você será redirecionado." 
       });
       
-      // Pequeno delay para o usuário ler a mensagem
       setTimeout(() => {
         navigate("/dashboard");
       }, 2000);
