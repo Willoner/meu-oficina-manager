@@ -30,7 +30,12 @@ export default function Landing() {
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+      
+      // GATILHO DE SEGURANÇA: Se estivermos em um fluxo de recuperação de senha,
+      // NÃO redirecionamos para o dashboard, deixamos o AuthEventsHandler do App.tsx agir.
+      const isRecovery = window.location.hash && window.location.hash.includes("type=recovery");
+      
+      if (session && !isRecovery) {
         navigate("/dashboard");
       }
     };
