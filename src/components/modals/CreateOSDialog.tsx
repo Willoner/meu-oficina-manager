@@ -142,6 +142,7 @@ export function CreateOSDialog({ open, onOpenChange }: { open: boolean, onOpenCh
       observacoes: observacoes.trim() || null,
       usuario_id: user.id,
       status: "aberta",
+      data_abertura: new Date().toISOString()
     });
 
     setLoading(false);

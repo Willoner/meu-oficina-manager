@@ -154,7 +154,7 @@ const OrdensServico = () => {
     if (!user) return;
 
     const [resOrdens, resClientes, resVeiculos, resPecas, resUserPlan] = await Promise.all([
-      supabase.from("ordens_servico").select("*").eq("usuario_id", user.id).order("data_abertura", { ascending: false }),
+      supabase.from("ordens_servico").select("*").eq("usuario_id", user.id).order("data_abertura", { ascending: false }).order("created_at", { ascending: false }),
       supabase.from("clientes").select("id, nome").eq("usuario_id", user.id).order("nome"),
       supabase.from("veiculos").select("id, placa, modelo, cliente_id").eq("usuario_id", user.id).order("placa"),
       supabase.from("pecas").select("id, nome, valor_venda, estoque").eq("usuario_id", user.id).order("nome"),
@@ -336,7 +336,8 @@ const OrdensServico = () => {
       observacoes: observacoes.trim() || null,
       usuario_id: user.id,
       status: "aberta",
-      valor_total: totalOS
+      valor_total: totalOS,
+      data_abertura: new Date().toISOString()
     }).select().single();
 
     if (osError || !osData) {
