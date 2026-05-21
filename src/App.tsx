@@ -43,8 +43,10 @@ const AuthEventsHandler = () => {
     const hash = window.location.hash || "";
     const search = window.location.search || "";
     if (hash.includes("recovery") || hash.includes("access_token=") || search.includes("recovery")) {
-      console.log("Lembrete de recuperação ativado.");
+      console.log("Lembrete de recuperação ativado. Redirecionando imediatamente...");
       localStorage.setItem("recovery_active", "true");
+      navigate("/reset-password", { replace: true });
+      return;
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {

@@ -19,17 +19,25 @@ const Login = () => {
   const passwordRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const hash = window.location.hash || "";
+    const search = window.location.search || "";
+    const isRecovery = hash.includes("recovery") || 
+                       hash.includes("access_token=") || 
+                       search.includes("recovery");
+
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+      if (session && !isRecovery) {
         localStorage.removeItem("recovery_active");
         navigate("/dashboard");
       }
     };
     checkUser();
     
-    // Se o usuário chegou no login, ele não está mais no fluxo de recuperação
-    localStorage.removeItem("recovery_active");
+    // Se o usuário chegou no login por vias normais (sem ser fluxo de recuperação)
+    if (!isRecovery) {
+      localStorage.removeItem("recovery_active");
+    }
 
     const savedEmail = localStorage.getItem("rememberedEmail");
     if (savedEmail && emailRef.current) {
