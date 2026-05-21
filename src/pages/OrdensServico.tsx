@@ -119,6 +119,9 @@ const OrdensServico = () => {
   // Peca Form State
   const [selectedPecaId, setSelectedPecaId] = useState("");
   const [qtdPeca, setQtdPeca] = useState(1);
+  const [isPecaAvulsa, setIsPecaAvulsa] = useState(false);
+  const [nomePecaAvulsa, setNomePecaAvulsa] = useState("");
+  const [valorPecaAvulsa, setValorPecaAvulsa] = useState("");
 
   // Servico Form State
   const [descServico, setDescServico] = useState("");
@@ -246,40 +249,75 @@ const OrdensServico = () => {
   };
 
   const handleAddPeca = () => {
-    if (!selectedPecaId) {
-      toast({ title: "Erro", description: "Selecione uma peça.", variant: "destructive" });
-      return;
-    }
-    const peca = pecas.find(p => p.id === selectedPecaId);
-    if (!peca) return;
+    if (isPecaAvulsa) {
+      if (!nomePecaAvulsa.trim() || !valorPecaAvulsa) {
+        toast({ title: "Erro", description: "Preencha o nome e o valor da peça avulsa.", variant: "destructive" });
+        return;
+      }
+      const valorNum = parseFloat(valorPecaAvulsa.replace(',', '.'));
+      if (isNaN(valorNum) || valorNum <= 0) {
+        toast({ title: "Erro", description: "Valor inválido.", variant: "destructive" });
+        return;
+      }
 
-    if (qtdPeca > (peca.estoque || 0)) {
-      toast({ title: "Estoque insuficiente", description: `Quantidade disponível: ${peca.estoque || 0}`, variant: "destructive" });
-      return;
-    }
+      const item: ItemOS = {
+        tipo: "peca",
+        item_id: null,
+        descricao: nomePecaAvulsa.trim(),
+        quantidade: Number(qtdPeca),
+        valor_unitario: valorNum,
+        valor_total: valorNum * Number(qtdPeca)
+      };
 
-    const valorUnitario = peca.valor_venda || 0;
-    const item: ItemOS = {
-      tipo: "peca",
-      item_id: peca.id,
-      descricao: peca.nome,
-      quantidade: Number(qtdPeca),
-      valor_unitario: valorUnitario,
-      valor_total: valorUnitario * Number(qtdPeca)
-    };
+      if (editingItemIndex !== null) {
+        const updatedItens = [...itensOS];
+        updatedItens[editingItemIndex] = item;
+        setItensOS(updatedItens);
+        setEditingItemIndex(null);
+      } else {
+        setItensOS([...itensOS, item]);
+      }
 
-    if (editingItemIndex !== null) {
-      const updatedItens = [...itensOS];
-      updatedItens[editingItemIndex] = item;
-      setItensOS(updatedItens);
-      setEditingItemIndex(null);
+      setIsPecaModalOpen(false);
+      setNomePecaAvulsa("");
+      setValorPecaAvulsa("");
+      setQtdPeca(1);
     } else {
-      setItensOS([...itensOS, item]);
-    }
+      if (!selectedPecaId) {
+        toast({ title: "Erro", description: "Selecione uma peça.", variant: "destructive" });
+        return;
+      }
+      const peca = pecas.find(p => p.id === selectedPecaId);
+      if (!peca) return;
 
-    setIsPecaModalOpen(false);
-    setSelectedPecaId("");
-    setQtdPeca(1);
+      if (qtdPeca > (peca.estoque || 0)) {
+        toast({ title: "Estoque insuficiente", description: `Quantidade disponível: ${peca.estoque || 0}`, variant: "destructive" });
+        return;
+      }
+
+      const valorUnitario = peca.valor_venda || 0;
+      const item: ItemOS = {
+        tipo: "peca",
+        item_id: peca.id,
+        descricao: peca.nome,
+        quantidade: Number(qtdPeca),
+        valor_unitario: valorUnitario,
+        valor_total: valorUnitario * Number(qtdPeca)
+      };
+
+      if (editingItemIndex !== null) {
+        const updatedItens = [...itensOS];
+        updatedItens[editingItemIndex] = item;
+        setItensOS(updatedItens);
+        setEditingItemIndex(null);
+      } else {
+        setItensOS([...itensOS, item]);
+      }
+
+      setIsPecaModalOpen(false);
+      setSelectedPecaId("");
+      setQtdPeca(1);
+    }
   };
 
   const handleAddServico = () => {
@@ -322,8 +360,16 @@ const OrdensServico = () => {
     setEditingItemIndex(index);
     
     if (item.tipo === "peca") {
-      setSelectedPecaId(item.item_id || "");
-      setQtdPeca(item.quantidade);
+      if (item.item_id === null) {
+        setIsPecaAvulsa(true);
+        setNomePecaAvulsa(item.descricao);
+        setValorPecaAvulsa(item.valor_unitario.toString().replace('.', ','));
+        setQtdPeca(item.quantidade);
+      } else {
+        setIsPecaAvulsa(false);
+        setSelectedPecaId(item.item_id || "");
+        setQtdPeca(item.quantidade);
+      }
       setIsPecaModalOpen(true);
     } else {
       setDescServico(item.descricao);
@@ -401,13 +447,16 @@ const OrdensServico = () => {
         });
       }
 
-      // 3. Atualizar o estoque
+      // 3. Atualizar o estoque com dados frescos do banco
       for (const item of itensOS) {
         if (item.tipo === "peca" && item.item_id) {
-          const peca = pecas.find(p => p.id === item.item_id);
-          if (peca && peca.estoque !== null) {
-             const novoEstoque = peca.estoque - item.quantidade;
-             await supabase.from("pecas").update({ estoque: novoEstoque }).eq("id", item.item_id);
+          // Busca o valor MAIS RECENTE do estoque para evitar inconsistências
+          const { data: p } = await supabase.from("pecas").select("estoque").eq("id", item.item_id).single();
+          
+          if (p && p.estoque !== null) {
+             const novoEstoque = p.estoque - item.quantidade;
+             // Garante que não salvaremos estoque negativo por erro de processamento
+             await supabase.from("pecas").update({ estoque: Math.max(0, novoEstoque) }).eq("id", item.item_id);
           }
         }
       }
@@ -907,27 +956,83 @@ const OrdensServico = () => {
       </Dialog>
 
       {/* Modal Adicionar Peça */}
-      <Dialog open={isPecaModalOpen} onOpenChange={(open) => { setIsPecaModalOpen(open); if (!open) setEditingItemIndex(null); }}>
+      <Dialog open={isPecaModalOpen} onOpenChange={(open) => { setIsPecaModalOpen(open); if (!open) { setEditingItemIndex(null); setIsPecaAvulsa(false); setNomePecaAvulsa(""); setValorPecaAvulsa(""); setSelectedPecaId(""); setQtdPeca(1); } }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>{editingItemIndex !== null ? "Editar Peça" : "Adicionar Peça do Estoque"}</DialogTitle>
+            <DialogTitle>
+              {editingItemIndex !== null 
+                ? "Editar Peça" 
+                : isPecaAvulsa 
+                  ? "Adicionar Peça Avulsa" 
+                  : "Adicionar Peça do Estoque"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
-            <div>
-              <Label>Selecione a Peça</Label>
-              <Select value={selectedPecaId} onValueChange={setSelectedPecaId}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Buscar peça..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {pecas.map(p => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.nome} (Disp: {p.estoque || 0}) - {formatCurrency(p.valor_venda || 0)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* Seletor premium de abas */}
+            <div className="flex p-1 bg-muted rounded-lg grid grid-cols-2">
+              <button
+                type="button"
+                className={`py-1.5 text-xs font-medium rounded-md transition-all ${
+                  !isPecaAvulsa
+                    ? "bg-background text-foreground shadow-sm font-semibold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                onClick={() => setIsPecaAvulsa(false)}
+              >
+                Do Estoque
+              </button>
+              <button
+                type="button"
+                className={`py-1.5 text-xs font-medium rounded-md transition-all ${
+                  isPecaAvulsa
+                    ? "bg-background text-foreground shadow-sm font-semibold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                onClick={() => setIsPecaAvulsa(true)}
+              >
+                Peça Avulsa
+              </button>
             </div>
+
+            {!isPecaAvulsa ? (
+              <div>
+                <Label>Selecione a Peça</Label>
+                <Select value={selectedPecaId} onValueChange={setSelectedPecaId}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Buscar peça..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pecas.map(p => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.nome} (Disp: {p.estoque || 0}) - {formatCurrency(p.valor_venda || 0)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <Label>Nome da Peça</Label>
+                  <Input 
+                    placeholder="Ex: Filtro de óleo importado" 
+                    className="mt-1" 
+                    value={nomePecaAvulsa} 
+                    onChange={e => setNomePecaAvulsa(e.target.value)} 
+                  />
+                </div>
+                <div>
+                  <Label>Preço Unitário (R$)</Label>
+                  <Input 
+                    placeholder="0,00" 
+                    className="mt-1" 
+                    value={valorPecaAvulsa} 
+                    onChange={e => setValorPecaAvulsa(e.target.value)} 
+                  />
+                </div>
+              </>
+            )}
+
             <div>
               <Label>Quantidade</Label>
               <Input type="number" min="1" className="mt-1" value={qtdPeca} onChange={e => setQtdPeca(parseInt(e.target.value) || 1)} />

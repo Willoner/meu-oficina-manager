@@ -40,6 +40,7 @@ export default function Landing() {
                          search.includes("recovery");
       
       if (session && !isRecovery) {
+        localStorage.removeItem("recovery_active");
         navigate("/dashboard");
       }
     };

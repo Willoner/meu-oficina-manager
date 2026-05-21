@@ -22,10 +22,14 @@ const Login = () => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        localStorage.removeItem("recovery_active");
         navigate("/dashboard");
       }
     };
     checkUser();
+    
+    // Se o usuário chegou no login, ele não está mais no fluxo de recuperação
+    localStorage.removeItem("recovery_active");
 
     const savedEmail = localStorage.getItem("rememberedEmail");
     if (savedEmail && emailRef.current) {

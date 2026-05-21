@@ -86,6 +86,9 @@ const EditarOS = () => {
   // Peca Form State
   const [selectedPecaId, setSelectedPecaId] = useState("");
   const [qtdPeca, setQtdPeca] = useState(1);
+  const [isPecaAvulsa, setIsPecaAvulsa] = useState(false);
+  const [nomePecaAvulsa, setNomePecaAvulsa] = useState("");
+  const [valorPecaAvulsa, setValorPecaAvulsa] = useState("");
 
   // Servico Form State
   const [descServico, setDescServico] = useState("");
@@ -152,55 +155,91 @@ const EditarOS = () => {
   const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
 
   const handleAddPeca = () => {
-    if (!selectedPecaId) return;
-    const peca = pecas.find(p => p.id === selectedPecaId);
-    if (!peca) return;
+    if (isPecaAvulsa) {
+      if (!nomePecaAvulsa.trim() || !valorPecaAvulsa) {
+        toast({ title: "Erro", description: "Preencha o nome e o valor da peça avulsa.", variant: "destructive" });
+        return;
+      }
+      const valorNum = parseFloat(valorPecaAvulsa.replace(',', '.'));
+      if (isNaN(valorNum) || valorNum <= 0) {
+        toast({ title: "Erro", description: "Valor inválido.", variant: "destructive" });
+        return;
+      }
 
-    // Verificar se já temos essa peça na lista para somar ou se verificamos estoque total
-    const itemExistente = itensOS.find(i => i.item_id === peca.id && i.tipo === 'peca');
-    const totalQtd = (itemExistente?.quantidade || 0) + Number(qtdPeca);
-
-    if (totalQtd > (peca.estoque || 0)) {
-      toast({ 
-        title: "Estoque insuficiente", 
-        description: `Quantidade disponível: ${peca.estoque || 0}. Você já tem ${itemExistente?.quantidade || 0} na lista.`, 
-        variant: "destructive" 
-      });
-      return;
-    }
-
-    if (editingItemIndex !== null) {
-      const updatedItens = [...itensOS];
-      updatedItens[editingItemIndex] = {
-        tipo: "peca",
-        item_id: peca.id,
-        descricao: peca.nome,
-        quantidade: Number(qtdPeca),
-        valor_unitario: valorUnitario,
-        valor_total: valorUnitario * Number(qtdPeca)
-      };
-      setItensOS(updatedItens);
-      setEditingItemIndex(null);
-    } else if (itemExistente) {
-      setItensOS(itensOS.map(i => i.item_id === peca.id && i.tipo === 'peca' 
-        ? { ...i, quantidade: totalQtd, valor_total: i.valor_unitario * totalQtd }
-        : i
-      ));
-    } else {
       const item: ItemOS = {
         tipo: "peca",
-        item_id: peca.id,
-        descricao: peca.nome,
+        item_id: null,
+        descricao: nomePecaAvulsa.trim(),
         quantidade: Number(qtdPeca),
-        valor_unitario: peca.valor_venda || 0,
-        valor_total: (peca.valor_venda || 0) * Number(qtdPeca)
+        valor_unitario: valorNum,
+        valor_total: valorNum * Number(qtdPeca)
       };
-      setItensOS([...itensOS, item]);
-    }
 
-    setIsPecaModalOpen(false);
-    setSelectedPecaId("");
-    setQtdPeca(1);
+      if (editingItemIndex !== null) {
+        const updatedItens = [...itensOS];
+        updatedItens[editingItemIndex] = item;
+        setItensOS(updatedItens);
+        setEditingItemIndex(null);
+      } else {
+        setItensOS([...itensOS, item]);
+      }
+
+      setIsPecaModalOpen(false);
+      setNomePecaAvulsa("");
+      setValorPecaAvulsa("");
+      setQtdPeca(1);
+    } else {
+      if (!selectedPecaId) return;
+      const peca = pecas.find(p => p.id === selectedPecaId);
+      if (!peca) return;
+
+      // Verificar se já temos essa peça na lista para somar ou se verificamos estoque total
+      const itemExistente = itensOS.find((i, idx) => i.item_id === peca.id && i.tipo === 'peca' && idx !== editingItemIndex);
+      const totalQtd = (itemExistente?.quantidade || 0) + Number(qtdPeca);
+
+      if (totalQtd > (peca.estoque || 0)) {
+        toast({ 
+          title: "Estoque insuficiente", 
+          description: `Quantidade disponível: ${peca.estoque || 0}. Você já tem ${itemExistente?.quantidade || 0} na lista.`, 
+          variant: "destructive" 
+        });
+        return;
+      }
+
+      const valorUnitario = peca.valor_venda || 0;
+      if (editingItemIndex !== null) {
+        const updatedItens = [...itensOS];
+        updatedItens[editingItemIndex] = {
+          tipo: "peca",
+          item_id: peca.id,
+          descricao: peca.nome,
+          quantidade: Number(qtdPeca),
+          valor_unitario: valorUnitario,
+          valor_total: valorUnitario * Number(qtdPeca)
+        };
+        setItensOS(updatedItens);
+        setEditingItemIndex(null);
+      } else if (itemExistente) {
+        setItensOS(itensOS.map(i => i.item_id === peca.id && i.tipo === 'peca' 
+          ? { ...i, quantidade: totalQtd, valor_total: i.valor_unitario * totalQtd }
+          : i
+        ));
+      } else {
+        const item: ItemOS = {
+          tipo: "peca",
+          item_id: peca.id,
+          descricao: peca.nome,
+          quantidade: Number(qtdPeca),
+          valor_unitario: valorUnitario,
+          valor_total: valorUnitario * Number(qtdPeca)
+        };
+        setItensOS([...itensOS, item]);
+      }
+
+      setIsPecaModalOpen(false);
+      setSelectedPecaId("");
+      setQtdPeca(1);
+    }
   };
 
   const handleAddServico = () => {
@@ -235,8 +274,16 @@ const EditarOS = () => {
     setEditingItemIndex(index);
     
     if (item.tipo === "peca") {
-      setSelectedPecaId(item.item_id || "");
-      setQtdPeca(item.quantidade);
+      if (item.item_id === null) {
+        setIsPecaAvulsa(true);
+        setNomePecaAvulsa(item.descricao);
+        setValorPecaAvulsa(item.valor_unitario.toString().replace('.', ','));
+        setQtdPeca(item.quantidade);
+      } else {
+        setIsPecaAvulsa(false);
+        setSelectedPecaId(item.item_id || "");
+        setQtdPeca(item.quantidade);
+      }
       setIsPecaModalOpen(true);
     } else {
       setDescServico(item.descricao);
@@ -519,23 +566,79 @@ const EditarOS = () => {
 
           </div>
         {/* Modals */}
-        <Dialog open={isPecaModalOpen} onOpenChange={(open) => { setIsPecaModalOpen(open); if (!open) setEditingItemIndex(null); }}>
-          <DialogContent>
-            <DialogHeader><DialogTitle>{editingItemIndex !== null ? "Editar Peça" : "Adicionar Peça do Estoque"}</DialogTitle></DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Selecione a Peça</Label>
-                <Select value={selectedPecaId} onValueChange={setSelectedPecaId}>
-                  <SelectTrigger><SelectValue placeholder="Buscar peça..." /></SelectTrigger>
-                  <SelectContent>
-                    {pecas.map(p => (
-                      <SelectItem key={p.id} value={p.id} disabled={(p.estoque || 0) <= 0}>
-                        {p.nome} ({p.estoque || 0} em estoque) - R$ {p.valor_venda?.toFixed(2)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        <Dialog open={isPecaModalOpen} onOpenChange={(open) => { setIsPecaModalOpen(open); if (!open) { setEditingItemIndex(null); setIsPecaAvulsa(false); setNomePecaAvulsa(""); setValorPecaAvulsa(""); setSelectedPecaId(""); setQtdPeca(1); } }}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>
+                {editingItemIndex !== null 
+                  ? "Editar Peça" 
+                  : isPecaAvulsa 
+                    ? "Adicionar Peça Avulsa" 
+                    : "Adicionar Peça do Estoque"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              {/* Seletor premium de abas */}
+              <div className="flex p-1 bg-muted rounded-lg grid grid-cols-2">
+                <button
+                  type="button"
+                  className={`py-1.5 text-xs font-medium rounded-md transition-all ${
+                    !isPecaAvulsa
+                      ? "bg-background text-foreground shadow-sm font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setIsPecaAvulsa(false)}
+                >
+                  Do Estoque
+                </button>
+                <button
+                  type="button"
+                  className={`py-1.5 text-xs font-medium rounded-md transition-all ${
+                    isPecaAvulsa
+                      ? "bg-background text-foreground shadow-sm font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setIsPecaAvulsa(true)}
+                >
+                  Peça Avulsa
+                </button>
               </div>
+
+              {!isPecaAvulsa ? (
+                <div className="space-y-2">
+                  <Label>Selecione a Peça</Label>
+                  <Select value={selectedPecaId} onValueChange={setSelectedPecaId}>
+                    <SelectTrigger><SelectValue placeholder="Buscar peça..." /></SelectTrigger>
+                    <SelectContent>
+                      {pecas.map(p => (
+                        <SelectItem key={p.id} value={p.id} disabled={(p.estoque || 0) <= 0}>
+                          {p.nome} ({p.estoque || 0} em estoque) - R$ {p.valor_venda?.toFixed(2)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label>Nome da Peça</Label>
+                    <Input 
+                      placeholder="Ex: Filtro de óleo importado" 
+                      value={nomePecaAvulsa} 
+                      onChange={e => setNomePecaAvulsa(e.target.value)} 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Preço Unitário (R$)</Label>
+                    <Input 
+                      placeholder="0,00" 
+                      value={valorPecaAvulsa} 
+                      onChange={e => setValorPecaAvulsa(e.target.value)} 
+                    />
+                  </div>
+                </>
+              )}
+
               <div className="space-y-2">
                 <Label>Quantidade</Label>
                 <Input type="number" value={qtdPeca} onChange={e => setQtdPeca(Number(e.target.value))} min={1} />
