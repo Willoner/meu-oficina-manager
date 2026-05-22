@@ -28,27 +28,31 @@ export default function Landing() {
 
   // Check for existing session and sync tab with hash
   useEffect(() => {
+    const hash = window.location.hash || "";
+    const search = window.location.search || "";
+    const isRecovery = hash.includes("recovery") || 
+                       hash.includes("access_token=") || 
+                       search.includes("recovery") ||
+                       hash.includes("type=recovery") ||
+                       search.includes("type=recovery") ||
+                       localStorage.getItem("recovery_active") === "true";
+    
+    if (!isRecovery) {
+      localStorage.removeItem("recovery_active");
+    }
+
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       
-      // GATILHO DE SEGURANÇA: Se estivermos em um fluxo de recuperação de senha,
-      // NÃO redirecionamos para o dashboard, deixamos o AuthEventsHandler do App.tsx agir.
-      const hash = window.location.hash || "";
-      const search = window.location.search || "";
-      const isRecovery = hash.includes("recovery") || 
-                         hash.includes("access_token=") || 
-                         search.includes("recovery");
-      
       if (session && !isRecovery) {
-        localStorage.removeItem("recovery_active");
         navigate("/dashboard");
       }
     };
     checkUser();
 
-    const hash = window.location.hash.replace('#', '');
-    if (["home", "funcionalidades", "precos", "faq", "contato"].includes(hash)) {
-      setActiveTab(hash);
+    const hashTag = window.location.hash.replace('#', '');
+    if (["home", "funcionalidades", "precos", "faq", "contato"].includes(hashTag)) {
+      setActiveTab(hashTag);
     }
   }, []);
 

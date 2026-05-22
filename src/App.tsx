@@ -39,13 +39,22 @@ const AuthEventsHandler = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // 1. Verificação de URL (Marca o lembrete se detectar o link)
+    // 1. Verificação de URL e do LocalStorage (Evita corrida do Supabase)
     const hash = window.location.hash || "";
     const search = window.location.search || "";
-    if (hash.includes("recovery") || hash.includes("access_token=") || search.includes("recovery")) {
-      console.log("Lembrete de recuperação ativado. Redirecionando imediatamente...");
+    const isRecovery = hash.includes("recovery") || 
+                       hash.includes("access_token=") || 
+                       search.includes("recovery") ||
+                       hash.includes("type=recovery") ||
+                       search.includes("type=recovery") ||
+                       localStorage.getItem("recovery_active") === "true";
+
+    if (isRecovery) {
+      console.log("Recuperação ativa detectada. Redirecionando imediatamente para /reset-password...");
       localStorage.setItem("recovery_active", "true");
-      navigate("/reset-password", { replace: true });
+      if (window.location.pathname !== "/reset-password") {
+        navigate("/reset-password", { replace: true });
+      }
       return;
     }
 
@@ -53,7 +62,9 @@ const AuthEventsHandler = () => {
       console.log("Evento Auth:", event);
       if (event === "PASSWORD_RECOVERY") {
         localStorage.setItem("recovery_active", "true");
-        navigate("/reset-password");
+        if (window.location.pathname !== "/reset-password") {
+          navigate("/reset-password");
+        }
       }
     });
     

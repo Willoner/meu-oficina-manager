@@ -23,7 +23,10 @@ const Login = () => {
     const search = window.location.search || "";
     const isRecovery = hash.includes("recovery") || 
                        hash.includes("access_token=") || 
-                       search.includes("recovery");
+                       search.includes("recovery") ||
+                       hash.includes("type=recovery") ||
+                       search.includes("type=recovery") ||
+                       localStorage.getItem("recovery_active") === "true";
 
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
