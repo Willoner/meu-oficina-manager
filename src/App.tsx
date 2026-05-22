@@ -53,7 +53,9 @@ const AuthEventsHandler = () => {
       console.log("Recuperação ativa detectada. Redirecionando imediatamente para /reset-password...");
       localStorage.setItem("recovery_active", "true");
       if (window.location.pathname !== "/reset-password") {
-        navigate("/reset-password", { replace: true });
+        const searchPart = window.location.search || "";
+        const hashPart = window.location.hash || "";
+        navigate(`/reset-password${searchPart}${hashPart}`, { replace: true });
       }
       return;
     }
@@ -63,7 +65,9 @@ const AuthEventsHandler = () => {
       if (event === "PASSWORD_RECOVERY") {
         localStorage.setItem("recovery_active", "true");
         if (window.location.pathname !== "/reset-password") {
-          navigate("/reset-password");
+          const searchPart = window.location.search || "";
+          const hashPart = window.location.hash || "";
+          navigate(`/reset-password${searchPart}${hashPart}`);
         }
       }
     });
