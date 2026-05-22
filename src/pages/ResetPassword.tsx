@@ -42,6 +42,26 @@ const ResetPassword = () => {
     e.preventDefault();
     setPasswordError("");
 
+    if (password.length < 6) {
+      setPasswordError("A senha deve ter pelo menos 6 caracteres.");
+      toast({
+        title: "Senha muito curta",
+        description: "A nova senha deve ter pelo menos 6 caracteres para sua segurança.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setPasswordError("As senhas não coincidem.");
+      toast({
+        title: "Senhas não coincidem",
+        description: "A confirmação de senha não é idêntica à nova senha digitada.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
 
     // Tentativa final de pegar a sessão antes de atualizar
@@ -58,24 +78,23 @@ const ResetPassword = () => {
       return;
     }
 
-    if (password.length < 6) {
-      setPasswordError("A senha deve ter pelo menos 6 caracteres.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setPasswordError("As senhas não coincidem.");
-      return;
-    }
-
-    setLoading(true);
-
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
+      console.error("Erro do Supabase ao atualizar:", error);
+      let errorMessage = error.message;
+      
+      if (error.message.includes("should be at least")) {
+        errorMessage = "A senha deve ter pelo menos 6 caracteres.";
+      } else if (error.message.includes("different from the old one")) {
+        errorMessage = "A nova senha deve ser diferente da senha atual.";
+      } else if (error.message.includes("expired") || error.message.includes("JWT") || error.message.includes("JWToken")) {
+        errorMessage = "Sua sessão expirou. Por favor, feche esta aba e clique novamente no link do e-mail.";
+      }
+      
       toast({ 
         title: "Erro ao atualizar", 
-        description: error.message, 
+        description: errorMessage, 
         variant: "destructive" 
       });
     } else {
